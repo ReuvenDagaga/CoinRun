@@ -1,0 +1,8 @@
+{
+  "name": "@coinrun/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "types/game.types.ts",
+  "types": "types/game.types.ts"
+}

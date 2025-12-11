@@ -54,38 +54,48 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
   const { player, status } = useGameStore();
   const config = GATE_CONFIGS[gate.type];
 
-  // Frame material (bright colored, glowing)
+  // Check if gate has been triggered (from props or local ref)
+  const isTriggered = gate.isTriggered || isTriggeredRef.current;
+
+  // Dimmed opacity for triggered gates
+  const triggeredOpacity = 0.3;
+
+  // Frame material (bright colored, glowing) - dimmed if triggered
   const frameMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: config.color,
-        emissive: config.color,
-        emissiveIntensity: config.emissiveIntensity,
+        color: isTriggered ? '#666666' : config.color,
+        emissive: isTriggered ? '#333333' : config.color,
+        emissiveIntensity: isTriggered ? 0.2 : config.emissiveIntensity,
         metalness: 0.3,
         roughness: 0.4,
+        transparent: isTriggered,
+        opacity: isTriggered ? triggeredOpacity : 1,
       }),
-    [config.color, config.emissiveIntensity]
+    [config.color, config.emissiveIntensity, isTriggered]
   );
 
-  // Border material (black)
+  // Border material (black) - dimmed if triggered
   const borderMaterial = useMemo(
     () =>
       new THREE.MeshBasicMaterial({
         color: '#000000',
+        transparent: isTriggered,
+        opacity: isTriggered ? triggeredOpacity : 1,
       }),
-    []
+    [isTriggered]
   );
 
-  // Inner fill material (70% transparent)
+  // Inner fill material (70% transparent) - more transparent if triggered
   const fillMaterial = useMemo(
     () =>
       new THREE.MeshBasicMaterial({
-        color: config.color,
+        color: isTriggered ? '#666666' : config.color,
         transparent: true,
-        opacity: 0.3, // 70% transparent
+        opacity: isTriggered ? 0.1 : 0.3,
         side: THREE.DoubleSide,
       }),
-    [config.color]
+    [config.color, isTriggered]
   );
 
   useFrame((state) => {
@@ -120,16 +130,13 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
       }
     }
 
-    // Gentle pulse animation for fill
-    if (innerFillRef.current) {
+    // Gentle pulse animation for fill (only when not triggered)
+    if (innerFillRef.current && !isTriggered) {
       const time = state.clock.elapsedTime;
       const pulse = 0.25 + Math.sin(time * 3) * 0.1;
       (innerFillRef.current.material as THREE.MeshBasicMaterial).opacity = pulse;
     }
   });
-
-  // Don't render if triggered
-  if (gate.isTriggered) return null;
 
   const baseY = GROUND_Y;
   const halfWidth = GATE_WIDTH / 2;
@@ -186,12 +193,13 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
       <Text
         position={[0, baseY + halfHeight, 0.15]}
         fontSize={0.55}
-        color="#FFFFFF"
+        color={isTriggered ? '#888888' : '#FFFFFF'}
         anchorX="center"
         anchorY="middle"
         outlineWidth={0.06}
         outlineColor="#000000"
         rotation={[0, Math.PI, 0]} // Rotated 180° to face player
+        fillOpacity={isTriggered ? triggeredOpacity : 1}
       >
         {config.label}
       </Text>
@@ -203,19 +211,21 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
       >
         <planeGeometry args={[GATE_WIDTH, 1.5]} />
         <meshBasicMaterial
-          color={config.color}
+          color={isTriggered ? '#666666' : config.color}
           transparent
-          opacity={0.4}
+          opacity={isTriggered ? 0.15 : 0.4}
         />
       </mesh>
 
-      {/* === GLOW LIGHTS === */}
-      <pointLight
-        position={[0, baseY + halfHeight, 0.5]}
-        color={config.color}
-        intensity={1}
-        distance={6}
-      />
+      {/* === GLOW LIGHTS (only when not triggered) === */}
+      {!isTriggered && (
+        <pointLight
+          position={[0, baseY + halfHeight, 0.5]}
+          color={config.color}
+          intensity={1}
+          distance={6}
+        />
+      )}
     </group>
   );
 });
@@ -232,15 +242,10 @@ export const GatesRenderer = memo(function GatesRenderer({
   onGateTrigger,
   armySize,
 }: GatesProps) {
-  // Filter out triggered gates
-  const activeGates = useMemo(
-    () => gates.filter((g) => !g.isTriggered),
-    [gates]
-  );
-
+  // Render ALL gates (not filtering out triggered ones anymore)
   return (
     <group>
-      {activeGates.map((gate) => (
+      {gates.map((gate) => (
         <SingleGate
           key={gate.id}
           gate={gate}

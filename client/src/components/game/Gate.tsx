@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import { Text } from '@react-three/drei';
@@ -6,56 +6,61 @@ import * as THREE from 'three';
 import type { GateState } from '@shared/types/game.types';
 import { GateType } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
+import { useGameStore } from '@/store/gameStore';
 
-// Gate colors based on type with distinct primary and secondary colors
+// Performance constants
+const RENDER_DISTANCE = 100;
+const DETAIL_DISTANCE = 50;
+
+// Gate colors based on type - BRIGHT CASUAL STYLE (Brawl Stars)
 const GATE_COLORS: Record<GateType, { primary: string; secondary: string; glow: string }> = {
   [GateType.ADD]: {
-    primary: '#22c55e',    // Green
-    secondary: '#16a34a',
-    glow: '#4ade80'
+    primary: '#32CD32',    // Lime Green
+    secondary: '#228B22',
+    glow: '#98FB98'
   },
   [GateType.MULTIPLY]: {
-    primary: '#3b82f6',    // Blue
-    secondary: '#2563eb',
-    glow: '#60a5fa'
+    primary: '#00BFFF',    // Electric Blue
+    secondary: '#0080FF',
+    glow: '#87CEFA'
   },
   [GateType.SPEED]: {
-    primary: '#f59e0b',    // Yellow/Orange
-    secondary: '#d97706',
-    glow: '#fbbf24'
+    primary: '#FFD700',    // Gold
+    secondary: '#FFA500',
+    glow: '#FFFF00'
   },
   [GateType.SHIELD]: {
-    primary: '#8b5cf6',    // Purple
-    secondary: '#7c3aed',
-    glow: '#a78bfa'
+    primary: '#9370DB',    // Medium Purple
+    secondary: '#8A2BE2',
+    glow: '#DDA0DD'
   },
   [GateType.MAGNET]: {
-    primary: '#ec4899',    // Pink
-    secondary: '#db2777',
-    glow: '#f472b6'
+    primary: '#FF69B4',    // Hot Pink
+    secondary: '#FF1493',
+    glow: '#FFB6C1'
   },
   [GateType.BULLETS]: {
-    primary: '#ef4444',    // Red
-    secondary: '#dc2626',
-    glow: '#f87171'
+    primary: '#DC143C',    // Crimson
+    secondary: '#8B0000',
+    glow: '#FF6B6B'
   }
 };
 
-// Gate display text
+// Gate display text - More descriptive for clarity
 const getGateText = (type: GateType, value: number): string => {
   switch (type) {
     case GateType.ADD:
-      return `+${value}`;
+      return `+${value} SOLDIERS`;
     case GateType.MULTIPLY:
-      return `x${value}`;
+      return `x${value} ARMY!`;
     case GateType.SPEED:
-      return 'SPEED';
+      return 'SPEED BOOST!';
     case GateType.SHIELD:
-      return 'SHIELD';
+      return 'INVINCIBLE!';
     case GateType.MAGNET:
-      return 'MAGNET';
+      return 'COIN MAGNET!';
     case GateType.BULLETS:
-      return 'BULLETS';
+      return 'POWER SHOTS!';
     default:
       return '';
   }
@@ -132,10 +137,10 @@ export default function Gate({ gate, onCollect }: GateProps) {
 
   if (isCollected) return null;
 
-  // Gate dimensions: 4m wide × 5m tall as per requirements
-  const gateWidth = 4;
-  const gateHeight = 5;
-  const pillarWidth = 0.3;
+  // Gate dimensions: 6m wide × 6m tall for better visibility
+  const gateWidth = 6;
+  const gateHeight = 6;
+  const pillarWidth = 0.4;
 
   return (
     <RigidBody
@@ -207,17 +212,29 @@ export default function Gate({ gate, onCollect }: GateProps) {
           />
         </mesh>
 
-        {/* Floating text showing gate effect */}
+        {/* Floating text showing gate effect - Large and prominent */}
         <Text
-          position={[0, gateHeight + 0.8, 0]}
-          fontSize={0.6}
+          position={[0, gateHeight + 1.2, 0]}
+          fontSize={0.8}
           color="#ffffff"
           anchorX="center"
           anchorY="middle"
-          outlineWidth={0.05}
+          outlineWidth={0.08}
           outlineColor="#000000"
+          font="/fonts/Bangers-Regular.ttf"
         >
           {text}
+        </Text>
+
+        {/* Icon display in center of gate */}
+        <Text
+          position={[0, gateHeight / 2, 0.1]}
+          fontSize={2.5}
+          color={colors.glow}
+          anchorX="center"
+          anchorY="middle"
+        >
+          {getGateIcon(gate.type)}
         </Text>
 
         {/* Glow particles around gate */}
@@ -244,18 +261,29 @@ export default function Gate({ gate, onCollect }: GateProps) {
   );
 }
 
-// Render all gates from track section
+// Optimized gates renderer with distance culling
 interface GatesRendererProps {
   gates: GateState[];
   onCollect: (gate: GateState) => void;
 }
 
-export function GatesRenderer({ gates, onCollect }: GatesRendererProps) {
+export const GatesRenderer = memo(function GatesRenderer({ gates, onCollect }: GatesRendererProps) {
+  const { player } = useGameStore();
+
+  // Filter gates by render distance
+  const visibleGates = useMemo(() => {
+    return gates.filter(gate => {
+      if (gate.isCollected) return false;
+      const dist = Math.abs(gate.position.z - player.position.z);
+      return dist < RENDER_DISTANCE;
+    });
+  }, [gates, player.position.z]);
+
   return (
     <group>
-      {gates.map((gate) => (
+      {visibleGates.map((gate) => (
         <Gate key={gate.id} gate={gate} onCollect={onCollect} />
       ))}
     </group>
   );
-}
+});

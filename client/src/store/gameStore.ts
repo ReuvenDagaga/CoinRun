@@ -43,7 +43,8 @@ interface GameState {
   // Actions
   initGame: (mode: 'solo' | '1v1', track: TrackData, upgrades: { capacity: number; addWarrior: number; speed: number }) => void;
   handleSwipe: (direction: SwipeDirection) => void;
-  updatePlayerPosition: (z: number) => void;
+  stopHorizontalMovement: () => void;
+  updatePlayerPosition: (z: number, x?: number) => void;
   collectCoin: (value: number) => void;
   collectGate: (type: GateType, value: number) => void;
   damageArmy: (damage: number) => void;
@@ -67,7 +68,8 @@ interface GameState {
 const initialPlayerState: PlayerState = {
   id: '',
   position: { x: 0, y: 0, z: 0 },
-  lane: 1, // Center lane (0, 1, 2)
+  lane: 1, // Legacy, kept for compatibility
+  horizontalVelocity: 0, // -1 (left), 0 (none), 1 (right) for free movement
   isJumping: false,
   armyCount: 1,
   score: 0,
@@ -98,12 +100,13 @@ export const useGameStore = create<GameState>((set, get) => ({
         ...initialPlayerState,
         id: 'player-' + Date.now(),
         armyCount: startingArmy,
+        horizontalVelocity: 0,
         activePowerUps: []
       },
       elapsedTime: 0,
       countdown: 3,
       result: null,
-      opponent: mode === '1v1' ? { ...initialPlayerState, id: 'opponent' } : null,
+      opponent: mode === '1v1' ? { ...initialPlayerState, id: 'opponent', horizontalVelocity: 0 } : null,
       opponentProgress: 0,
       activePowerUps: []
     });
@@ -113,26 +116,19 @@ export const useGameStore = create<GameState>((set, get) => ({
     const { status, player } = get();
     if (status !== 'playing') return;
 
-    if (direction === 'left' && player.lane > 0) {
+    // Free horizontal movement system
+    if (direction === 'left') {
       set({
         player: {
           ...player,
-          lane: player.lane - 1,
-          position: {
-            ...player.position,
-            x: (player.lane - 1 - 1) * GAME_CONSTANTS.LANE_WIDTH
-          }
+          horizontalVelocity: -1 // Move left
         }
       });
-    } else if (direction === 'right' && player.lane < 2) {
+    } else if (direction === 'right') {
       set({
         player: {
           ...player,
-          lane: player.lane + 1,
-          position: {
-            ...player.position,
-            x: (player.lane + 1 - 1) * GAME_CONSTANTS.LANE_WIDTH
-          }
+          horizontalVelocity: 1 // Move right
         }
       });
     } else if (direction === 'up' && !player.isJumping) {
@@ -146,12 +142,27 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
   },
 
-  updatePlayerPosition: (z) => {
+  // New: Stop horizontal movement (called when touch ends)
+  stopHorizontalMovement: () => {
     const { player } = get();
     set({
       player: {
         ...player,
-        position: { ...player.position, z },
+        horizontalVelocity: 0
+      }
+    });
+  },
+
+  updatePlayerPosition: (z, x) => {
+    const { player } = get();
+    set({
+      player: {
+        ...player,
+        position: {
+          ...player.position,
+          z,
+          ...(x !== undefined && { x })
+        },
         distanceTraveled: z
       }
     });

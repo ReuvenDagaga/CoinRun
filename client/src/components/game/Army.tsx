@@ -3,72 +3,130 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGameStore } from '@/store/gameStore';
 import { COLORS } from '@/utils/constants';
+import { playerPath, PathPoint } from './Player';
+import { GAME_CONSTANTS } from '@shared/types/game.types';
 
 interface SoldierData {
   id: number;
-  offsetX: number;
-  offsetZ: number;
+  position: THREE.Vector3;
+  targetPosition: THREE.Vector3;
   animationOffset: number;
+}
+
+// Helper function to get position from path at a specific time delay
+function getPositionAtDelay(delay: number): PathPoint | null {
+  const targetTime = Date.now() - delay;
+
+  // Find the closest path point to the target time
+  if (playerPath.length === 0) return null;
+
+  // Binary search for the closest timestamp
+  let low = 0;
+  let high = playerPath.length - 1;
+
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2);
+    if (playerPath[mid].timestamp < targetTime) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+
+  // Interpolate between two points for smoother movement
+  if (low > 0 && low < playerPath.length) {
+    const before = playerPath[low - 1];
+    const after = playerPath[low];
+    const t = (targetTime - before.timestamp) / (after.timestamp - before.timestamp);
+
+    return {
+      position: new THREE.Vector3().lerpVectors(before.position, after.position, Math.max(0, Math.min(1, t))),
+      rotation: before.rotation.clone().slerp(after.rotation, Math.max(0, Math.min(1, t))),
+      timestamp: targetTime
+    };
+  }
+
+  return playerPath[low] || playerPath[playerPath.length - 1] || null;
 }
 
 export default function Army() {
   const groupRef = useRef<THREE.Group>(null);
   const { player, status } = useGameStore();
 
+  // Soldier positions stored as refs for smooth animation
+  const soldierPositions = useRef<Map<number, THREE.Vector3>>(new Map());
+
   // Generate soldier positions based on army count
   const soldiers = useMemo(() => {
     const result: SoldierData[] = [];
-    const armyCount = Math.max(1, player.armyCount); // Ensure at least 1 soldier
-
-    // Formation: 4 columns, rows stacking behind player
-    const columns = 4;
-    const spacing = 0.8;
+    const armyCount = Math.max(1, player.armyCount);
 
     for (let i = 0; i < armyCount; i++) {
-      const col = i % columns;
-      const row = Math.floor(i / columns);
+      // Initialize position behind player
+      const initialPos = new THREE.Vector3(
+        player.position.x,
+        0.3,
+        player.position.z - (i + 1) * GAME_CONSTANTS.SOLDIER_SPACING
+      );
 
-      // Center the columns
-      const offsetX = (col - (columns - 1) / 2) * spacing;
-      const offsetZ = -(row + 1) * spacing * 1.2; // Behind the player
+      if (!soldierPositions.current.has(i)) {
+        soldierPositions.current.set(i, initialPos.clone());
+      }
 
       result.push({
         id: i,
-        offsetX,
-        offsetZ,
-        animationOffset: Math.random() * Math.PI * 2 // Random animation phase
+        position: soldierPositions.current.get(i) || initialPos,
+        targetPosition: initialPos.clone(),
+        animationOffset: (i * 0.3) % (Math.PI * 2)
       });
     }
 
     return result;
-  }, [player.armyCount]);
-
-  // Initial position setup
-  useEffect(() => {
-    if (groupRef.current) {
-      const playerPos = player.position;
-      groupRef.current.position.set(playerPos.x, 0, playerPos.z);
-    }
-  }, []);
+  }, [player.armyCount, player.position]);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
+    if (status !== 'playing' && status !== 'countdown' && status !== 'loading') return;
 
-    // Army should be visible and follow player during countdown and playing
-    if (status === 'playing' || status === 'countdown' || status === 'loading') {
-      const playerPos = player.position;
-      groupRef.current.position.set(playerPos.x, 0, playerPos.z);
+    const armyCount = Math.max(1, player.armyCount);
+    const time = state.clock.elapsedTime;
+
+    // Update each soldier's position based on the player's path
+    for (let i = 0; i < armyCount; i++) {
+      const delay = (i + 1) * GAME_CONSTANTS.SOLDIER_FOLLOW_DELAY;
+      const targetPoint = getPositionAtDelay(delay);
+
+      let currentPos = soldierPositions.current.get(i);
+      if (!currentPos) {
+        currentPos = new THREE.Vector3(player.position.x, 0.3, player.position.z - (i + 1) * GAME_CONSTANTS.SOLDIER_SPACING);
+        soldierPositions.current.set(i, currentPos);
+      }
+
+      if (targetPoint) {
+        // Smooth lerp to target position (snake-like following)
+        const lerpSpeed = 8 * delta;
+        currentPos.x = THREE.MathUtils.lerp(currentPos.x, targetPoint.position.x, lerpSpeed);
+        currentPos.z = THREE.MathUtils.lerp(currentPos.z, targetPoint.position.z, lerpSpeed);
+        currentPos.y = 0.3; // Keep at ground level
+      } else {
+        // Fallback: follow behind player in formation
+        const fallbackX = player.position.x;
+        const fallbackZ = player.position.z - (i + 1) * GAME_CONSTANTS.SOLDIER_SPACING;
+
+        const lerpSpeed = 5 * delta;
+        currentPos.x = THREE.MathUtils.lerp(currentPos.x, fallbackX, lerpSpeed);
+        currentPos.z = THREE.MathUtils.lerp(currentPos.z, fallbackZ, lerpSpeed);
+      }
     }
   });
 
-  // Don't hide army - always render it
   return (
     <group ref={groupRef}>
-      {soldiers.map((soldier) => (
+      {soldiers.map((soldier, index) => (
         <Soldier
           key={soldier.id}
-          offsetX={soldier.offsetX}
-          offsetZ={soldier.offsetZ}
+          index={index}
+          soldierPositions={soldierPositions}
           animationOffset={soldier.animationOffset}
         />
       ))}
@@ -77,27 +135,41 @@ export default function Army() {
 }
 
 interface SoldierProps {
-  offsetX: number;
-  offsetZ: number;
+  index: number;
+  soldierPositions: React.MutableRefObject<Map<number, THREE.Vector3>>;
   animationOffset: number;
 }
 
-function Soldier({ offsetX, offsetZ, animationOffset }: SoldierProps) {
+function Soldier({ index, soldierPositions, animationOffset }: SoldierProps) {
   const meshRef = useRef<THREE.Group>(null);
+  const { player, status } = useGameStore();
 
   useFrame((state) => {
     if (!meshRef.current) return;
 
+    const pos = soldierPositions.current.get(index);
+    if (pos) {
+      meshRef.current.position.copy(pos);
+    } else {
+      // Fallback position
+      meshRef.current.position.set(
+        player.position.x,
+        0.3,
+        player.position.z - (index + 1) * GAME_CONSTANTS.SOLDIER_SPACING
+      );
+    }
+
     // Bob animation
     const time = state.clock.elapsedTime + animationOffset;
-    meshRef.current.position.y = 0.3 + Math.sin(time * 8) * 0.05;
+    const bobY = status === 'playing' ? Math.sin(time * 8) * 0.05 : 0;
+    meshRef.current.position.y = 0.3 + bobY;
 
     // Slight rotation for running effect
-    meshRef.current.rotation.x = Math.sin(time * 8) * 0.1;
+    meshRef.current.rotation.x = status === 'playing' ? Math.sin(time * 8) * 0.1 : 0;
   });
 
   return (
-    <group ref={meshRef} position={[offsetX, 0.3, offsetZ]}>
+    <group ref={meshRef} position={[0, 0.3, 0]}>
       {/* Body */}
       <mesh castShadow>
         <capsuleGeometry args={[0.15, 0.25, 4, 8]} />
@@ -121,7 +193,7 @@ function Soldier({ offsetX, offsetZ, animationOffset }: SoldierProps) {
   );
 }
 
-// Instanced version for better performance with large armies
+// Instanced version for better performance with large armies - Snake following
 export function ArmyInstanced() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const { player, status } = useGameStore();
@@ -129,29 +201,38 @@ export function ArmyInstanced() {
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const maxSoldiers = 130; // Max possible army size
 
+  // Store soldier positions for smooth snake movement
+  const soldierPositions = useRef<THREE.Vector3[]>([]);
+
+  // Initialize soldier positions
+  useEffect(() => {
+    soldierPositions.current = [];
+    for (let i = 0; i < maxSoldiers; i++) {
+      soldierPositions.current.push(new THREE.Vector3(
+        player.position.x,
+        0.3,
+        player.position.z - (i + 1) * GAME_CONSTANTS.SOLDIER_SPACING
+      ));
+    }
+  }, []);
+
   // Initial setup - ensure army is visible immediately
   useEffect(() => {
     if (!meshRef.current) return;
 
     const armyCount = Math.max(1, player.armyCount);
-    const columns = 4;
-    const spacing = 0.8;
 
     for (let i = 0; i < maxSoldiers; i++) {
       if (i < armyCount) {
-        const col = i % columns;
-        const row = Math.floor(i / columns);
-
-        const offsetX = (col - (columns - 1) / 2) * spacing;
-        const offsetZ = -(row + 1) * spacing * 1.2;
-
-        dummy.position.set(
-          player.position.x + offsetX,
+        const pos = soldierPositions.current[i] || new THREE.Vector3(
+          player.position.x,
           0.3,
-          player.position.z + offsetZ
+          player.position.z - (i + 1) * GAME_CONSTANTS.SOLDIER_SPACING
         );
+
+        dummy.position.copy(pos);
         dummy.rotation.x = 0;
-        dummy.scale.setScalar(0.8); // 0.8x scale as per requirements
+        dummy.scale.setScalar(0.8);
       } else {
         dummy.scale.setScalar(0);
       }
@@ -163,41 +244,55 @@ export function ArmyInstanced() {
     meshRef.current.instanceMatrix.needsUpdate = true;
   }, []);
 
-  // Update instances - visible during countdown AND playing
+  // Update instances with snake-like following
   useFrame((state, delta) => {
     if (!meshRef.current) return;
 
-    // Army should ALWAYS be visible during countdown and playing
     const isActive = status === 'playing' || status === 'countdown' || status === 'loading';
     if (!isActive) return;
 
     const armyCount = Math.max(1, player.armyCount);
-    const columns = 4;
-    const spacing = 0.8;
     const time = state.clock.elapsedTime;
 
     for (let i = 0; i < maxSoldiers; i++) {
       if (i < armyCount) {
-        const col = i % columns;
-        const row = Math.floor(i / columns);
+        // Get position from player path with delay
+        const delay = (i + 1) * GAME_CONSTANTS.SOLDIER_FOLLOW_DELAY;
+        const targetPoint = getPositionAtDelay(delay);
 
-        const offsetX = (col - (columns - 1) / 2) * spacing;
-        const offsetZ = -(row + 1) * spacing * 1.2;
+        let currentPos = soldierPositions.current[i];
+        if (!currentPos) {
+          currentPos = new THREE.Vector3(
+            player.position.x,
+            0.3,
+            player.position.z - (i + 1) * GAME_CONSTANTS.SOLDIER_SPACING
+          );
+          soldierPositions.current[i] = currentPos;
+        }
 
-        // Animation - only animate during gameplay
-        const animOffset = i * 0.5;
+        if (targetPoint) {
+          // Snake-like following with smooth interpolation
+          const lerpSpeed = 8 * delta;
+          currentPos.x = THREE.MathUtils.lerp(currentPos.x, targetPoint.position.x, lerpSpeed);
+          currentPos.z = THREE.MathUtils.lerp(currentPos.z, targetPoint.position.z, lerpSpeed);
+        } else {
+          // Fallback: line behind player
+          const fallbackX = player.position.x;
+          const fallbackZ = player.position.z - (i + 1) * GAME_CONSTANTS.SOLDIER_SPACING;
+          const lerpSpeed = 5 * delta;
+          currentPos.x = THREE.MathUtils.lerp(currentPos.x, fallbackX, lerpSpeed);
+          currentPos.z = THREE.MathUtils.lerp(currentPos.z, fallbackZ, lerpSpeed);
+        }
+
+        // Animation
+        const animOffset = i * 0.3;
         const bobY = status === 'playing' ? Math.sin((time + animOffset) * 8) * 0.05 : 0;
         const rotX = status === 'playing' ? Math.sin((time + animOffset) * 8) * 0.1 : 0;
 
-        dummy.position.set(
-          player.position.x + offsetX,
-          0.3 + bobY,
-          player.position.z + offsetZ
-        );
+        dummy.position.set(currentPos.x, 0.3 + bobY, currentPos.z);
         dummy.rotation.x = rotX;
-        dummy.scale.setScalar(0.8); // 0.8x scale as per requirements
+        dummy.scale.setScalar(0.8);
       } else {
-        // Hide unused soldiers
         dummy.scale.setScalar(0);
       }
 

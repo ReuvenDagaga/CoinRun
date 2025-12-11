@@ -1,1 +1,18 @@
 node_modules
+
+# Build artifacts
+dist/
+server/dist/
+client/dist/
+
+# TypeScript build outputs
+*.js
+*.d.ts
+*.js.map
+!vite.config.js
+!tailwind.config.js
+!postcss.config.js
+
+# Keep shared types source, ignore compiled
+shared/types/*.js
+shared/types/*.d.ts

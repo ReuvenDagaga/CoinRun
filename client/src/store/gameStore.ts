@@ -6,6 +6,13 @@ import type {
   SwipeDirection,
 } from '@shared/types/game.types';
 
+// Speed effect type for active effects display
+export interface SpeedEffect {
+  type: 'boost' | 'slow';
+  remainingTime: number;
+  startTime: number;
+}
+
 // Simplified game state - core mechanics only
 interface GameState {
   // Game status
@@ -24,6 +31,10 @@ interface GameState {
 
   // Results
   result: GameResult | null;
+
+  // Speed multiplier from gates
+  speedMultiplier: number;
+  activeSpeedEffect: SpeedEffect | null;
 
   // For backward compatibility (not used in simplified version)
   activePowerUps: Array<{ type: string; remainingTime: number }>;
@@ -44,7 +55,13 @@ interface GameState {
   updateTime: (delta: number) => void;
   reset: () => void;
 
-  // Legacy actions (kept for compatibility, do nothing in simplified version)
+  // Gate effect actions
+  setSpeedMultiplier: (multiplier: number, effectType: 'boost' | 'slow', duration: number) => void;
+  clearSpeedEffect: () => void;
+  multiplyArmy: (multiplier: number) => void;
+  divideArmy: (divisor: number) => void;
+
+  // Legacy actions (kept for compatibility)
   collectCoin: (value: number) => void;
   collectGate: (type: string, value: number) => void;
   damageArmy: (damage: number) => void;
@@ -78,6 +95,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   elapsedTime: 0,
   countdown: 3,
   result: null,
+  speedMultiplier: 1.0,
+  activeSpeedEffect: null,
   opponent: null,
   opponentProgress: 0,
   activePowerUps: [],
@@ -96,6 +115,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       elapsedTime: 0,
       countdown: 3,
       result: null,
+      speedMultiplier: 1.0,
+      activeSpeedEffect: null,
     });
   },
 
@@ -199,7 +220,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   updateTime: (delta) => {
-    const { elapsedTime, countdown, status } = get();
+    const { elapsedTime, countdown, status, activeSpeedEffect } = get();
 
     if (status === 'countdown') {
       const newCountdown = countdown - delta;
@@ -209,7 +230,24 @@ export const useGameStore = create<GameState>((set, get) => ({
         set({ countdown: newCountdown });
       }
     } else if (status === 'playing') {
-      set({ elapsedTime: elapsedTime + delta });
+      // Update elapsed time
+      const newElapsedTime = elapsedTime + delta;
+
+      // Check if speed effect has expired
+      if (activeSpeedEffect) {
+        const effectElapsed = (newElapsedTime - activeSpeedEffect.startTime) * 1000;
+        if (effectElapsed >= activeSpeedEffect.remainingTime) {
+          // Effect expired
+          set({
+            elapsedTime: newElapsedTime,
+            speedMultiplier: 1.0,
+            activeSpeedEffect: null,
+          });
+          return;
+        }
+      }
+
+      set({ elapsedTime: newElapsedTime });
     }
   },
 
@@ -222,6 +260,48 @@ export const useGameStore = create<GameState>((set, get) => ({
       elapsedTime: 0,
       countdown: 3,
       result: null,
+      speedMultiplier: 1.0,
+      activeSpeedEffect: null,
+    });
+  },
+
+  // Gate effect actions
+  setSpeedMultiplier: (multiplier, effectType, duration) => {
+    const { elapsedTime } = get();
+    set({
+      speedMultiplier: multiplier,
+      activeSpeedEffect: {
+        type: effectType,
+        remainingTime: duration,
+        startTime: elapsedTime,
+      },
+    });
+  },
+
+  clearSpeedEffect: () => {
+    set({
+      speedMultiplier: 1.0,
+      activeSpeedEffect: null,
+    });
+  },
+
+  multiplyArmy: (multiplier) => {
+    const { player } = get();
+    set({
+      player: {
+        ...player,
+        armyCount: Math.floor(player.armyCount * multiplier),
+      },
+    });
+  },
+
+  divideArmy: (divisor) => {
+    const { player } = get();
+    set({
+      player: {
+        ...player,
+        armyCount: Math.max(1, Math.floor(player.armyCount / divisor)), // Minimum 1
+      },
     });
   },
 
@@ -238,7 +318,15 @@ export const useGameStore = create<GameState>((set, get) => ({
       },
     });
   },
-  multiplySoldiers: () => {},
+  multiplySoldiers: (multiplier: number) => {
+    const { player } = get();
+    set({
+      player: {
+        ...player,
+        armyCount: Math.floor(player.armyCount * multiplier),
+      },
+    });
+  },
   activatePowerUp: () => {},
   updatePowerUps: () => {},
   killEnemy: () => {},
@@ -252,3 +340,5 @@ export const selectPlayerArmy = (state: GameState) => state.player.armyCount;
 export const selectPlayerScore = (state: GameState) => state.player.score;
 export const selectGameStatus = (state: GameState) => state.status;
 export const selectActivePowerUps = (state: GameState) => state.activePowerUps;
+export const selectSpeedMultiplier = (state: GameState) => state.speedMultiplier;
+export const selectActiveSpeedEffect = (state: GameState) => state.activeSpeedEffect;

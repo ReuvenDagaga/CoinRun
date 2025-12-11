@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '@/store/gameStore';
+import { useGameStore, selectSpeedMultiplier } from '@/store/gameStore';
 import { GAME_CONSTANTS } from '@shared/types/game.types';
 import CharacterModel, { PLAYER_COLOR } from './CharacterModel';
 
@@ -35,6 +35,7 @@ export default function Player() {
   const positionZ = useRef(0);
 
   const { status, player, updatePlayerPosition, finishGame } = useGameStore();
+  const speedMultiplier = useGameStore(selectSpeedMultiplier);
 
   // Movement constants - tuned for smooth feel
   const FORWARD_SPEED = GAME_CONSTANTS.BASE_SPEED; // 50 m/s
@@ -85,8 +86,9 @@ export default function Player() {
     // SMOOTH interpolation (lerp) - this is the key to smooth movement!
     currentX.current = lerp(currentX.current, targetX.current, SMOOTH_FACTOR);
 
-    // Move forward constantly (but stop at finish)
-    const newZ = positionZ.current + FORWARD_SPEED * clampedDelta;
+    // Move forward constantly (but stop at finish) - apply speed multiplier from gates
+    const effectiveSpeed = FORWARD_SPEED * speedMultiplier;
+    const newZ = positionZ.current + effectiveSpeed * clampedDelta;
     positionZ.current = Math.min(newZ, TRACK_LENGTH); // Cap at track length
 
     // Update mesh position - Y is ALWAYS locked to ground

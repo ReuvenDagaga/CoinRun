@@ -3,24 +3,54 @@
 @tailwind utilities;
 
 :root {
+  /* Clash of Clans inspired color palette */
+  --color-primary: #FFA500;
+  --color-secondary: #4169E1;
+  --color-success: #32CD32;
+  --color-warning: #FFD700;
+  --color-danger: #DC143C;
+  --color-background: #8B4513;
   --color-gold: #FFD700;
   --color-gem: #9333EA;
   --color-usdt: #26A17B;
+
+  /* Safe area for notch */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-html, body, #root {
-  width: 100%;
+html {
   height: 100%;
+  height: -webkit-fill-available;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  height: -webkit-fill-available;
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: white;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: none;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 /* Prevent text selection during gameplay */
@@ -89,21 +119,157 @@ canvas {
   animation: collect 0.3s ease-out forwards;
 }
 
-/* Button styles */
+/* Screen layout classes */
+.screen-fixed {
+  width: 100%;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  position: relative;
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.screen-scrollable {
+  width: 100%;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Scrollable content area */
+.scrollable-content {
+  height: calc(100vh - 80px);
+  height: calc((var(--vh, 1vh) * 100) - 80px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: 20px;
+}
+
+/* Button styles - Clash of Clans inspired */
 .btn-primary {
-  @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl
-         transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95;
+  @apply font-bold py-3 px-6 rounded-xl transition-all duration-150;
+  background: linear-gradient(180deg, var(--color-primary) 0%, #FF8C00 100%);
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 6px 0 #CC6600, 0 8px 15px rgba(0,0,0,0.3);
+  color: #FFFFFF;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 0 #CC6600, 0 10px 20px rgba(0,0,0,0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(3px) scale(0.98);
+  box-shadow: 0 3px 0 #CC6600, 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
+  transform: none;
 }
 
 .btn-secondary {
-  @apply bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl
-         transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95;
+  @apply font-semibold py-3 px-6 rounded-xl transition-all duration-150;
+  background: linear-gradient(180deg, var(--color-secondary) 0%, #3355CC 100%);
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 5px 0 #2244AA, 0 7px 12px rgba(0,0,0,0.3);
+  color: #FFFFFF;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 7px 0 #2244AA, 0 9px 16px rgba(0,0,0,0.4);
+}
+
+.btn-secondary:active {
+  transform: translateY(3px) scale(0.98);
+  box-shadow: 0 2px 0 #2244AA, 0 3px 6px rgba(0,0,0,0.3);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
 }
 
 .btn-gold {
-  @apply bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500
-         text-black font-bold py-3 px-6 rounded-xl transition-all duration-200
-         shadow-lg hover:shadow-xl active:scale-95;
+  @apply font-bold py-3 px-6 rounded-xl transition-all duration-150;
+  background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 6px 0 #B8860B, 0 8px 15px rgba(0,0,0,0.3);
+  color: #1a1a2e;
+  text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 0 #B8860B, 0 10px 20px rgba(0,0,0,0.4);
+}
+
+.btn-gold:active {
+  transform: translateY(3px) scale(0.98);
+  box-shadow: 0 3px 0 #B8860B, 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.btn-gold:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
+}
+
+/* Casual game button - green */
+.casual-button {
+  @apply font-bold py-4 px-8 rounded-2xl transition-all duration-150;
+  background: linear-gradient(180deg, var(--color-success) 0%, #228B22 100%);
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 6px 0 #1B5E20, 0 8px 15px rgba(0,0,0,0.3);
+  color: #FFFFFF;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.casual-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 0 #1B5E20, 0 10px 20px rgba(0,0,0,0.4);
+}
+
+.casual-button:active {
+  transform: translateY(4px) scale(0.95);
+  box-shadow: 0 2px 0 #1B5E20, 0 3px 6px rgba(0,0,0,0.3);
+}
+
+.casual-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
+}
+
+/* Danger button - red */
+.btn-danger {
+  @apply font-bold py-3 px-6 rounded-xl transition-all duration-150;
+  background: linear-gradient(180deg, var(--color-danger) 0%, #AA1133 100%);
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 5px 0 #8B0000, 0 7px 12px rgba(0,0,0,0.3);
+  color: #FFFFFF;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-danger:active {
+  transform: translateY(3px) scale(0.98);
 }
 
 /* Card styles */
@@ -151,4 +317,139 @@ canvas {
 /* Loading spinner */
 .spinner {
   @apply animate-spin h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full;
+}
+
+/* Micro-animations */
+@keyframes pulse-affordable {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes coin-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-down {
+  0% { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes powerup-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
+}
+
+/* Animation utility classes */
+.animate-pulse-affordable {
+  animation: pulse-affordable 2s ease-in-out infinite;
+}
+
+.animate-coin-bounce {
+  animation: coin-bounce 0.3s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-pop-in {
+  animation: pop-in 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-rotate {
+  animation: rotate 5s linear infinite;
+}
+
+.animate-powerup-float {
+  animation: powerup-float 2s ease-in-out infinite;
+}
+
+/* Performance optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Stagger animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Mobile touch optimization */
+@media (hover: none) and (pointer: coarse) {
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-gold:hover,
+  .casual-button:hover,
+  .btn-danger:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+}
+
+/* Coin counter animation */
+.coin-counter {
+  @apply font-bold text-lg;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.coin-counter.updating {
+  color: var(--color-gold);
+  transform: scale(1.2);
+}
+
+/* Power-up indicator */
+.powerup-indicator {
+  @apply relative;
+}
+
+.powerup-indicator::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  animation: pulse-affordable 1.5s ease-in-out infinite;
+  opacity: 0.5;
 }

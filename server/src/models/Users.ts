@@ -22,6 +22,11 @@ export interface IUser extends Document {
   googleId?: string;
   passwordHash?: string;
 
+  // Anonymous user support
+  anonymousId?: string;
+  isAnonymous: boolean;
+  lastActive: Date;
+
   // Balances
   usdtBalance: number;
   coins: number;
@@ -76,10 +81,15 @@ const achievementSchema = new Schema<IAchievement>({
 }, { _id: false });
 
 const userSchema = new Schema<IUser>({
-  username: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 20 },
-  email: { type: String, sparse: true, lowercase: true, trim: true },
-  googleId: { type: String, sparse: true },
+  username: { type: String, required: true, trim: true, minlength: 3, maxlength: 20 },
+  email: { type: String, lowercase: true, trim: true },
+  googleId: { type: String },
   passwordHash: { type: String },
+
+  // Anonymous user support
+  anonymousId: { type: String },
+  isAnonymous: { type: Boolean, default: false },
+  lastActive: { type: Date, default: Date.now },
 
   // Balances
   usdtBalance: { type: Number, default: 0, min: 0 },
@@ -102,7 +112,7 @@ const userSchema = new Schema<IUser>({
 
   // Social
   friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  referralCode: { type: String, unique: true },
+  referralCode: { type: String },
   referredBy: { type: String },
 
   // Daily
@@ -122,6 +132,8 @@ userSchema.pre('save', function(next) {
   if (!this.referralCode) {
     this.referralCode = this.username.toLowerCase() + Math.random().toString(36).substring(2, 6);
   }
+  // Update lastActive
+  this.lastActive = new Date();
   next();
 });
 
@@ -140,9 +152,13 @@ userSchema.methods.getPowerLevel = function(): number {
   );
 };
 
-// Indexes
-userSchema.index({ email: 1 });
-userSchema.index({ googleId: 1 });
-userSchema.index({ referralCode: 1 });
+// Indexes - defined ONCE here to avoid duplicate warnings
+// Using sparse:true for optional fields, unique where needed
+userSchema.index({ username: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true, sparse: true });
+userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
+userSchema.index({ anonymousId: 1 }, { unique: true, sparse: true });
+userSchema.index({ referralCode: 1 }, { unique: true, sparse: true });
+userSchema.index({ lastActive: 1 }); // For cleaning up inactive anonymous users
 
 export const User = mongoose.model<IUser>('User', userSchema);

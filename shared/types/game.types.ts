@@ -1,21 +1,21 @@
 // shared/types/game.types.ts
 
 export const GAME_CONSTANTS = {
-  // Track
-  TRACK_LENGTH: 2000,
-  SECTION_COUNT: 10,
-  SECTION_LENGTH: 200,
+  // Track - Updated for faster gameplay
+  TRACK_LENGTH: 800,          // Changed from 2000 - ~40-60 seconds gameplay
+  SECTION_COUNT: 6,           // Changed from 10
+  SECTION_LENGTH: 130,        // Changed from 200 - ~8-10 seconds per section
   LANE_COUNT: 3,
   LANE_WIDTH: 3,
 
-  // Player
-  BASE_SPEED: 10,
-  BASE_JUMP_HEIGHT: 2,
+  // Player - Increased speed for faster gameplay
+  BASE_SPEED: 50,             // Changed from 10 - 5x faster!
+  BASE_JUMP_HEIGHT: 3,        // Increased for faster gameplay
   BASE_MAX_ARMY: 30,
   BASE_STARTING_ARMY: 1,
 
   // Timing
-  GAME_DURATION: 120,
+  GAME_DURATION: 60,          // Changed from 120 - shorter games
   MATCHMAKING_TIMEOUT: 30,
   RECONNECT_GRACE: 30,
 

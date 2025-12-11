@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authMiddleware, optionalAuthMiddleware } from '../middleware/authMiddleware.js';
 
 // Auth controllers
-import { register, login, googleAuth, getCurrentUser, logout } from '../controllers/authController.js';
+import { register, login, googleAuth, getCurrentUser, logout, anonymousAuth, upgradeAnonymousAccount } from '../controllers/authController.js';
 
 // Runner controllers
 import { startSoloGame, finishSoloGame, getLeaderboard, getPlayerStats } from '../controllers/runnerController.js';
@@ -19,6 +19,8 @@ const router = Router();
 router.post('/auth/register', register);
 router.post('/auth/login', login);
 router.post('/auth/google', googleAuth);
+router.post('/auth/anonymous', anonymousAuth);
+router.post('/auth/upgrade-anonymous', upgradeAnonymousAccount);
 router.get('/auth/me', authMiddleware, getCurrentUser);
 router.post('/auth/logout', authMiddleware, logout);
 

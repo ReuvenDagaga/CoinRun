@@ -13,6 +13,15 @@ import { getUpgrades, purchaseUpgrade } from '../controllers/upgradeController.j
 // Shop controllers
 import { getSkins, buySkin, equipSkin, buyLootbox } from '../controllers/shopController.js';
 
+// Mission controllers
+import { getMissions, claimMission } from '../controllers/missionController.js';
+
+// Achievement controllers
+import { getAchievements } from '../controllers/achievementController.js';
+
+// Settings controllers
+import { getSettings, updateSettings } from '../controllers/settingsController.js';
+
 const router = Router();
 
 // ==================== Auth Routes ====================
@@ -38,7 +47,15 @@ router.post('/shop/buy/skin', authMiddleware, buySkin);
 router.post('/shop/equip/skin', authMiddleware, equipSkin);
 router.post('/shop/buy/lootbox', authMiddleware, buyLootbox);
 
-// ❌ REMOVED: Old daily login/spin system (replaced by missions)
-// ❌ REMOVED: Wallet routes (USDT/crypto removed)
+// ==================== Mission Routes ====================
+router.get('/missions', authMiddleware, getMissions);
+router.post('/missions/claim', authMiddleware, claimMission);
+
+// ==================== Achievement Routes ====================
+router.get('/achievements', authMiddleware, getAchievements);
+
+// ==================== Settings Routes ====================
+router.get('/settings', authMiddleware, getSettings);
+router.put('/settings', authMiddleware, updateSettings);
 
 export default router;

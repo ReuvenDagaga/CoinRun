@@ -1,161 +1,126 @@
-import { useRef, useMemo, memo } from 'react';
+import { useRef, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { playerPath, PathPoint } from './Player';
 import { useGameStore } from '@/store/gameStore';
+import CharacterModel, { PLAYER_COLOR } from './CharacterModel';
+import { GROUND_Y } from './Player';
 
-// Constants for army formation
-const SOLDIER_SPACING = 1.5; // Distance between soldiers in the trail
-const GROUND_Y = 0.35; // Soldier height (slightly lower than player)
-
-interface ArmyFollowersProps {
-  armySize: number; // Number of soldiers following
+// Lerp helper for smooth movement
+function lerp(start: number, end: number, factor: number): number {
+  return start + (end - start) * factor;
 }
 
-// Get position from path at a specific distance behind player
-function getPositionAtDistance(
-  currentPlayerZ: number,
-  distanceBehind: number
-): PathPoint | null {
-  if (playerPath.length === 0) return null;
+// Formation constants
+const SOLDIERS_PER_ROW = 3;
+const SPACING_X = 1.2; // Horizontal spacing between soldiers
+const SPACING_Z = 1.5; // Vertical spacing between rows
+const BACK_OFFSET = -2.0; // Distance behind player for first row
 
-  const targetZ = currentPlayerZ - distanceBehind;
+// Calculate formation position for a soldier at given index
+function getFormationPosition(
+  index: number,
+  playerX: number,
+  playerZ: number
+): { x: number; y: number; z: number } {
+  // Formation: Grid behind player
+  //   3  4  5   ← Row 2 (back)
+  //   0  1  2   ← Row 1 (behind player)
+  //     P       ← Player
 
-  // Find the closest path point to this Z position
-  // Search from end (most recent) to beginning
-  for (let i = playerPath.length - 1; i >= 0; i--) {
-    if (playerPath[i].z <= targetZ) {
-      // Found a point at or before our target
-      // Interpolate between this point and the next for smoothness
-      if (i < playerPath.length - 1) {
-        const p1 = playerPath[i];
-        const p2 = playerPath[i + 1];
-        const t = (targetZ - p1.z) / (p2.z - p1.z || 1);
+  const row = Math.floor(index / SOLDIERS_PER_ROW);
+  const col = index % SOLDIERS_PER_ROW;
 
-        return {
-          x: p1.x + (p2.x - p1.x) * t,
-          y: GROUND_Y,
-          z: targetZ,
-          timestamp: p1.timestamp + (p2.timestamp - p1.timestamp) * t,
-        };
-      }
-      return { ...playerPath[i], y: GROUND_Y };
-    }
-  }
+  // Center the row (for 3 soldiers: -1, 0, +1)
+  const xOffset = (col - (SOLDIERS_PER_ROW - 1) / 2) * SPACING_X;
+  const zOffset = BACK_OFFSET - row * SPACING_Z;
 
-  // If no point found, return the oldest point
-  return playerPath[0] ? { ...playerPath[0], y: GROUND_Y } : null;
+  return {
+    x: playerX + xOffset,
+    y: GROUND_Y,
+    z: playerZ + zOffset,
+  };
 }
 
-// Army followers component using instanced mesh for performance
-export const ArmyFollowers = memo(function ArmyFollowers({
-  armySize,
-}: ArmyFollowersProps) {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const dummy = useMemo(() => new THREE.Object3D(), []);
+// Single army soldier with smooth movement
+const ArmySoldier = memo(function ArmySoldier({
+  index,
+  playerX,
+  playerZ,
+}: {
+  index: number;
+  playerX: number;
+  playerZ: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
 
-  // Store soldier positions for smooth animation
-  const soldierPositions = useRef<Array<{ x: number; y: number; z: number }>>(
-    []
-  );
-
-  const { player, status } = useGameStore();
-
-  // Initialize soldier positions
-  useMemo(() => {
-    soldierPositions.current = Array(armySize)
-      .fill(null)
-      .map(() => ({
-        x: player.position.x,
-        y: GROUND_Y,
-        z: player.position.z - SOLDIER_SPACING,
-      }));
-  }, [armySize]);
-
-  useFrame((state) => {
-    if (!meshRef.current || armySize === 0) return;
-
-    const time = state.clock.elapsedTime;
-
-    // Update each soldier position
-    for (let i = 0; i < armySize; i++) {
-      // Calculate desired distance behind player
-      const distanceBehind = (i + 1) * SOLDIER_SPACING;
-
-      // Get target position from path
-      const targetPos = getPositionAtDistance(player.position.z, distanceBehind);
-
-      if (targetPos) {
-        // Current position (with smoothing)
-        const current = soldierPositions.current[i] || {
-          x: targetPos.x,
-          y: GROUND_Y,
-          z: targetPos.z,
-        };
-
-        // Smooth interpolation toward target
-        const smoothFactor = 0.15;
-        current.x += (targetPos.x - current.x) * smoothFactor;
-        current.z += (targetPos.z - current.z) * smoothFactor;
-        current.y = GROUND_Y;
-
-        soldierPositions.current[i] = current;
-
-        // Update instance matrix
-        dummy.position.set(current.x, current.y, current.z);
-
-        // Running animation - bob and lean
-        const bobOffset = Math.sin(time * 8 + i * 0.5) * 0.05;
-        dummy.position.y += bobOffset;
-
-        // Slight lean in movement direction
-        dummy.rotation.z = Math.sin(time * 8 + i * 0.3) * 0.1;
-
-        // Face forward
-        dummy.rotation.y = 0;
-
-        // Scale (uniform)
-        dummy.scale.setScalar(0.7); // 70% of player size
-      } else {
-        // No path data yet - hide soldier
-        dummy.scale.setScalar(0);
-      }
-
-      dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-    }
-
-    meshRef.current.instanceMatrix.needsUpdate = true;
+  // Store current position for smooth interpolation
+  const currentPos = useRef({
+    x: playerX,
+    y: GROUND_Y,
+    z: playerZ + BACK_OFFSET - Math.floor(index / SOLDIERS_PER_ROW) * SPACING_Z,
   });
 
-  if (armySize === 0) return null;
+  useFrame((state) => {
+    if (!groupRef.current) return;
+
+    // Calculate target formation position
+    const target = getFormationPosition(index, playerX, playerZ);
+
+    // Smooth interpolation to target position
+    const smoothFactor = 0.12; // Lower = smoother but more lag
+    currentPos.current.x = lerp(currentPos.current.x, target.x, smoothFactor);
+    currentPos.current.z = lerp(currentPos.current.z, target.z, smoothFactor);
+    currentPos.current.y = GROUND_Y;
+
+    // Update position
+    groupRef.current.position.set(
+      currentPos.current.x,
+      currentPos.current.y,
+      currentPos.current.z
+    );
+
+    // Running animation - subtle bob
+    const bobOffset = Math.sin(state.clock.elapsedTime * 8 + index * 0.5) * 0.03;
+    groupRef.current.position.y += bobOffset;
+
+    // Slight sway while running
+    groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 8 + index * 0.3) * 0.05;
+  });
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[undefined, undefined, Math.max(1, armySize)]}
-      castShadow
-    >
-      {/* Soldier body - smaller capsule (same style as player but blue) */}
-      <capsuleGeometry args={[0.25, 0.4, 8, 12]} />
-      <meshStandardMaterial
-        color="#4169E1" // Royal blue for soldiers
-        metalness={0.3}
-        roughness={0.7}
-      />
-    </instancedMesh>
+    <group ref={groupRef} position={[currentPos.current.x, GROUND_Y, currentPos.current.z]}>
+      {/* IDENTICAL to player - same CharacterModel, same color */}
+      <CharacterModel color={PLAYER_COLOR} />
+    </group>
   );
 });
 
-// Army count display component (optional HUD element)
-export function ArmyCounter({ count }: { count: number }) {
-  return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-2 rounded-lg">
-      <span className="text-blue-400 text-xl font-bold">
-        Army: {count}
-      </span>
-    </div>
-  );
+// Main Army component - renders all collected soldiers in GROUP formation
+interface ArmyFollowersProps {
+  armySize: number; // Number of soldiers following (NOT including player)
 }
+
+export const ArmyFollowers = memo(function ArmyFollowers({
+  armySize,
+}: ArmyFollowersProps) {
+  const { player, status } = useGameStore();
+
+  // Don't render if no army or game not active
+  if (armySize <= 0) return null;
+  if (status !== 'playing' && status !== 'countdown' && status !== 'finished') return null;
+
+  return (
+    <group>
+      {Array.from({ length: armySize }).map((_, index) => (
+        <ArmySoldier
+          key={`army-soldier-${index}`}
+          index={index}
+          playerX={player.position.x}
+          playerZ={player.position.z}
+        />
+      ))}
+    </group>
+  );
+});
 
 export default ArmyFollowers;

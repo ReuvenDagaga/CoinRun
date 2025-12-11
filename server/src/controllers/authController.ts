@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/Users.js';
 import { generateToken, AuthRequest } from '../middleware/authMiddleware.js';
 
@@ -241,4 +242,161 @@ export async function getCurrentUser(req: AuthRequest, res: Response) {
 // Logout (client-side only, just return success)
 export async function logout(req: AuthRequest, res: Response) {
   res.json({ success: true });
+}
+
+// Create or retrieve anonymous user
+export async function anonymousAuth(req: Request, res: Response) {
+  try {
+    const { anonymousId } = req.body;
+
+    // If anonymousId provided, try to find existing user
+    if (anonymousId) {
+      const existingUser = await User.findOne({ anonymousId });
+
+      if (existingUser) {
+        // Update lastActive
+        existingUser.lastActive = new Date();
+        await existingUser.save();
+
+        const token = generateToken(existingUser._id.toString());
+
+        return res.json({
+          success: true,
+          data: {
+            token,
+            anonymousId: existingUser.anonymousId,
+            user: formatUserResponse(existingUser)
+          }
+        });
+      }
+    }
+
+    // Create new anonymous user
+    const newAnonymousId = anonymousId || uuidv4();
+    const randomNum = Math.floor(Math.random() * 10000);
+    const username = `Guest_${randomNum}`;
+
+    const user = new User({
+      username,
+      anonymousId: newAnonymousId,
+      isAnonymous: true,
+      lastActive: new Date()
+    });
+
+    await user.save();
+
+    const token = generateToken(user._id.toString());
+
+    res.status(201).json({
+      success: true,
+      data: {
+        token,
+        anonymousId: newAnonymousId,
+        user: formatUserResponse(user)
+      }
+    });
+  } catch (error) {
+    console.error('Anonymous auth error:', error);
+    res.status(500).json({ success: false, error: 'Authentication failed' });
+  }
+}
+
+// Upgrade anonymous account to full account
+export async function upgradeAnonymousAccount(req: Request, res: Response) {
+  try {
+    const { anonymousId, googleId, email, name } = req.body;
+
+    if (!anonymousId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Anonymous ID required'
+      });
+    }
+
+    // Find anonymous user
+    const anonUser = await User.findOne({ anonymousId });
+
+    if (!anonUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'Anonymous user not found'
+      });
+    }
+
+    // Check if email/googleId already linked to another account
+    const existingUser = await User.findOne({
+      $or: [
+        { email: email?.toLowerCase() },
+        { googleId }
+      ]
+    });
+
+    if (existingUser && existingUser._id.toString() !== anonUser._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email or Google account already linked to another user'
+      });
+    }
+
+    // Upgrade the anonymous account
+    anonUser.isAnonymous = false;
+    anonUser.googleId = googleId;
+    anonUser.email = email?.toLowerCase();
+
+    // Use Google name if provided, otherwise keep Guest_XXXX
+    if (name) {
+      const newUsername = name.replace(/\s+/g, '').substring(0, 15) + Math.random().toString(36).substring(2, 5);
+      // Check if username is taken
+      const usernameExists = await User.findOne({
+        username: newUsername,
+        _id: { $ne: anonUser._id }
+      });
+      if (!usernameExists) {
+        anonUser.username = newUsername;
+      }
+    }
+
+    anonUser.anonymousId = undefined as any; // Remove anonymous ID
+    anonUser.lastActive = new Date();
+
+    await anonUser.save();
+
+    const token = generateToken(anonUser._id.toString());
+
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: formatUserResponse(anonUser)
+      }
+    });
+  } catch (error) {
+    console.error('Upgrade anonymous error:', error);
+    res.status(500).json({ success: false, error: 'Failed to upgrade account' });
+  }
+}
+
+// Helper function to format user response
+function formatUserResponse(user: any) {
+  return {
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    isAnonymous: user.isAnonymous,
+    coins: user.coins,
+    gems: user.gems,
+    usdtBalance: user.usdtBalance,
+    upgrades: user.upgrades,
+    stats: {
+      gamesPlayed: user.gamesPlayed,
+      gamesWon: user.gamesWon,
+      totalDistance: user.totalDistance,
+      totalCoinsCollected: user.totalCoinsCollected,
+      highestArmy: user.highestArmy
+    },
+    currentSkin: user.currentSkin,
+    ownedSkins: user.ownedSkins,
+    dailyStreak: user.dailyStreak,
+    referralCode: user.referralCode
+  };
 }

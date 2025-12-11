@@ -63,18 +63,14 @@ class SeededRandom {
   }
 }
 
-// Section order as specified in PRD
+// Section order - Updated for shorter, faster gameplay (6 sections, 130m each, ~800m total)
 const SECTION_ORDER: SectionType[] = [
-  SectionType.INTRO,
-  SectionType.EASY,
-  SectionType.COMBAT,
-  SectionType.PLATFORMING,
-  SectionType.BONUS,
-  SectionType.HARD_COMBAT,
-  SectionType.SPEED,
-  SectionType.COLLECTION,
-  SectionType.GAUNTLET,
-  SectionType.FINISH
+  SectionType.INTRO,        // 0-130m: Warmup, gates, coins
+  SectionType.COMBAT,       // 130-260m: Enemies + gates
+  SectionType.PLATFORMING,  // 260-390m: Jumps + obstacles
+  SectionType.BONUS,        // 390-520m: Many gates + coins
+  SectionType.GAUNTLET,     // 520-650m: Mix of everything
+  SectionType.FINISH        // 650-800m: Sprint to end
 ];
 
 // Section configurations

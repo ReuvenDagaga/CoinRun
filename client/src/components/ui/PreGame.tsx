@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
 import { calculatePowerLevel, getStartingArmy, getMaxArmy } from '@shared/types/game.types';
 import UpgradeCard from './UpgradeCard';
+import AssetButton, { StatDisplay, GamePanel } from './AssetButton';
 
 export default function PreGame() {
   const navigate = useNavigate();
@@ -19,33 +20,54 @@ export default function PreGame() {
   };
 
   return (
-    <div className="h-full flex flex-col p-4 overflow-hidden">
+    <div
+      className="h-full flex flex-col p-4 overflow-hidden"
+      style={{
+        background: 'linear-gradient(180deg, #4A90E2 0%, #87CEEB 50%, #98FB98 100%)'
+      }}
+    >
       {/* Header - Fixed */}
       <div className="text-center flex-shrink-0">
-        <h1 className="text-2xl font-bold text-white mb-2">
-          Power Level: <span className="text-orange-400">{powerLevel}</span>
+        <h1
+          className="text-3xl font-bold mb-2"
+          style={{
+            color: '#FFFFFF',
+            fontFamily: '"Comic Sans MS", "Bangers", sans-serif',
+            textShadow: '3px 3px 0 #FF6B35, -1px -1px 0 #000'
+          }}
+        >
+          Power Level: <span style={{ color: '#FFD700' }}>{powerLevel}</span>
         </h1>
 
         {/* Character preview area */}
-        <div className="w-24 h-24 mx-auto bg-gray-700/50 rounded-full flex items-center justify-center mb-3 border-4 border-orange-400 shadow-lg">
-          <div className="text-5xl">🏃</div>
+        <div
+          className="w-28 h-28 mx-auto rounded-full flex items-center justify-center mb-3"
+          style={{
+            background: 'linear-gradient(180deg, #FF6B35 0%, #D04A15 100%)',
+            border: '4px solid #FFD700',
+            boxShadow: '0 4px 20px rgba(255, 107, 53, 0.5)'
+          }}
+        >
+          <div className="text-6xl">🏃</div>
         </div>
 
         <div className="flex justify-center gap-3 text-sm mb-3">
-          <div className="bg-gray-700/50 px-3 py-1.5 rounded-lg border border-green-500/30">
-            <span className="text-green-400">👥</span>
-            <span className="text-white ml-1">{startingArmy} start</span>
-          </div>
-          <div className="bg-gray-700/50 px-3 py-1.5 rounded-lg border border-blue-500/30">
-            <span className="text-blue-400">📊</span>
-            <span className="text-white ml-1">{maxArmy} max</span>
-          </div>
+          <StatDisplay icon="👥" value={startingArmy} label="START" color="#32CD32" />
+          <StatDisplay icon="📊" value={maxArmy} label="MAX" color="#00BFFF" />
         </div>
       </div>
 
       {/* Upgrades grid - Scrollable area */}
       <div className="flex-1 min-h-0 overflow-y-auto scrollable-content mb-3">
-        <h2 className="text-sm font-semibold text-gray-400 mb-2 uppercase tracking-wide">Upgrades</h2>
+        <h2
+          className="text-sm font-semibold mb-2 uppercase tracking-wide"
+          style={{
+            color: '#FFFFFF',
+            textShadow: '1px 1px 0 rgba(0,0,0,0.5)'
+          }}
+        >
+          Upgrades
+        </h2>
         <div className="grid grid-cols-2 gap-2">
           <UpgradeCard type="capacity" />
           <UpgradeCard type="addWarrior" />
@@ -62,50 +84,39 @@ export default function PreGame() {
       <div className="flex-shrink-0 space-y-3">
         {/* Mode selection */}
         <div className="flex gap-2">
-          <button
+          <AssetButton
+            label="Solo"
+            icon="🎮"
             onClick={() => setSelectedMode('solo')}
-            className={`flex-1 py-2.5 rounded-xl font-semibold transition-all duration-150 border-2 ${
-              selectedMode === 'solo'
-                ? 'bg-orange-500 text-white border-white shadow-lg'
-                : 'bg-gray-700/50 text-gray-300 border-gray-600 hover:bg-gray-600/50'
-            }`}
-          >
-            Solo Mode
-          </button>
-          <button
+            variant={selectedMode === 'solo' ? 'primary' : 'secondary'}
+            size="medium"
+            className="flex-1"
+          />
+          <AssetButton
+            label="1v1"
+            icon="⚔️"
             onClick={() => setSelectedMode('1v1')}
-            className={`flex-1 py-2.5 rounded-xl font-semibold transition-all duration-150 border-2 ${
-              selectedMode === '1v1'
-                ? 'bg-orange-500 text-white border-white shadow-lg'
-                : 'bg-gray-700/50 text-gray-300 border-gray-600 hover:bg-gray-600/50'
-            }`}
-          >
-            1v1 Betting
-          </button>
+            variant={selectedMode === '1v1' ? 'primary' : 'secondary'}
+            size="medium"
+            className="flex-1"
+          />
         </div>
 
         {/* Start button */}
-        <button
+        <AssetButton
+          label={selectedMode === 'solo' ? 'TAP TO START' : 'FIND OPPONENT'}
+          icon={selectedMode === 'solo' ? '🚀' : '🔍'}
           onClick={handleStart}
-          className="w-full btn-gold text-lg py-3"
-        >
-          {selectedMode === 'solo' ? '🎮 TAP TO START' : '⚔️ FIND OPPONENT'}
-        </button>
+          variant="gold"
+          size="large"
+          className="w-full"
+        />
 
         {/* Balances */}
-        <div className="flex justify-center gap-4 py-2">
-          <div className="flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-lg">
-            <span className="text-yellow-400">💰</span>
-            <span className="text-white font-bold text-sm">{user.coins.toLocaleString()}</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-lg">
-            <span className="text-purple-400">💎</span>
-            <span className="text-white font-bold text-sm">{user.gems}</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-lg">
-            <span className="text-green-400">💵</span>
-            <span className="text-white font-bold text-sm">${user.usdtBalance.toFixed(2)}</span>
-          </div>
+        <div className="flex justify-center gap-3 py-2">
+          <StatDisplay icon="💰" value={user.coins.toLocaleString()} color="#FFD700" />
+          <StatDisplay icon="💎" value={user.gems} color="#9370DB" />
+          <StatDisplay icon="💵" value={`$${user.usdtBalance.toFixed(2)}`} color="#32CD32" />
         </div>
       </div>
     </div>

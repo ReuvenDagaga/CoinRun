@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useMemo, useCallback, useRef, memo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
-import { PerspectiveCamera, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 import Player from './Player';
@@ -11,8 +10,9 @@ import { GatesRenderer } from './Gate';
 import { CoinsRenderer } from './Coin';
 import { EnemiesRenderer } from './Enemy';
 import { ObstaclesRenderer } from './Obstacle';
-import { PowerUpEffects } from './PowerUp';
+import { PowerUpEffects, BulletSystem } from './PowerUp';
 import GameCamera from './GameCamera';
+import { FPSDisplay } from './FPSMonitor';
 
 import { useGameStore } from '@/store/gameStore';
 import { useUserStore } from '@/store/userStore';
@@ -35,6 +35,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     player,
     initGame,
     handleSwipe,
+    stopHorizontalMovement,
     collectCoin,
     collectGate,
     damageArmy,
@@ -94,7 +95,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     return () => cancelAnimationFrame(animationId);
   }, [status, track, player.distanceTraveled, updateTime, updatePowerUps, finishGame]);
 
-  // Swipe controls
+  // Swipe controls with continuous movement support
   useSwipeDetector({
     minSwipeDistance: CLIENT_CONSTANTS.MIN_SWIPE_DISTANCE,
     maxSwipeTime: CLIENT_CONSTANTS.MAX_SWIPE_TIME,
@@ -104,6 +105,11 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         if (isVibrationEnabled) {
           vibrate(10);
         }
+      }
+    },
+    onSwipeEnd: () => {
+      if (status === 'playing') {
+        stopHorizontalMovement();
       }
     }
   });
@@ -180,28 +186,61 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     };
   }, [track]);
 
-  // Graphics settings based on quality
+  // Graphics settings based on quality - optimized for 60 FPS
   const graphicsSettings = useMemo(() => {
     switch (graphicsQuality) {
       case 'low':
-        return { shadows: false, pixelRatio: 1, antialias: false };
+        return {
+          shadows: false,
+          pixelRatio: 0.75,
+          antialias: false,
+          physicsTimestep: 1/30
+        };
       case 'high':
-        return { shadows: true, pixelRatio: window.devicePixelRatio, antialias: true };
-      default:
-        return { shadows: true, pixelRatio: Math.min(window.devicePixelRatio, 2), antialias: true };
+        return {
+          shadows: true,
+          pixelRatio: Math.min(window.devicePixelRatio, 2),
+          antialias: true,
+          physicsTimestep: 1/60
+        };
+      default: // medium
+        return {
+          shadows: true,
+          pixelRatio: Math.min(window.devicePixelRatio, 1.5),
+          antialias: true,
+          physicsTimestep: 1/60
+        };
     }
   }, [graphicsQuality]);
 
   if (!track) return null;
 
+  // Show FPS counter in dev/debug mode
+  const showFPS = graphicsQuality === 'high' || process.env.NODE_ENV === 'development';
+
   return (
-    <div className="w-full h-full touch-none">
+    <div className="w-full h-full touch-none relative">
+      {/* FPS Counter overlay */}
+      {showFPS && <FPSDisplay show={true} />}
+
       <Canvas
         shadows={graphicsSettings.shadows}
         dpr={graphicsSettings.pixelRatio}
-        gl={{ antialias: graphicsSettings.antialias }}
+        gl={{
+          antialias: graphicsSettings.antialias,
+          powerPreference: 'high-performance',
+          stencil: false,
+          depth: true
+        }}
+        frameloop="always"
+        performance={{ min: 0.5 }}
       >
-        <Physics gravity={[0, -20, 0]}>
+        <Physics
+          gravity={[0, -20, 0]}
+          timeStep={1/60}
+          maxStabilizationIterations={1}
+          maxVelocityIterations={1}
+        >
           {/* Camera */}
           <GameCamera target={player.position} />
 
@@ -219,6 +258,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
           {/* Power-up effects */}
           <PowerUpEffects />
+
+          {/* Bullet System - Continuous shooting */}
+          <BulletSystem />
 
           {/* Gates */}
           <GatesRenderer gates={allGates} onCollect={handleGateCollect} />

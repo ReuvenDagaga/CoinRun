@@ -5,24 +5,25 @@ import { useGameStore } from '@/store/gameStore';
 import { GAME_CONSTANTS, SectionType } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
 
-// Section colors for visual variety
+// Section colors for visual variety - BRIGHT CASUAL STYLE
 const SECTION_COLORS: Record<SectionType, string> = {
-  [SectionType.INTRO]: '#1e3a5f',
-  [SectionType.EASY]: '#1e4620',
-  [SectionType.COMBAT]: '#4a1c1c',
-  [SectionType.PLATFORMING]: '#3d3d1c',
-  [SectionType.BONUS]: '#4a3a1c',
-  [SectionType.HARD_COMBAT]: '#4a0d0d',
-  [SectionType.SPEED]: '#1c3d4a',
-  [SectionType.COLLECTION]: '#4a4a0d',
-  [SectionType.GAUNTLET]: '#3d1c4a',
-  [SectionType.FINISH]: '#0d4a1c'
+  [SectionType.INTRO]: '#D2691E',      // Chocolate brown
+  [SectionType.EASY]: '#8B4513',       // Saddle brown
+  [SectionType.COMBAT]: '#CD853F',     // Peru (tan)
+  [SectionType.PLATFORMING]: '#A0522D', // Sienna
+  [SectionType.BONUS]: '#DEB887',      // Burlywood (light)
+  [SectionType.HARD_COMBAT]: '#8B0000', // Dark red accent
+  [SectionType.SPEED]: '#DAA520',      // Goldenrod
+  [SectionType.COLLECTION]: '#F4A460', // Sandy brown
+  [SectionType.GAUNTLET]: '#BC8F8F',   // Rosy brown
+  [SectionType.FINISH]: '#228B22'      // Forest green (finish!)
 };
 
 export default function Track() {
   const track = useGameStore((state) => state.track);
 
-  const trackWidth = GAME_CONSTANTS.LANE_WIDTH * GAME_CONSTANTS.LANE_COUNT;
+  // Use new wider track width (10m) for free movement
+  const trackWidth = GAME_CONSTANTS.TRACK_WIDTH;
 
   // Generate track segments
   const segments = useMemo(() => {
@@ -42,27 +43,25 @@ export default function Track() {
     });
   }, [track, trackWidth]);
 
-  // Lane dividers
-  const laneLines = useMemo(() => {
+  // Grass strips on sides of track
+  const grassStrips = useMemo(() => {
     if (!track) return [];
 
-    const lines: { position: [number, number, number]; length: number }[] = [];
     const totalLength = track.totalLength;
 
-    // Left lane divider
-    lines.push({
-      position: [-GAME_CONSTANTS.LANE_WIDTH, 0.01, totalLength / 2],
-      length: totalLength
-    });
-
-    // Right lane divider
-    lines.push({
-      position: [GAME_CONSTANTS.LANE_WIDTH, 0.01, totalLength / 2],
-      length: totalLength
-    });
-
-    return lines;
-  }, [track]);
+    return [
+      // Left grass
+      {
+        position: [-(trackWidth / 2 + 5), -0.4, totalLength / 2] as [number, number, number],
+        size: [10, 0.2, totalLength] as [number, number, number]
+      },
+      // Right grass
+      {
+        position: [trackWidth / 2 + 5, -0.4, totalLength / 2] as [number, number, number],
+        size: [10, 0.2, totalLength] as [number, number, number]
+      }
+    ];
+  }, [track, trackWidth]);
 
   // Track borders (walls)
   const borders = useMemo(() => {
@@ -110,21 +109,23 @@ export default function Track() {
         </RigidBody>
       ))}
 
-      {/* Lane dividers */}
-      {laneLines.map((line, index) => (
-        <mesh
-          key={`lane-${index}`}
-          position={line.position}
-          rotation={[-Math.PI / 2, 0, 0]}
-        >
-          <planeGeometry args={[0.1, line.length]} />
-          <meshBasicMaterial
-            color={COLORS.LANE_BORDER}
-            transparent
-            opacity={0.5}
-          />
-        </mesh>
-      ))}
+      {/* Track edge indicators (no lane dividers - free movement!) */}
+      {/* Left edge glow */}
+      <mesh
+        position={[-trackWidth / 2 + 0.2, 0.02, track.totalLength / 2]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <planeGeometry args={[0.3, track.totalLength]} />
+        <meshBasicMaterial color="#FF6B35" transparent opacity={0.4} />
+      </mesh>
+      {/* Right edge glow */}
+      <mesh
+        position={[trackWidth / 2 - 0.2, 0.02, track.totalLength / 2]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <planeGeometry args={[0.3, track.totalLength]} />
+        <meshBasicMaterial color="#FF6B35" transparent opacity={0.4} />
+      </mesh>
 
       {/* Track borders */}
       {borders.map((border) => (
@@ -176,17 +177,17 @@ export default function Track() {
   );
 }
 
-// Ground plane that extends beyond the track for visual appeal
+// Ground plane that extends beyond the track for visual appeal - BRIGHT CASUAL STYLE
 export function Environment() {
   return (
     <group>
-      {/* Extended ground */}
+      {/* Extended grass ground */}
       <mesh position={[0, -1, 1000]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[200, 2500]} />
-        <meshStandardMaterial color={COLORS.GROUND} />
+        <meshStandardMaterial color={COLORS.TRACK_GRASS} />
       </mesh>
 
-      {/* Sky dome */}
+      {/* Sky dome - Bright blue sky gradient */}
       <mesh position={[0, 0, 1000]}>
         <sphereGeometry args={[500, 32, 32]} />
         <meshBasicMaterial
@@ -195,28 +196,47 @@ export function Environment() {
         />
       </mesh>
 
-      {/* Fog effect */}
-      <fog attach="fog" args={[COLORS.FOG, 50, 200]} />
+      {/* Second sky layer for gradient effect */}
+      <mesh position={[0, -100, 1000]}>
+        <sphereGeometry args={[490, 32, 16]} />
+        <meshBasicMaterial
+          color={COLORS.SKY_BOTTOM}
+          side={THREE.BackSide}
+          transparent
+          opacity={0.3}
+        />
+      </mesh>
 
-      {/* Ambient light */}
-      <ambientLight intensity={0.4} />
+      {/* Light fog effect for depth */}
+      <fog attach="fog" args={[COLORS.FOG, 100, 400]} />
 
-      {/* Main directional light */}
+      {/* Bright ambient light */}
+      <ambientLight intensity={0.6} />
+
+      {/* Main directional light (sun) */}
       <directionalLight
-        position={[10, 20, 10]}
-        intensity={1}
+        position={[15, 30, 15]}
+        intensity={1.5}
         castShadow
         shadow-mapSize={[1024, 1024]}
-        shadow-camera-far={100}
+        shadow-camera-far={150}
         shadow-camera-left={-50}
         shadow-camera-right={50}
         shadow-camera-top={50}
         shadow-camera-bottom={-50}
+        color="#fff5e6"
       />
 
-      {/* Hemisphere light for ambient */}
+      {/* Hemisphere light - sky blue + grass green */}
       <hemisphereLight
-        args={[COLORS.SKY_TOP, COLORS.GROUND, 0.3]}
+        args={[COLORS.SKY_TOP, COLORS.TRACK_GRASS, 0.4]}
+      />
+
+      {/* Fill light from behind */}
+      <directionalLight
+        position={[-10, 10, -20]}
+        intensity={0.3}
+        color="#87CEEB"
       />
     </group>
   );

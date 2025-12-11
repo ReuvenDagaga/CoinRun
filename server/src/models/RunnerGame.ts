@@ -1,6 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IPlayerResult {
+export interface IRunnerGame extends Document {
+  gameType: 'solo'; // Only solo mode - 1v1 betting removed
+
+  // Single player result (solo only)
   userId: mongoose.Types.ObjectId;
   finalScore: number;
   coinsCollected: number;
@@ -10,15 +13,18 @@ export interface IPlayerResult {
   didFinish: boolean;
   enemiesKilled: number;
   perfectGates: number;
-}
 
-export interface IRunnerGame extends Document {
-  gameType: 'solo' | '1v1';
-
-  players: IPlayerResult[];
-
-  betAmount?: number;
-  winnerId?: mongoose.Types.ObjectId;
+  // Snapshot of upgrade levels at game start
+  upgradeLevels: {
+    capacity: number;
+    addWarrior: number;
+    warriorUpgrade: number;
+    income: number;
+    speed: number;
+    jump: number;
+    bulletPower: number;
+    magnetRadius: number;
+  };
 
   trackSeed: string;
   trackDifficulty: number;
@@ -28,9 +34,15 @@ export interface IRunnerGame extends Document {
   duration?: number;
 
   status: 'pending' | 'in_progress' | 'finished' | 'cancelled';
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const playerResultSchema = new Schema<IPlayerResult>({
+const runnerGameSchema = new Schema<IRunnerGame>({
+  gameType: { type: String, enum: ['solo'], default: 'solo', required: true },
+
+  // Solo player data
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   finalScore: { type: Number, default: 0 },
   coinsCollected: { type: Number, default: 0 },
@@ -39,16 +51,19 @@ const playerResultSchema = new Schema<IPlayerResult>({
   timeTaken: { type: Number, default: 0 },
   didFinish: { type: Boolean, default: false },
   enemiesKilled: { type: Number, default: 0 },
-  perfectGates: { type: Number, default: 0 }
-}, { _id: false });
+  perfectGates: { type: Number, default: 0 },
 
-const runnerGameSchema = new Schema<IRunnerGame>({
-  gameType: { type: String, enum: ['solo', '1v1'], required: true },
-
-  players: { type: [playerResultSchema], default: [] },
-
-  betAmount: { type: Number, min: 0 },
-  winnerId: { type: Schema.Types.ObjectId, ref: 'User' },
+  // Snapshot of upgrade levels at game start (for anti-cheat)
+  upgradeLevels: {
+    capacity: { type: Number, default: 0 },
+    addWarrior: { type: Number, default: 0 },
+    warriorUpgrade: { type: Number, default: 0 },
+    income: { type: Number, default: 0 },
+    speed: { type: Number, default: 0 },
+    jump: { type: Number, default: 0 },
+    bulletPower: { type: Number, default: 0 },
+    magnetRadius: { type: Number, default: 0 }
+  },
 
   trackSeed: { type: String, required: true },
   trackDifficulty: { type: Number, default: 1 },
@@ -63,8 +78,9 @@ const runnerGameSchema = new Schema<IRunnerGame>({
 });
 
 // Indexes for queries
-runnerGameSchema.index({ 'players.userId': 1 });
+runnerGameSchema.index({ userId: 1 });
+runnerGameSchema.index({ userId: 1, startedAt: -1 }); // For user game history
 runnerGameSchema.index({ startedAt: -1 });
-runnerGameSchema.index({ gameType: 1, status: 1 });
+runnerGameSchema.index({ status: 1 });
 
 export const RunnerGame = mongoose.model<IRunnerGame>('RunnerGame', runnerGameSchema);

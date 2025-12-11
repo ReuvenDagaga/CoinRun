@@ -1,245 +1,121 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { RigidBody, CuboidCollider, useRapier } from '@react-three/rapier';
-import type { RapierRigidBody } from '@react-three/rapier';
 import * as THREE from 'three';
 import { useGameStore } from '@/store/gameStore';
-import { useUserStore } from '@/store/userStore';
-import { GAME_CONSTANTS, getPlayerSpeed, getJumpHeight, GateType } from '@shared/types/game.types';
-import { COLORS } from '@/utils/constants';
+import { GAME_CONSTANTS } from '@shared/types/game.types';
 
-// Path point for army snake following
+// Lerp helper function for smooth interpolation
+function lerp(start: number, end: number, factor: number): number {
+  return start + (end - start) * factor;
+}
+
+// Path point for army snake following (exported for backward compatibility)
 export interface PathPoint {
   position: THREE.Vector3;
   rotation: THREE.Quaternion;
   timestamp: number;
 }
 
-// Global path storage for army to follow
+// Global path storage (exported for backward compatibility)
 export const playerPath: PathPoint[] = [];
-const MAX_PATH_LENGTH = 500;
 
-interface PlayerProps {
-  onCollision?: (type: string, data: unknown) => void;
-  onFallOff?: () => void;
-}
+export default function Player() {
+  const meshRef = useRef<THREE.Group>(null);
+  const bodyRef = useRef<THREE.Mesh>(null);
 
-export default function Player({ onCollision, onFallOff }: PlayerProps) {
-  const rigidBodyRef = useRef<RapierRigidBody>(null);
-  const meshRef = useRef<THREE.Mesh>(null);
-  const isGrounded = useRef(true);
-  const lastPathRecordTime = useRef(0);
-  const jumpCooldown = useRef(false);
+  // Current actual position (for lerp)
+  const currentX = useRef(0);
+  const targetX = useRef(0);
+  const positionZ = useRef(0);
 
-  const { status, player, updatePlayerPosition, activePowerUps, damageArmy } = useGameStore();
-  const user = useUserStore((state) => state.user);
+  const { status, player, updatePlayerPosition } = useGameStore();
 
-  // Get player stats from upgrades
-  const speedLevel = user?.upgrades.speed || 0;
-  const jumpLevel = user?.upgrades.jump || 0;
-  const speed = getPlayerSpeed(speedLevel);
-  const jumpHeight = getJumpHeight(jumpLevel);
+  // Movement constants - tuned for smooth feel
+  const FORWARD_SPEED = GAME_CONSTANTS.BASE_SPEED; // 50 m/s
+  const HORIZONTAL_SPEED = 8; // m/s for left/right movement
+  const SMOOTH_FACTOR = 0.15; // Lerp factor for smoothness (higher = snappier)
+  const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH; // 5m
 
-  // Check for speed boost power-up
-  const hasSpeedBoost = activePowerUps.some(p => p.type === GateType.SPEED);
-  const actualSpeed = hasSpeedBoost ? speed * 2 : speed;
+  useFrame((_, delta) => {
+    if (status !== 'playing' || !meshRef.current) return;
 
-  // Track width boundaries
-  const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH;
-  const HORIZONTAL_SPEED = GAME_CONSTANTS.HORIZONTAL_SPEED;
+    // Clamp delta to prevent large jumps on lag spikes
+    const clampedDelta = Math.min(delta, 0.05);
 
-  // Reset jump state
-  const resetJump = useCallback(() => {
-    useGameStore.setState((state) => ({
-      player: { ...state.player, isJumping: false }
-    }));
-    jumpCooldown.current = false;
-  }, []);
-
-  // Handle falling off the track
-  const handleFallOff = useCallback(() => {
-    // Lose 5 soldiers when falling off
-    damageArmy(5);
-    onFallOff?.();
-  }, [damageArmy, onFallOff]);
-
-  useFrame((state, delta) => {
-    if (!rigidBodyRef.current || status !== 'playing') return;
-
-    const position = rigidBodyRef.current.translation();
-    const velocity = rigidBodyRef.current.linvel();
-
-    // Calculate new X position based on horizontal velocity
-    let newX = position.x + (player.horizontalVelocity * HORIZONTAL_SPEED * delta);
-
-    // Boundary checking - fall off if beyond track width
-    if (Math.abs(newX) > TRACK_HALF_WIDTH + 0.5) {
-      // Player fell off the edge
-      handleFallOff();
-      // Reset to edge
-      newX = Math.sign(newX) * (TRACK_HALF_WIDTH - 0.5);
-    } else {
-      // Soft boundary - clamp to track width
-      newX = Math.max(-TRACK_HALF_WIDTH, Math.min(TRACK_HALF_WIDTH, newX));
+    // Update target X based on horizontal velocity (continuous while held)
+    if (player.horizontalVelocity !== 0) {
+      targetX.current += player.horizontalVelocity * HORIZONTAL_SPEED * clampedDelta;
     }
 
-    // Move forward constantly + apply horizontal movement
-    rigidBodyRef.current.setLinvel(
-      {
-        x: 0, // We set position directly for smoother horizontal movement
-        y: velocity.y,
-        z: actualSpeed
-      },
-      true
-    );
+    // Clamp target to track bounds
+    targetX.current = Math.max(-TRACK_HALF_WIDTH, Math.min(TRACK_HALF_WIDTH, targetX.current));
 
-    // Apply horizontal position directly for smoother control
-    rigidBodyRef.current.setTranslation(
-      {
-        x: newX,
-        y: position.y,
-        z: position.z
-      },
-      true
-    );
+    // SMOOTH interpolation (lerp) - this is the key to smooth movement!
+    currentX.current = lerp(currentX.current, targetX.current, SMOOTH_FACTOR);
 
-    // Handle jumping with improved physics
-    if (player.isJumping && isGrounded.current && !jumpCooldown.current) {
-      const jumpForce = GAME_CONSTANTS.JUMP_FORCE * (1 + jumpLevel * 0.05);
-      rigidBodyRef.current.applyImpulse({ x: 0, y: jumpForce, z: 0 }, true);
-      isGrounded.current = false;
-      jumpCooldown.current = true;
+    // Move forward constantly
+    positionZ.current += FORWARD_SPEED * clampedDelta;
 
-      // Reset jumping state after jump animation
-      setTimeout(() => {
-        resetJump();
-      }, 600);
-    }
+    // Update mesh position
+    meshRef.current.position.x = currentX.current;
+    meshRef.current.position.z = positionZ.current;
+    meshRef.current.position.y = 0.5; // Slightly above ground
 
-    // Improved ground detection using velocity and position
-    if (position.y < 0.7 && velocity.y <= 0.1 && velocity.y >= -0.5) {
-      isGrounded.current = true;
-    } else if (velocity.y < -0.5) {
-      isGrounded.current = false;
-    }
+    // Update store with position
+    updatePlayerPosition(positionZ.current, currentX.current);
 
-    // Update player position in store (including X for army following)
-    updatePlayerPosition(position.z, newX);
+    // Add subtle body rotation based on movement direction
+    if (bodyRef.current) {
+      // Roll effect when moving sideways
+      const targetRotation = -player.horizontalVelocity * 0.15;
+      bodyRef.current.rotation.z = lerp(bodyRef.current.rotation.z, targetRotation, 0.1);
 
-    // Record path for army snake following
-    const now = Date.now();
-    if (now - lastPathRecordTime.current >= GAME_CONSTANTS.PATH_RECORD_INTERVAL) {
-      lastPathRecordTime.current = now;
-
-      playerPath.push({
-        position: new THREE.Vector3(newX, position.y, position.z),
-        rotation: new THREE.Quaternion(),
-        timestamp: now
-      });
-
-      // Trim old positions
-      while (playerPath.length > MAX_PATH_LENGTH) {
-        playerPath.shift();
-      }
-    }
-
-    // Update mesh rotation for visual effect
-    if (meshRef.current) {
-      meshRef.current.rotation.x += delta * actualSpeed * 0.3;
+      // Spin effect for forward movement
+      bodyRef.current.rotation.x += clampedDelta * FORWARD_SPEED * 0.3;
     }
   });
 
-  // Clear path on mount
-  useEffect(() => {
-    playerPath.length = 0;
-  }, []);
-
-  // Get skin colors
-  const primaryColor = COLORS.PLAYER_PRIMARY;
-  const secondaryColor = COLORS.PLAYER_SECONDARY;
-
   return (
-    <RigidBody
-      ref={rigidBodyRef}
-      position={[0, 1, 0]}
-      type="dynamic"
-      colliders={false}
-      mass={1}
-      linearDamping={0.3}
-      angularDamping={0.5}
-      enabledRotations={[false, false, false]}
-      gravityScale={1.5}
-      onCollisionEnter={(event) => {
-        const userData = event.other.rigidBody?.userData as { type?: string; data?: unknown };
-        if (userData?.type) {
-          onCollision?.(userData.type, userData.data);
-        }
+    <group ref={meshRef} position={[0, 0.5, 0]}>
+      {/* Main body - capsule shape */}
+      <mesh ref={bodyRef} castShadow>
+        <capsuleGeometry args={[0.35, 0.6, 8, 16]} />
+        <meshStandardMaterial
+          color="#4ECDC4"
+          metalness={0.3}
+          roughness={0.7}
+        />
+      </mesh>
 
-        // Check if landed on ground
-        if (event.other.rigidBody?.userData === 'ground') {
-          isGrounded.current = true;
-        }
-      }}
-      userData={{ type: 'player' }}
-    >
-      <CuboidCollider args={[0.4, 0.5, 0.4]} />
+      {/* Head */}
+      <mesh position={[0, 0.7, 0]} castShadow>
+        <sphereGeometry args={[0.25, 16, 16]} />
+        <meshStandardMaterial
+          color="#45B7D1"
+          metalness={0.4}
+          roughness={0.6}
+        />
+      </mesh>
 
-      {/* Player body */}
-      <group>
-        {/* Main body */}
-        <mesh ref={meshRef} castShadow>
-          <capsuleGeometry args={[0.35, 0.6, 8, 16]} />
-          <meshStandardMaterial
-            color={primaryColor}
-            emissive={hasSpeedBoost ? '#3b82f6' : '#000000'}
-            emissiveIntensity={hasSpeedBoost ? 0.5 : 0}
-            metalness={0.3}
-            roughness={0.7}
-          />
-        </mesh>
+      {/* Eyes - facing forward (positive Z) */}
+      <mesh position={[0.1, 0.75, 0.2]}>
+        <sphereGeometry args={[0.05, 8, 8]} />
+        <meshBasicMaterial color="white" />
+      </mesh>
+      <mesh position={[-0.1, 0.75, 0.2]}>
+        <sphereGeometry args={[0.05, 8, 8]} />
+        <meshBasicMaterial color="white" />
+      </mesh>
 
-        {/* Head */}
-        <mesh position={[0, 0.7, 0]} castShadow>
-          <sphereGeometry args={[0.25, 16, 16]} />
-          <meshStandardMaterial
-            color={secondaryColor}
-            metalness={0.4}
-            roughness={0.6}
-          />
-        </mesh>
-
-        {/* Eyes */}
-        <mesh position={[0.1, 0.75, 0.2]}>
-          <sphereGeometry args={[0.05, 8, 8]} />
-          <meshBasicMaterial color="white" />
-        </mesh>
-        <mesh position={[-0.1, 0.75, 0.2]}>
-          <sphereGeometry args={[0.05, 8, 8]} />
-          <meshBasicMaterial color="white" />
-        </mesh>
-
-        {/* Shield effect when active */}
-        {activePowerUps.some(p => p.type === GateType.SHIELD) && (
-          <mesh>
-            <sphereGeometry args={[0.8, 16, 16]} />
-            <meshStandardMaterial
-              color="#8b5cf6"
-              transparent
-              opacity={0.3}
-              emissive="#8b5cf6"
-              emissiveIntensity={0.5}
-            />
-          </mesh>
-        )}
-
-        {/* Magnet effect */}
-        {activePowerUps.some(p => p.type === GateType.MAGNET) && (
-          <mesh>
-            <torusGeometry args={[1.5, 0.05, 8, 32]} />
-            <meshBasicMaterial color="#ec4899" transparent opacity={0.5} />
-          </mesh>
-        )}
-      </group>
-    </RigidBody>
+      {/* Pupils */}
+      <mesh position={[0.1, 0.75, 0.24]}>
+        <sphereGeometry args={[0.02, 8, 8]} />
+        <meshBasicMaterial color="black" />
+      </mesh>
+      <mesh position={[-0.1, 0.75, 0.24]}>
+        <sphereGeometry args={[0.02, 8, 8]} />
+        <meshBasicMaterial color="black" />
+      </mesh>
+    </group>
   );
 }

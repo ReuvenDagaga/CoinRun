@@ -38,7 +38,7 @@ export function PowerUpEffects() {
   return (
     <group position={[player.position.x, player.position.y, player.position.z]}>
       {activePowerUps.map((powerUp) => (
-        <PowerUpEffect key={powerUp.type} type={powerUp.type} />
+        <PowerUpEffect key={powerUp.type} type={powerUp.type as GateType} />
       ))}
     </group>
   );

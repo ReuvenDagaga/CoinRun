@@ -13,6 +13,7 @@ export interface GateData {
   type: SimpleGateType;
   position: { x: number; y: number; z: number };
   isTriggered: boolean;
+  side: 'left' | 'right';
 }
 
 export interface GateConfig {
@@ -43,13 +44,17 @@ export const GATE_CONFIGS: Record<SimpleGateType, GateConfig> = {
   },
   [SimpleGateType.REDUCE_ARMY]: {
     color: '#8B0000', // Dark Red
-    label: '/2 ARMY!',
+    label: 'HALF ARMY!',
     emissiveIntensity: 1.0,
     isPositive: false,
   },
 };
 
-// Generate gates along the track
+// Gate dimensions
+export const GATE_WIDTH = 5; // Half track width (track is 10m wide: -5 to +5)
+export const GATE_HEIGHT = 6;
+
+// Generate gates along the track with random left/right placement
 export function generateGates(trackLength: number = 800): GateData[] {
   const gates: GateData[] = [];
   const GATE_SPACING = 80; // Every 80m
@@ -61,29 +66,30 @@ export function generateGates(trackLength: number = 800): GateData[] {
     SimpleGateType.REDUCE_ARMY,
   ];
 
-  // Predefined gate sequence for balanced gameplay
-  const gateSequence = [
-    SimpleGateType.SPEED_BOOST,    // 100m - start with a boost
-    SimpleGateType.MULTIPLY_ARMY,  // 180m - grow army
-    SimpleGateType.SPEED_SLOW,     // 260m - challenge
-    SimpleGateType.SPEED_BOOST,    // 340m - boost
-    SimpleGateType.REDUCE_ARMY,    // 420m - challenge
-    SimpleGateType.MULTIPLY_ARMY,  // 500m - grow army
-    SimpleGateType.SPEED_BOOST,    // 580m - boost for final stretch
-    SimpleGateType.SPEED_SLOW,     // 660m - final challenge
-    SimpleGateType.MULTIPLY_ARMY,  // 740m - last chance to grow
-  ];
-
   // Start at 100m (give player time to collect some soldiers)
   let z = 100;
-  for (let i = 0; i < gateSequence.length && z < trackLength - 60; i++) {
+  let gateIndex = 0;
+
+  while (z < trackLength - 60) {
+    // Random gate type
+    const randomType = gateTypes[Math.floor(Math.random() * gateTypes.length)];
+
+    // Random side: left (-2.5) or right (+2.5)
+    // Left half: -5 to 0, center at -2.5
+    // Right half: 0 to +5, center at +2.5
+    const isLeftSide = Math.random() < 0.5;
+    const xPosition = isLeftSide ? -2.5 : 2.5;
+
     gates.push({
-      id: `gate-${z}`,
-      type: gateSequence[i],
-      position: { x: 0, y: 0, z },
+      id: `gate-${z}-${isLeftSide ? 'L' : 'R'}`,
+      type: randomType,
+      position: { x: xPosition, y: 0, z },
       isTriggered: false,
+      side: isLeftSide ? 'left' : 'right',
     });
+
     z += GATE_SPACING;
+    gateIndex++;
   }
 
   return gates;

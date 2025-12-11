@@ -7,13 +7,14 @@ import {
   SimpleGateType,
   GateData,
   GATE_CONFIGS,
+  GATE_WIDTH,
+  GATE_HEIGHT,
 } from './gateTypes';
 import { GROUND_Y } from './Player';
 
-// Gate dimensions
-const GATE_WIDTH = 8;
-const GATE_HEIGHT = 6;
-const PILLAR_WIDTH = 0.6;
+// Gate frame dimensions
+const FRAME_THICKNESS = 0.3;
+const BORDER_THICKNESS = 0.15;
 
 // Single Gate component
 interface GateProps {
@@ -23,14 +24,14 @@ interface GateProps {
 
 const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const innerGlowRef = useRef<THREE.Mesh>(null);
+  const innerFillRef = useRef<THREE.Mesh>(null);
   const isTriggeredRef = useRef(false);
 
   const { player, status } = useGameStore();
   const config = GATE_CONFIGS[gate.type];
 
-  // Create glowing material
-  const glowMaterial = useMemo(
+  // Frame material (bright colored, glowing)
+  const frameMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
         color: config.color,
@@ -42,12 +43,22 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
     [config.color, config.emissiveIntensity]
   );
 
-  const innerGlowMaterial = useMemo(
+  // Border material (black)
+  const borderMaterial = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#000000',
+      }),
+    []
+  );
+
+  // Inner fill material (70% transparent)
+  const fillMaterial = useMemo(
     () =>
       new THREE.MeshBasicMaterial({
         color: config.color,
         transparent: true,
-        opacity: 0.25,
+        opacity: 0.3, // 70% transparent
         side: THREE.DoubleSide,
       }),
     [config.color]
@@ -57,121 +68,119 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
     if (!groupRef.current || isTriggeredRef.current || status !== 'playing') return;
 
     // Check if player passes through gate
+    const playerX = player.position.x;
     const playerZ = player.position.z;
+    const gateX = gate.position.x;
     const gateZ = gate.position.z;
 
-    // Trigger when player passes through (within 1.5m of gate Z position)
-    if (Math.abs(playerZ - gateZ) < 1.5 && playerZ > gateZ - 2) {
+    // Calculate horizontal distance from gate center
+    const distX = Math.abs(playerX - gateX);
+    const distZ = Math.abs(playerZ - gateZ);
+
+    // Trigger only if:
+    // 1. Within gate width horizontally (half of GATE_WIDTH from center)
+    // 2. Passing through vertically (within 1.5m of gate Z)
+    if (distX < GATE_WIDTH / 2 && distZ < 1.5) {
       isTriggeredRef.current = true;
       onTrigger(gate.id, gate.type);
       return;
     }
 
-    // Gentle animations
-    const time = state.clock.elapsedTime;
-
-    // Subtle rotation wobble
-    groupRef.current.rotation.y = Math.sin(time * 1.5) * 0.05;
-
-    // Inner glow pulse
-    if (innerGlowRef.current) {
-      const pulse = 0.2 + Math.sin(time * 3) * 0.1;
-      (innerGlowRef.current.material as THREE.MeshBasicMaterial).opacity = pulse;
+    // Gentle pulse animation for fill
+    if (innerFillRef.current) {
+      const time = state.clock.elapsedTime;
+      const pulse = 0.25 + Math.sin(time * 3) * 0.1;
+      (innerFillRef.current.material as THREE.MeshBasicMaterial).opacity = pulse;
     }
   });
 
   // Don't render if triggered
   if (gate.isTriggered) return null;
 
-  const baseY = GROUND_Y + GATE_HEIGHT / 2;
+  const baseY = GROUND_Y;
+  const halfWidth = GATE_WIDTH / 2;
+  const halfHeight = GATE_HEIGHT / 2;
 
   return (
     <group
       ref={groupRef}
       position={[gate.position.x, 0, gate.position.z]}
     >
+      {/* === OUTER BORDER (Black) === */}
+      {/* Left Border */}
+      <mesh position={[-(halfWidth + BORDER_THICKNESS / 2), baseY + halfHeight, 0]} material={borderMaterial}>
+        <boxGeometry args={[BORDER_THICKNESS, GATE_HEIGHT + BORDER_THICKNESS * 2, 0.1]} />
+      </mesh>
+      {/* Right Border */}
+      <mesh position={[halfWidth + BORDER_THICKNESS / 2, baseY + halfHeight, 0]} material={borderMaterial}>
+        <boxGeometry args={[BORDER_THICKNESS, GATE_HEIGHT + BORDER_THICKNESS * 2, 0.1]} />
+      </mesh>
+      {/* Top Border */}
+      <mesh position={[0, baseY + GATE_HEIGHT + BORDER_THICKNESS / 2, 0]} material={borderMaterial}>
+        <boxGeometry args={[GATE_WIDTH + BORDER_THICKNESS * 2, BORDER_THICKNESS, 0.1]} />
+      </mesh>
+      {/* Bottom Border */}
+      <mesh position={[0, baseY - BORDER_THICKNESS / 2, 0]} material={borderMaterial}>
+        <boxGeometry args={[GATE_WIDTH + BORDER_THICKNESS * 2, BORDER_THICKNESS, 0.1]} />
+      </mesh>
+
+      {/* === FRAME (Bright Colored, Glowing) === */}
       {/* Left Pillar */}
-      <mesh position={[-GATE_WIDTH / 2, baseY, 0]} material={glowMaterial} castShadow>
-        <boxGeometry args={[PILLAR_WIDTH, GATE_HEIGHT, PILLAR_WIDTH]} />
+      <mesh position={[-halfWidth + FRAME_THICKNESS / 2, baseY + halfHeight, 0]} material={frameMaterial} castShadow>
+        <boxGeometry args={[FRAME_THICKNESS, GATE_HEIGHT, 0.2]} />
       </mesh>
-
       {/* Right Pillar */}
-      <mesh position={[GATE_WIDTH / 2, baseY, 0]} material={glowMaterial} castShadow>
-        <boxGeometry args={[PILLAR_WIDTH, GATE_HEIGHT, PILLAR_WIDTH]} />
+      <mesh position={[halfWidth - FRAME_THICKNESS / 2, baseY + halfHeight, 0]} material={frameMaterial} castShadow>
+        <boxGeometry args={[FRAME_THICKNESS, GATE_HEIGHT, 0.2]} />
       </mesh>
-
       {/* Top Bar */}
-      <mesh position={[0, GROUND_Y + GATE_HEIGHT + PILLAR_WIDTH / 2, 0]} material={glowMaterial} castShadow>
-        <boxGeometry args={[GATE_WIDTH + PILLAR_WIDTH, PILLAR_WIDTH, PILLAR_WIDTH]} />
+      <mesh position={[0, baseY + GATE_HEIGHT - FRAME_THICKNESS / 2, 0]} material={frameMaterial} castShadow>
+        <boxGeometry args={[GATE_WIDTH, FRAME_THICKNESS, 0.2]} />
       </mesh>
 
-      {/* Inner Glow Plane */}
+      {/* === INNER FILL (70% Transparent) === */}
       <mesh
-        ref={innerGlowRef}
-        position={[0, baseY, 0]}
-        material={innerGlowMaterial}
+        ref={innerFillRef}
+        position={[0, baseY + halfHeight, 0]}
+        material={fillMaterial}
       >
-        <planeGeometry args={[GATE_WIDTH - PILLAR_WIDTH, GATE_HEIGHT - 0.5]} />
+        <planeGeometry args={[GATE_WIDTH - FRAME_THICKNESS * 2, GATE_HEIGHT - FRAME_THICKNESS * 2]} />
       </mesh>
 
-      {/* Decorative ring around gate */}
-      <mesh position={[0, baseY, 0]} rotation={[0, 0, Math.PI / 4]}>
-        <torusGeometry args={[GATE_WIDTH / 2 + 0.5, 0.08, 8, 32]} />
-        <meshBasicMaterial color={config.color} transparent opacity={0.4} />
-      </mesh>
+      {/* === TEXT - Center of Gate === */}
+      {/* Text faces player (rotation ensures it's not mirrored) */}
+      <Text
+        position={[0, baseY + halfHeight, 0.15]}
+        fontSize={0.55}
+        color="#FFFFFF"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.06}
+        outlineColor="#000000"
+        rotation={[0, 0, 0]} // No rotation - faces forward correctly
+      >
+        {config.label}
+      </Text>
 
-      {/* Floating Label Text */}
-      <group position={[0, GROUND_Y + GATE_HEIGHT + 1.5, 0]}>
-        {/* Background for text */}
-        <mesh position={[0, 0, -0.1]}>
-          <planeGeometry args={[4, 1]} />
-          <meshBasicMaterial
-            color={config.isPositive ? '#004400' : '#440000'}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-
-        {/* Label text */}
-        <Text
-          position={[0, 0, 0]}
-          fontSize={0.6}
-          color="#FFFFFF"
-          anchorX="center"
-          anchorY="middle"
-          outlineWidth={0.03}
-          outlineColor="#000000"
-          font={undefined}
-        >
-          {config.label}
-        </Text>
-      </group>
-
-      {/* Bottom ground indicator */}
+      {/* === GROUND INDICATOR === */}
       <mesh
         position={[0, 0.02, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
-        <planeGeometry args={[GATE_WIDTH + 1, 2]} />
+        <planeGeometry args={[GATE_WIDTH, 1.5]} />
         <meshBasicMaterial
           color={config.color}
           transparent
-          opacity={0.3}
+          opacity={0.4}
         />
       </mesh>
 
-      {/* Point lights for glow effect */}
+      {/* === GLOW LIGHTS === */}
       <pointLight
-        position={[-GATE_WIDTH / 2, baseY, 0.5]}
+        position={[0, baseY + halfHeight, 0.5]}
         color={config.color}
-        intensity={0.5}
-        distance={5}
-      />
-      <pointLight
-        position={[GATE_WIDTH / 2, baseY, 0.5]}
-        color={config.color}
-        intensity={0.5}
-        distance={5}
+        intensity={1}
+        distance={6}
       />
     </group>
   );

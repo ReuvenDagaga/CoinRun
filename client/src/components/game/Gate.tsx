@@ -221,7 +221,6 @@ export default function Gate({ gate, onCollect }: GateProps) {
           anchorY="middle"
           outlineWidth={0.08}
           outlineColor="#000000"
-          font="https://fonts.gstatic.com/s/bangers/v24/FeVQS0BTqb0h60ACH55Q.ttf"
         >
           {text}
         </Text>

@@ -8,7 +8,13 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@shared': path.resolve(__dirname, '../shared')
-    }
+    },
+    // Ensure only one instance of Three.js is used across all dependencies
+    dedupe: ['three']
+  },
+  optimizeDeps: {
+    // Pre-bundle Three.js to avoid duplicate instances
+    include: ['three']
   },
   server: {
     port: 3000,

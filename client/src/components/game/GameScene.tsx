@@ -7,6 +7,15 @@ import GameCamera from './GameCamera';
 import { FPSDisplay } from './FPSMonitor';
 import { SoldierPickups, generateSoldiers, SoldierPickupData } from './SoldierPickup';
 import { ArmyFollowers } from './ArmyFollowers';
+import { GatesRenderer } from './Gates';
+import {
+  SimpleGateType,
+  GateData,
+  generateGates,
+  SPEED_EFFECT_DURATION,
+  SPEED_BOOST_MULTIPLIER,
+  SPEED_SLOW_MULTIPLIER,
+} from './gateTypes';
 
 import { useGameStore } from '@/store/gameStore';
 import { useUIStore } from '@/store/uiStore';
@@ -31,12 +40,18 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     startCountdown,
     updateTime,
     addSoldiers,
+    setSpeedMultiplier,
+    multiplyArmy,
+    divideArmy,
   } = useGameStore();
 
   const { graphicsQuality, isVibrationEnabled } = useUIStore();
 
   // Soldier pickups state
   const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);
+
+  // Gates state
+  const [gates, setGates] = useState<GateData[]>([]);
 
   // Initialize game with simplified track and soldiers
   useEffect(() => {
@@ -60,6 +75,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
     // Generate soldiers on the track
     setSoldiers(generateSoldiers(TRACK_LENGTH));
+
+    // Generate gates on the track
+    setGates(generateGates(TRACK_LENGTH));
 
     // Start countdown after brief delay
     setTimeout(() => {
@@ -107,6 +125,39 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       vibrate(15);
     }
   }, [addSoldiers, isVibrationEnabled]);
+
+  // Handle gate trigger
+  const handleGateTrigger = useCallback((gateId: string, gateType: SimpleGateType) => {
+    // Mark gate as triggered
+    setGates(prev =>
+      prev.map(g =>
+        g.id === gateId
+          ? { ...g, isTriggered: true }
+          : g
+      )
+    );
+
+    // Apply gate effect
+    switch (gateType) {
+      case SimpleGateType.SPEED_BOOST:
+        setSpeedMultiplier(SPEED_BOOST_MULTIPLIER, 'boost', SPEED_EFFECT_DURATION);
+        break;
+      case SimpleGateType.SPEED_SLOW:
+        setSpeedMultiplier(SPEED_SLOW_MULTIPLIER, 'slow', SPEED_EFFECT_DURATION);
+        break;
+      case SimpleGateType.MULTIPLY_ARMY:
+        multiplyArmy(2);
+        break;
+      case SimpleGateType.REDUCE_ARMY:
+        divideArmy(2);
+        break;
+    }
+
+    // Haptic feedback for gates
+    if (isVibrationEnabled) {
+      vibrate(30);
+    }
+  }, [setSpeedMultiplier, multiplyArmy, divideArmy, isVibrationEnabled]);
 
   // Swipe/keyboard controls
   useSwipeDetector({
@@ -182,6 +233,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         {/* Track with random textures and finish line */}
         <Track />
+
+        {/* Gates on track */}
+        <GatesRenderer gates={gates} onGateTrigger={handleGateTrigger} />
 
         {/* Soldier pickups on track */}
         <SoldierPickups

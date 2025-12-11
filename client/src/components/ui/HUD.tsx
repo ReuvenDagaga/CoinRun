@@ -1,10 +1,12 @@
-import { useGameStore } from '@/store/gameStore';
+import { useGameStore, selectActiveSpeedEffect, selectSpeedMultiplier } from '@/store/gameStore';
 
 // Track length constant
 const TRACK_LENGTH = 800;
 
 export default function HUD() {
   const { status, player, elapsedTime, countdown } = useGameStore();
+  const activeSpeedEffect = useGameStore(selectActiveSpeedEffect);
+  const speedMultiplier = useGameStore(selectSpeedMultiplier);
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -74,6 +76,24 @@ export default function HUD() {
             </span>
           </div>
         </div>
+
+        {/* Active Speed Effect Indicator */}
+        {activeSpeedEffect && (
+          <div className="mt-3 flex justify-center">
+            <div
+              className={`px-4 py-2 rounded-lg text-white font-bold text-lg animate-pulse ${
+                activeSpeedEffect.type === 'boost'
+                  ? 'bg-green-500/80'
+                  : 'bg-red-500/80'
+              }`}
+            >
+              {activeSpeedEffect.type === 'boost' ? '⚡ SPEED BOOST!' : '🐢 SLOWED!'}
+              <span className="ml-2 text-sm opacity-80">
+                {speedMultiplier > 1 ? `+${Math.round((speedMultiplier - 1) * 100)}%` : `-${Math.round((1 - speedMultiplier) * 100)}%`}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Control hints - Bottom */}

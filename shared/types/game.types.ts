@@ -5,11 +5,18 @@ export const GAME_CONSTANTS = {
   TRACK_LENGTH: 800,          // Changed from 2000 - ~40-60 seconds gameplay
   SECTION_COUNT: 6,           // Changed from 10
   SECTION_LENGTH: 130,        // Changed from 200 - ~8-10 seconds per section
+
+  // New: Free movement track (no lanes)
+  TRACK_WIDTH: 10,            // 10m wide track (-5m to +5m)
+  TRACK_HALF_WIDTH: 5,        // For bounds checking
+
+  // Legacy lane support (for backward compatibility with track generation)
   LANE_COUNT: 3,
   LANE_WIDTH: 3,
 
   // Player - Increased speed for faster gameplay
   BASE_SPEED: 50,             // Changed from 10 - 5x faster!
+  HORIZONTAL_SPEED: 15,       // New: Horizontal movement speed (m/s)
   BASE_JUMP_HEIGHT: 3,        // Increased for faster gameplay
   BASE_MAX_ARMY: 30,
   BASE_STARTING_ARMY: 1,
@@ -23,6 +30,16 @@ export const GAME_CONSTANTS = {
   GRAVITY: 9.8,
   JUMP_FORCE: 15,
   COLLISION_RADIUS: 1,
+
+  // Shooting system
+  BULLET_SPEED: 80,           // Bullets travel at 80 m/s
+  BULLET_FIRE_RATE: 1,        // 1 bullet per second per soldier
+  BASE_BULLET_DAMAGE: 10,     // Base damage per bullet
+
+  // Army formation (snake following)
+  SOLDIER_SPACING: 1.5,       // Distance between soldiers
+  PATH_RECORD_INTERVAL: 50,   // Record position every 50ms
+  SOLDIER_FOLLOW_DELAY: 300,  // Each soldier follows with 300ms delay
 
   // Networking
   TICK_RATE: 20,
@@ -102,7 +119,8 @@ export interface Vector3 {
 export interface PlayerState {
   id: string;
   position: Vector3;
-  lane: number;
+  lane: number;              // Legacy, kept for compatibility
+  horizontalVelocity: number; // -1 (left), 0 (none), 1 (right)
   isJumping: boolean;
   armyCount: number;
   score: number;

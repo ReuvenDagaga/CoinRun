@@ -73,7 +73,7 @@ const SECTION_ORDER: SectionType[] = [
   SectionType.FINISH        // 650-800m: Sprint to end
 ];
 
-// Section configurations
+// Section configurations - INCREASED DIFFICULTY (50% more content)
 const SECTION_CONFIG: Record<SectionType, {
   enemies: { min: number; max: number; types: EnemyType[] };
   gates: { min: number; max: number; types: GateType[] };
@@ -81,64 +81,71 @@ const SECTION_CONFIG: Record<SectionType, {
   coins: { min: number; max: number };
 }> = {
   [SectionType.INTRO]: {
-    enemies: { min: 0, max: 0, types: [] },
-    gates: { min: 3, max: 5, types: [GateType.ADD, GateType.MULTIPLY] },
-    obstacles: { min: 0, max: 2, types: [ObstacleType.WALL] },
-    coins: { min: 20, max: 30 }
+    // Intro with light challenges now
+    enemies: { min: 1, max: 3, types: [EnemyType.STATIC] },
+    gates: { min: 4, max: 6, types: [GateType.ADD, GateType.MULTIPLY] },
+    obstacles: { min: 2, max: 4, types: [ObstacleType.WALL] },
+    coins: { min: 25, max: 35 }
   },
   [SectionType.EASY]: {
-    enemies: { min: 1, max: 2, types: [EnemyType.STATIC] },
-    gates: { min: 2, max: 3, types: [GateType.ADD] },
+    enemies: { min: 3, max: 5, types: [EnemyType.STATIC, EnemyType.PATROL] },
+    gates: { min: 3, max: 4, types: [GateType.ADD] },
+    obstacles: { min: 4, max: 6, types: [ObstacleType.WALL] },
+    coins: { min: 20, max: 30 }
+  },
+  [SectionType.COMBAT]: {
+    // More enemies, more aggressive
+    enemies: { min: 5, max: 8, types: [EnemyType.STATIC, EnemyType.PATROL, EnemyType.CHARGER] },
+    gates: { min: 3, max: 5, types: [GateType.ADD, GateType.BULLETS, GateType.SHIELD] },
+    obstacles: { min: 3, max: 5, types: [ObstacleType.WALL] },
+    coins: { min: 15, max: 25 }
+  },
+  [SectionType.PLATFORMING]: {
+    // More jumps, timing challenges
+    enemies: { min: 2, max: 4, types: [EnemyType.STATIC] },
+    gates: { min: 3, max: 4, types: [GateType.ADD, GateType.SPEED] },
+    obstacles: { min: 6, max: 10, types: [ObstacleType.GAP, ObstacleType.WALL, ObstacleType.MOVING_PLATFORM] },
+    coins: { min: 20, max: 30 }
+  },
+  [SectionType.BONUS]: {
+    // Keep as reward section but add some challenge
+    enemies: { min: 0, max: 2, types: [EnemyType.STATIC] },
+    gates: { min: 5, max: 8, types: [GateType.ADD, GateType.MULTIPLY, GateType.MAGNET] },
+    obstacles: { min: 1, max: 3, types: [ObstacleType.WALL] },
+    coins: { min: 45, max: 70 }
+  },
+  [SectionType.HARD_COMBAT]: {
+    // Intense combat
+    enemies: { min: 6, max: 10, types: [EnemyType.PATROL, EnemyType.CHARGER, EnemyType.BOSS] },
+    gates: { min: 3, max: 5, types: [GateType.ADD, GateType.MULTIPLY, GateType.SHIELD, GateType.BULLETS] },
     obstacles: { min: 2, max: 4, types: [ObstacleType.WALL] },
     coins: { min: 15, max: 25 }
   },
-  [SectionType.COMBAT]: {
-    enemies: { min: 3, max: 5, types: [EnemyType.STATIC, EnemyType.PATROL] },
-    gates: { min: 2, max: 3, types: [GateType.ADD, GateType.BULLETS] },
-    obstacles: { min: 1, max: 2, types: [ObstacleType.WALL] },
-    coins: { min: 10, max: 15 }
-  },
-  [SectionType.PLATFORMING]: {
-    enemies: { min: 0, max: 1, types: [EnemyType.STATIC] },
-    gates: { min: 2, max: 3, types: [GateType.ADD, GateType.SPEED] },
-    obstacles: { min: 4, max: 6, types: [ObstacleType.GAP, ObstacleType.WALL] },
-    coins: { min: 15, max: 20 }
-  },
-  [SectionType.BONUS]: {
-    enemies: { min: 0, max: 0, types: [] },
-    gates: { min: 4, max: 6, types: [GateType.ADD, GateType.MULTIPLY, GateType.MAGNET] },
-    obstacles: { min: 0, max: 1, types: [ObstacleType.WALL] },
-    coins: { min: 30, max: 50 }
-  },
-  [SectionType.HARD_COMBAT]: {
-    enemies: { min: 4, max: 6, types: [EnemyType.PATROL, EnemyType.CHARGER, EnemyType.BOSS] },
-    gates: { min: 2, max: 4, types: [GateType.ADD, GateType.MULTIPLY, GateType.SHIELD] },
-    obstacles: { min: 1, max: 2, types: [ObstacleType.WALL] },
-    coins: { min: 10, max: 20 }
-  },
   [SectionType.SPEED]: {
-    enemies: { min: 2, max: 3, types: [EnemyType.STATIC, EnemyType.CHARGER] },
-    gates: { min: 2, max: 3, types: [GateType.SPEED, GateType.ADD] },
-    obstacles: { min: 3, max: 5, types: [ObstacleType.WALL, ObstacleType.GAP] },
-    coins: { min: 15, max: 25 }
+    enemies: { min: 4, max: 6, types: [EnemyType.STATIC, EnemyType.CHARGER] },
+    gates: { min: 3, max: 5, types: [GateType.SPEED, GateType.ADD] },
+    obstacles: { min: 5, max: 8, types: [ObstacleType.WALL, ObstacleType.GAP] },
+    coins: { min: 20, max: 35 }
   },
   [SectionType.COLLECTION]: {
-    enemies: { min: 0, max: 1, types: [EnemyType.STATIC] },
-    gates: { min: 3, max: 4, types: [GateType.MAGNET, GateType.ADD] },
-    obstacles: { min: 1, max: 2, types: [ObstacleType.WALL] },
-    coins: { min: 40, max: 60 }
+    enemies: { min: 1, max: 3, types: [EnemyType.STATIC] },
+    gates: { min: 4, max: 6, types: [GateType.MAGNET, GateType.ADD, GateType.MULTIPLY] },
+    obstacles: { min: 2, max: 4, types: [ObstacleType.WALL] },
+    coins: { min: 60, max: 80 }
   },
   [SectionType.GAUNTLET]: {
-    enemies: { min: 3, max: 5, types: [EnemyType.STATIC, EnemyType.PATROL, EnemyType.CHARGER] },
-    gates: { min: 2, max: 3, types: [GateType.ADD, GateType.SHIELD, GateType.BULLETS] },
-    obstacles: { min: 3, max: 5, types: [ObstacleType.WALL, ObstacleType.GAP] },
-    coins: { min: 20, max: 30 }
+    // HARD - everything at once
+    enemies: { min: 6, max: 10, types: [EnemyType.STATIC, EnemyType.PATROL, EnemyType.CHARGER, EnemyType.BOSS] },
+    gates: { min: 3, max: 5, types: [GateType.ADD, GateType.SHIELD, GateType.BULLETS, GateType.MULTIPLY] },
+    obstacles: { min: 5, max: 8, types: [ObstacleType.WALL, ObstacleType.GAP] },
+    coins: { min: 30, max: 45 }
   },
   [SectionType.FINISH]: {
-    enemies: { min: 1, max: 2, types: [EnemyType.STATIC] },
-    gates: { min: 3, max: 4, types: [GateType.ADD, GateType.MULTIPLY] },
-    obstacles: { min: 1, max: 2, types: [ObstacleType.WALL] },
-    coins: { min: 25, max: 35 }
+    // Final challenge with boss fight feel
+    enemies: { min: 4, max: 6, types: [EnemyType.CHARGER, EnemyType.BOSS] },
+    gates: { min: 4, max: 6, types: [GateType.ADD, GateType.MULTIPLY, GateType.SHIELD] },
+    obstacles: { min: 4, max: 7, types: [ObstacleType.WALL, ObstacleType.GAP] },
+    coins: { min: 35, max: 50 }
   }
 };
 

@@ -1,10 +1,14 @@
-import { useRef } from 'react';
+import { useRef, useMemo, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import type { ObstacleState } from '@shared/types/game.types';
 import { ObstacleType } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
+import { useGameStore } from '@/store/gameStore';
+
+// Performance constants
+const RENDER_DISTANCE = 80;
 
 interface ObstacleProps {
   obstacle: ObstacleState;
@@ -98,16 +102,26 @@ export default function Obstacle({ obstacle, onCollision }: ObstacleProps) {
   }
 }
 
-// Render all obstacles
+// Optimized obstacles renderer with distance culling
 interface ObstaclesRendererProps {
   obstacles: ObstacleState[];
   onCollision: (obstacle: ObstacleState) => void;
 }
 
-export function ObstaclesRenderer({ obstacles, onCollision }: ObstaclesRendererProps) {
+export const ObstaclesRenderer = memo(function ObstaclesRenderer({ obstacles, onCollision }: ObstaclesRendererProps) {
+  const { player } = useGameStore();
+
+  // Filter obstacles by render distance
+  const visibleObstacles = useMemo(() => {
+    return obstacles.filter(obstacle => {
+      const dist = Math.abs(obstacle.position.z - player.position.z);
+      return dist < RENDER_DISTANCE;
+    });
+  }, [obstacles, player.position.z]);
+
   return (
     <group>
-      {obstacles.map((obstacle) => (
+      {visibleObstacles.map((obstacle) => (
         <Obstacle
           key={obstacle.id}
           obstacle={obstacle}
@@ -116,4 +130,4 @@ export function ObstaclesRenderer({ obstacles, onCollision }: ObstaclesRendererP
       ))}
     </group>
   );
-}
+});

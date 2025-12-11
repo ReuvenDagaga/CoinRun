@@ -3,8 +3,19 @@ import { AuthRequest } from '../middleware/authMiddleware.js';
 import { User } from '../models/Users.js';
 import { RunnerGame } from '../models/RunnerGame.js';
 import { Transaction } from '../models/Transactions.js';
+import { updateMissionProgress } from './missionController.js';
+import { updateAchievementProgress } from './achievementController.js';
 
-// Start solo game
+// Game constants for anti-cheat validation
+const TRACK_LENGTH = 800; // meters
+const PLAYER_BASE_SPEED = 50; // m/s
+const MAX_SPEED_MULTIPLIER = 3; // Max realistic speed boost
+const MAX_ARMY_BASE = 30; // Base max army
+const MAX_COINS_PER_METER = 2; // Generous estimate
+
+/**
+ * Start solo game
+ */
 export async function startSoloGame(req: AuthRequest, res: Response) {
   try {
     const user = req.user;
@@ -18,12 +29,25 @@ export async function startSoloGame(req: AuthRequest, res: Response) {
     // Calculate difficulty based on user stats
     const difficulty = Math.min(1 + user.gamesPlayed / 20, 5);
 
+    // Snapshot of current upgrade levels (for anti-cheat)
+    const upgradeLevels = {
+      capacity: user.upgrades.capacity,
+      addWarrior: user.upgrades.addWarrior,
+      warriorUpgrade: user.upgrades.warriorUpgrade,
+      income: user.upgrades.income,
+      speed: user.upgrades.speed,
+      jump: user.upgrades.jump,
+      bulletPower: user.upgrades.bulletPower,
+      magnetRadius: user.upgrades.magnetRadius
+    };
+
     // Create game record
     const game = new RunnerGame({
       gameType: 'solo',
+      userId: user._id,
       trackSeed,
       trackDifficulty: difficulty,
-      players: [{ userId: user._id }],
+      upgradeLevels,
       status: 'in_progress'
     });
 
@@ -34,7 +58,8 @@ export async function startSoloGame(req: AuthRequest, res: Response) {
       data: {
         gameId: game._id,
         trackSeed,
-        difficulty
+        difficulty,
+        upgrades: upgradeLevels
       }
     });
   } catch (error) {
@@ -43,7 +68,45 @@ export async function startSoloGame(req: AuthRequest, res: Response) {
   }
 }
 
-// Finish solo game
+/**
+ * Validate game results for anti-cheat
+ */
+function validateGameResults(result: any, upgradeLevels: any): { valid: boolean; reason?: string } {
+  // Max coins based on track length
+  const maxCoins = TRACK_LENGTH * MAX_COINS_PER_METER;
+  if (result.coinsCollected > maxCoins) {
+    return { valid: false, reason: 'Coins collected exceeds maximum possible' };
+  }
+
+  // Max distance is track length
+  if (result.distanceTraveled > TRACK_LENGTH * 1.1) { // 10% buffer for overshooting
+    return { valid: false, reason: 'Distance exceeds track length' };
+  }
+
+  // Minimum time based on max possible speed
+  const maxSpeed = PLAYER_BASE_SPEED * MAX_SPEED_MULTIPLIER;
+  const minTime = TRACK_LENGTH / maxSpeed;
+  if (result.didFinish && result.timeTaken < minTime * 0.8) { // 20% buffer
+    return { valid: false, reason: 'Completion time too fast' };
+  }
+
+  // Max army based on capacity upgrade
+  const maxArmy = MAX_ARMY_BASE + upgradeLevels.capacity * 2;
+  if (result.maxArmy > maxArmy) {
+    return { valid: false, reason: 'Max army exceeds capacity' };
+  }
+
+  // Negative values check
+  if (result.coinsCollected < 0 || result.distanceTraveled < 0 || result.timeTaken < 0 || result.maxArmy < 0) {
+    return { valid: false, reason: 'Negative values detected' };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Finish solo game
+ */
 export async function finishSoloGame(req: AuthRequest, res: Response) {
   try {
     const user = req.user;
@@ -53,6 +116,11 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
 
     const { gameId, result } = req.body;
 
+    // Validate required fields
+    if (!result || typeof result.finalScore !== 'number') {
+      return res.status(400).json({ success: false, error: 'Invalid result data' });
+    }
+
     // Find game
     const game = await RunnerGame.findById(gameId);
     if (!game || game.status !== 'in_progress') {
@@ -60,32 +128,38 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
     }
 
     // Verify player
-    const playerIndex = game.players.findIndex(p => p.userId.toString() === user._id.toString());
-    if (playerIndex === -1) {
-      return res.status(400).json({ success: false, error: 'Player not in game' });
+    if (game.userId.toString() !== user._id.toString()) {
+      return res.status(400).json({ success: false, error: 'Unauthorized' });
     }
 
-    // Update player result
-    game.players[playerIndex] = {
-      ...game.players[playerIndex],
-      finalScore: result.finalScore,
-      coinsCollected: result.coinsCollected,
-      maxArmy: result.maxArmy,
-      distanceTraveled: result.distanceTraveled,
-      timeTaken: result.timeTaken,
-      didFinish: result.didFinish,
-      enemiesKilled: result.enemiesKilled || 0,
-      perfectGates: result.perfectGates || 0
-    };
+    // Anti-cheat validation
+    const validation = validateGameResults(result, game.upgradeLevels);
+    if (!validation.valid) {
+      console.warn(`Anti-cheat triggered for user ${user._id}: ${validation.reason}`);
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid game results',
+        details: validation.reason
+      });
+    }
 
+    // Update game record
+    game.finalScore = result.finalScore || 0;
+    game.coinsCollected = result.coinsCollected || 0;
+    game.maxArmy = result.maxArmy || 0;
+    game.distanceTraveled = result.distanceTraveled || 0;
+    game.timeTaken = result.timeTaken || 0;
+    game.didFinish = result.didFinish || false;
+    game.enemiesKilled = result.enemiesKilled || 0;
+    game.perfectGates = result.perfectGates || 0;
     game.status = 'finished';
     game.finishedAt = new Date();
     game.duration = result.timeTaken;
 
     await game.save();
 
-    // Calculate rewards
-    const incomeMultiplier = 1 + user.upgrades.income * 0.15;
+    // Calculate rewards with income multiplier
+    const incomeMultiplier = 1 + game.upgradeLevels.income * 0.01; // 1% per level
     const baseReward = 50 +
       result.coinsCollected +
       result.maxArmy * 2 +
@@ -95,6 +169,7 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
     const coinReward = Math.floor(baseReward * incomeMultiplier);
 
     // Update user stats
+    const previousCoins = user.coins;
     user.gamesPlayed += 1;
     if (result.didFinish) {
       user.gamesWon += 1;
@@ -102,6 +177,7 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
     user.totalDistance += result.distanceTraveled;
     user.totalCoinsCollected += result.coinsCollected;
     user.highestArmy = Math.max(user.highestArmy, result.maxArmy);
+    user.bestScore = Math.max(user.bestScore, result.finalScore);
     user.coins += coinReward;
 
     await user.save();
@@ -109,21 +185,40 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
     // Create transaction record
     await Transaction.create({
       userId: user._id,
-      type: 'reward',
+      type: 'game_reward',
       currency: 'coins',
       amount: coinReward,
-      balanceBefore: user.coins - coinReward,
+      balanceBefore: previousCoins,
       balanceAfter: user.coins,
       description: `Solo game reward`,
       relatedGameId: game._id
+    });
+
+    // Update mission progress
+    await updateMissionProgress(user._id.toString(), {
+      gamesPlayed: 1,
+      coinsCollected: result.coinsCollected,
+      maxArmy: result.maxArmy,
+      didFinish: result.didFinish,
+      timeTaken: result.timeTaken,
+      totalCoins: user.totalCoinsCollected
+    });
+
+    // Update achievement progress
+    const unlockedAchievements = await updateAchievementProgress(user._id.toString(), {
+      gamesPlayed: user.gamesPlayed,
+      gamesWon: user.gamesWon,
+      totalCoins: user.totalCoinsCollected,
+      totalDistance: user.totalDistance,
+      highestArmy: user.highestArmy,
+      bestScore: user.bestScore
     });
 
     res.json({
       success: true,
       data: {
         reward: {
-          coins: coinReward,
-          xp: Math.floor(result.finalScore / 100)
+          coins: coinReward
         },
         newBalance: {
           coins: user.coins,
@@ -131,8 +226,10 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
         },
         stats: {
           gamesPlayed: user.gamesPlayed,
-          gamesWon: user.gamesWon
-        }
+          gamesWon: user.gamesWon,
+          bestScore: user.bestScore
+        },
+        unlockedAchievements: unlockedAchievements || []
       }
     });
   } catch (error) {
@@ -141,7 +238,9 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
   }
 }
 
-// Get leaderboard
+/**
+ * Get leaderboard
+ */
 export async function getLeaderboard(req: AuthRequest, res: Response) {
   try {
     const { type = 'daily', limit = 100 } = req.query;
@@ -167,14 +266,13 @@ export async function getLeaderboard(req: AuthRequest, res: Response) {
 
     // Aggregate top scores
     const leaderboard = await RunnerGame.aggregate([
-      { $match: { status: 'finished', ...dateFilter } },
-      { $unwind: '$players' },
+      { $match: { status: 'finished', gameType: 'solo', ...dateFilter } },
       {
         $group: {
-          _id: '$players.userId',
-          highScore: { $max: '$players.finalScore' },
+          _id: '$userId',
+          highScore: { $max: '$finalScore' },
           totalGames: { $sum: 1 },
-          totalWins: { $sum: { $cond: ['$players.didFinish', 1, 0] } }
+          totalWins: { $sum: { $cond: ['$didFinish', 1, 0] } }
         }
       },
       { $sort: { highScore: -1 } },
@@ -216,7 +314,9 @@ export async function getLeaderboard(req: AuthRequest, res: Response) {
   }
 }
 
-// Get player stats
+/**
+ * Get player stats and game history
+ */
 export async function getPlayerStats(req: AuthRequest, res: Response) {
   try {
     const user = req.user;
@@ -226,12 +326,12 @@ export async function getPlayerStats(req: AuthRequest, res: Response) {
 
     // Get recent games
     const recentGames = await RunnerGame.find({
-      'players.userId': user._id,
+      userId: user._id,
       status: 'finished'
     })
       .sort({ finishedAt: -1 })
       .limit(10)
-      .select('gameType players finishedAt betAmount winnerId');
+      .select('gameType finalScore didFinish coinsCollected maxArmy distanceTraveled finishedAt');
 
     res.json({
       success: true,
@@ -239,23 +339,22 @@ export async function getPlayerStats(req: AuthRequest, res: Response) {
         stats: {
           gamesPlayed: user.gamesPlayed,
           gamesWon: user.gamesWon,
-          winRate: user.gamesPlayed > 0 ? (user.gamesWon / user.gamesPlayed) * 100 : 0,
+          winRate: user.gamesPlayed > 0 ? Math.floor((user.gamesWon / user.gamesPlayed) * 100) : 0,
           totalDistance: user.totalDistance,
           totalCoinsCollected: user.totalCoinsCollected,
-          highestArmy: user.highestArmy
+          highestArmy: user.highestArmy,
+          bestScore: user.bestScore
         },
-        recentGames: recentGames.map(game => {
-          const playerResult = game.players.find(p => p.userId.toString() === user._id.toString());
-          return {
-            gameId: game._id,
-            type: game.gameType,
-            score: playerResult?.finalScore || 0,
-            didFinish: playerResult?.didFinish || false,
-            finishedAt: game.finishedAt,
-            betAmount: game.betAmount,
-            won: game.winnerId?.toString() === user._id.toString()
-          };
-        })
+        recentGames: recentGames.map(game => ({
+          gameId: game._id,
+          type: game.gameType,
+          score: game.finalScore,
+          coinsCollected: game.coinsCollected,
+          maxArmy: game.maxArmy,
+          distance: game.distanceTraveled,
+          didFinish: game.didFinish,
+          finishedAt: game.finishedAt
+        }))
       }
     });
   } catch (error) {

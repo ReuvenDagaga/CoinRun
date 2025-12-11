@@ -38,7 +38,7 @@ export default function Player() {
   const speedMultiplier = useGameStore(selectSpeedMultiplier);
 
   // Movement constants - tuned for smooth feel
-  const FORWARD_SPEED = GAME_CONSTANTS.BASE_SPEED; // 50 m/s
+  const FORWARD_SPEED = 25; // Reduced to 25 m/s (half of 50) for testing
   const HORIZONTAL_SPEED = 8; // m/s for left/right movement
   const SMOOTH_FACTOR = 0.15; // Lerp factor for smoothness (higher = snappier)
   const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH; // 5m

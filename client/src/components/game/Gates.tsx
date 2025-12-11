@@ -16,13 +16,37 @@ import { GROUND_Y } from './Player';
 const FRAME_THICKNESS = 0.3;
 const BORDER_THICKNESS = 0.15;
 
+// Army formation constants (must match ArmyFollowers.tsx)
+const SOLDIERS_PER_ROW = 3;
+const SPACING_X = 1.2;
+const SPACING_Z = 1.5;
+const BACK_OFFSET = -2.0;
+
+// Calculate formation position for a soldier at given index
+function getArmyPosition(
+  index: number,
+  playerX: number,
+  playerZ: number
+): { x: number; z: number } {
+  const row = Math.floor(index / SOLDIERS_PER_ROW);
+  const col = index % SOLDIERS_PER_ROW;
+  const xOffset = (col - (SOLDIERS_PER_ROW - 1) / 2) * SPACING_X;
+  const zOffset = BACK_OFFSET - row * SPACING_Z;
+
+  return {
+    x: playerX + xOffset,
+    z: playerZ + zOffset,
+  };
+}
+
 // Single Gate component
 interface GateProps {
   gate: GateData;
   onTrigger: (gateId: string, gateType: SimpleGateType) => void;
+  armySize: number;
 }
 
-const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
+const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateProps) {
   const groupRef = useRef<THREE.Group>(null);
   const innerFillRef = useRef<THREE.Mesh>(null);
   const isTriggeredRef = useRef(false);
@@ -67,23 +91,33 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
   useFrame((state) => {
     if (!groupRef.current || isTriggeredRef.current || status !== 'playing') return;
 
-    // Check if player passes through gate
-    const playerX = player.position.x;
-    const playerZ = player.position.z;
     const gateX = gate.position.x;
     const gateZ = gate.position.z;
+    const playerX = player.position.x;
+    const playerZ = player.position.z;
 
-    // Calculate horizontal distance from gate center
-    const distX = Math.abs(playerX - gateX);
-    const distZ = Math.abs(playerZ - gateZ);
+    // Helper function to check if a position triggers the gate
+    const checkCollision = (posX: number, posZ: number): boolean => {
+      const distX = Math.abs(posX - gateX);
+      const distZ = Math.abs(posZ - gateZ);
+      return distX < GATE_WIDTH / 2 && distZ < 1.5;
+    };
 
-    // Trigger only if:
-    // 1. Within gate width horizontally (half of GATE_WIDTH from center)
-    // 2. Passing through vertically (within 1.5m of gate Z)
-    if (distX < GATE_WIDTH / 2 && distZ < 1.5) {
+    // Check main player collision first
+    if (checkCollision(playerX, playerZ)) {
       isTriggeredRef.current = true;
       onTrigger(gate.id, gate.type);
       return;
+    }
+
+    // Check ALL army soldiers for collision
+    for (let i = 0; i < armySize; i++) {
+      const soldierPos = getArmyPosition(i, playerX, playerZ);
+      if (checkCollision(soldierPos.x, soldierPos.z)) {
+        isTriggeredRef.current = true;
+        onTrigger(gate.id, gate.type);
+        return;
+      }
     }
 
     // Gentle pulse animation for fill
@@ -148,7 +182,7 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
       </mesh>
 
       {/* === TEXT - Center of Gate === */}
-      {/* Text faces player (rotation ensures it's not mirrored) */}
+      {/* Text rotated 180° around Y to face player (who runs toward +Z) */}
       <Text
         position={[0, baseY + halfHeight, 0.15]}
         fontSize={0.55}
@@ -157,7 +191,7 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
         anchorY="middle"
         outlineWidth={0.06}
         outlineColor="#000000"
-        rotation={[0, 0, 0]} // No rotation - faces forward correctly
+        rotation={[0, Math.PI, 0]} // Rotated 180° to face player
       >
         {config.label}
       </Text>
@@ -190,11 +224,13 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger }: GateProps) {
 interface GatesProps {
   gates: GateData[];
   onGateTrigger: (gateId: string, gateType: SimpleGateType) => void;
+  armySize: number; // Number of soldiers following (NOT including player)
 }
 
 export const GatesRenderer = memo(function GatesRenderer({
   gates,
   onGateTrigger,
+  armySize,
 }: GatesProps) {
   // Filter out triggered gates
   const activeGates = useMemo(
@@ -209,6 +245,7 @@ export const GatesRenderer = memo(function GatesRenderer({
           key={gate.id}
           gate={gate}
           onTrigger={onGateTrigger}
+          armySize={armySize}
         />
       ))}
     </group>

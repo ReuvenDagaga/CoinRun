@@ -235,7 +235,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         <Track />
 
         {/* Gates on track */}
-        <GatesRenderer gates={gates} onGateTrigger={handleGateTrigger} />
+        <GatesRenderer gates={gates} onGateTrigger={handleGateTrigger} armySize={armySize} />
 
         {/* Soldier pickups on track */}
         <SoldierPickups

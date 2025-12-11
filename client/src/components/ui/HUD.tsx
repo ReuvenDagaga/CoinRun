@@ -32,19 +32,28 @@ export default function HUD() {
 
   return (
     <div className="absolute inset-0 pointer-events-none z-40">
-      {/* Top bar - Distance and Time only */}
+      {/* Top bar - Distance, Army, and Time */}
       <div className="absolute top-0 left-0 right-0 p-4">
-        {/* Distance counter - Top Left */}
-        <div className="flex items-center justify-between">
-          <div className="bg-black/50 px-4 py-2 rounded-lg">
-            <div className="text-white text-xl font-bold font-mono">
+        {/* Top row - Distance, Army count, Timer */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Distance counter - Left */}
+          <div className="bg-black/50 px-3 py-2 rounded-lg">
+            <div className="text-white text-lg font-bold font-mono">
               {Math.floor(player.distanceTraveled)}m / {TRACK_LENGTH}m
             </div>
           </div>
 
-          {/* Timer - Top Right */}
-          <div className="bg-black/50 px-4 py-2 rounded-lg">
-            <span className="text-white font-mono font-bold text-xl">
+          {/* Army counter - Center */}
+          <div className="bg-blue-600/70 px-4 py-2 rounded-lg">
+            <div className="text-white text-lg font-bold flex items-center gap-2">
+              <span className="text-blue-200">Army:</span>
+              <span className="text-2xl">{player.armyCount}</span>
+            </div>
+          </div>
+
+          {/* Timer - Right */}
+          <div className="bg-black/50 px-3 py-2 rounded-lg">
+            <span className="text-white font-mono font-bold text-lg">
               {formatTime(elapsedTime)}
             </span>
           </div>
@@ -107,6 +116,20 @@ export function VictoryScreen() {
             <div className="text-white/80 text-sm">Time</div>
             <div className="text-white text-2xl font-bold">
               {formatTime(result?.timeTaken || 0)}
+            </div>
+          </div>
+
+          <div className="bg-blue-500/30 rounded-lg p-3">
+            <div className="text-blue-200 text-sm">Army Size</div>
+            <div className="text-white text-2xl font-bold">
+              {result?.maxArmy || 1} soldiers
+            </div>
+          </div>
+
+          <div className="bg-yellow-500/30 rounded-lg p-3">
+            <div className="text-yellow-200 text-sm">Score</div>
+            <div className="text-white text-2xl font-bold">
+              {result?.finalScore?.toLocaleString() || 0}
             </div>
           </div>
         </div>

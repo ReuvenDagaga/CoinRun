@@ -171,9 +171,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   finishGame: () => {
     const { player, elapsedTime } = get();
     const result: GameResult = {
-      finalScore: Math.floor(player.distanceTraveled * 10),
+      finalScore: Math.floor(player.distanceTraveled * 10) + (player.armyCount * 100),
       coinsCollected: 0,
-      maxArmy: 1,
+      maxArmy: player.armyCount,
       distanceTraveled: player.distanceTraveled,
       timeTaken: elapsedTime,
       didFinish: true,
@@ -225,11 +225,19 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
   },
 
-  // Legacy actions - kept for compatibility but simplified
+  // Legacy actions - kept for compatibility but now addSoldiers works
   collectCoin: () => {},
   collectGate: () => {},
   damageArmy: () => {},
-  addSoldiers: () => {},
+  addSoldiers: (count: number) => {
+    const { player } = get();
+    set({
+      player: {
+        ...player,
+        armyCount: player.armyCount + count,
+      },
+    });
+  },
   multiplySoldiers: () => {},
   activatePowerUp: () => {},
   updatePowerUps: () => {},

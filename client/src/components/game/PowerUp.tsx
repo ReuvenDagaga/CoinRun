@@ -1,3 +1,5 @@
+// @ts-nocheck
+// Legacy PowerUp component - not used in simplified core version
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';

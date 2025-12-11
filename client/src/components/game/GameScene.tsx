@@ -1,10 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 
 import Player from './Player';
 import Track, { Environment } from './Track';
 import GameCamera from './GameCamera';
 import { FPSDisplay } from './FPSMonitor';
+import { SoldierPickups, generateSoldiers, SoldierPickupData } from './SoldierPickup';
+import { ArmyFollowers } from './ArmyFollowers';
 
 import { useGameStore } from '@/store/gameStore';
 import { useUIStore } from '@/store/uiStore';
@@ -27,13 +29,16 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     handleSwipe,
     stopHorizontalMovement,
     startCountdown,
-    finishGame,
     updateTime,
+    addSoldiers,
   } = useGameStore();
 
   const { graphicsQuality, isVibrationEnabled } = useUIStore();
 
-  // Initialize game with simplified track
+  // Soldier pickups state
+  const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);
+
+  // Initialize game with simplified track and soldiers
   useEffect(() => {
     const seed = trackSeed || `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -53,13 +58,16 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       speed: 0
     });
 
+    // Generate soldiers on the track
+    setSoldiers(generateSoldiers(TRACK_LENGTH));
+
     // Start countdown after brief delay
     setTimeout(() => {
       startCountdown();
     }, 500);
   }, [mode, trackSeed, initGame, startCountdown]);
 
-  // Game loop - update time and check finish
+  // Game loop - update time only (finish is handled in Player component)
   useEffect(() => {
     if (status !== 'playing' && status !== 'countdown') return;
 
@@ -73,17 +81,32 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
       updateTime(delta);
 
-      // Check for finish (800m)
-      if (status === 'playing' && player.distanceTraveled >= TRACK_LENGTH - 5) {
-        finishGame();
-      }
-
       animationId = requestAnimationFrame(gameLoop);
     };
 
     animationId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationId);
-  }, [status, player.distanceTraveled, updateTime, finishGame]);
+  }, [status, updateTime]);
+
+  // Handle soldier collection
+  const handleSoldierCollect = useCallback((soldierId: string) => {
+    // Mark soldier as collected
+    setSoldiers(prev =>
+      prev.map(s =>
+        s.id === soldierId
+          ? { ...s, isCollected: true }
+          : s
+      )
+    );
+
+    // Add to army
+    addSoldiers(1);
+
+    // Haptic feedback
+    if (isVibrationEnabled) {
+      vibrate(15);
+    }
+  }, [addSoldiers, isVibrationEnabled]);
 
   // Swipe/keyboard controls
   useSwipeDetector({
@@ -131,6 +154,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   // Show FPS in development or high quality mode
   const showFPS = graphicsQuality === 'high' || import.meta.env.DEV;
 
+  // Calculate army size (player starts with 1)
+  const armySize = player.armyCount - 1; // Subtract 1 because player is the "leader"
+
   return (
     <div className="w-full h-full touch-none relative">
       {/* FPS Counter */}
@@ -156,6 +182,15 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         {/* Track with random textures and finish line */}
         <Track />
+
+        {/* Soldier pickups on track */}
+        <SoldierPickups
+          soldiers={soldiers}
+          onCollect={handleSoldierCollect}
+        />
+
+        {/* Army following player (snake formation) */}
+        <ArmyFollowers armySize={armySize} />
 
         {/* Player with smooth movement */}
         <Player />

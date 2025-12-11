@@ -192,8 +192,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   finishGame: () => {
     const { player, elapsedTime } = get();
     const result: GameResult = {
-      finalScore: Math.floor(player.distanceTraveled * 10) + (player.armyCount * 100),
-      coinsCollected: 0,
+      finalScore: Math.floor(player.distanceTraveled * 10) + (player.armyCount * 100) + (player.coinsCollected * 5),
+      coinsCollected: player.coinsCollected,
       maxArmy: player.armyCount,
       distanceTraveled: player.distanceTraveled,
       timeTaken: elapsedTime,
@@ -305,8 +305,16 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
   },
 
-  // Legacy actions - kept for compatibility but now addSoldiers works
-  collectCoin: () => {},
+  // Coin collection
+  collectCoin: (value: number = 1) => {
+    const { player } = get();
+    set({
+      player: {
+        ...player,
+        coinsCollected: player.coinsCollected + value,
+      },
+    });
+  },
   collectGate: () => {},
   damageArmy: () => {},
   addSoldiers: (count: number) => {
@@ -338,6 +346,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 export const selectPlayerLane = (state: GameState) => state.player.lane;
 export const selectPlayerArmy = (state: GameState) => state.player.armyCount;
 export const selectPlayerScore = (state: GameState) => state.player.score;
+export const selectPlayerCoins = (state: GameState) => state.player.coinsCollected;
 export const selectGameStatus = (state: GameState) => state.status;
 export const selectActivePowerUps = (state: GameState) => state.activePowerUps;
 export const selectSpeedMultiplier = (state: GameState) => state.speedMultiplier;

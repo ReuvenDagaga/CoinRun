@@ -1,4 +1,4 @@
-import { useGameStore, selectActiveSpeedEffect, selectSpeedMultiplier } from '@/store/gameStore';
+import { useGameStore, selectActiveSpeedEffect, selectSpeedMultiplier, selectPlayerCoins } from '@/store/gameStore';
 
 // Track length constant
 const TRACK_LENGTH = 800;
@@ -7,6 +7,7 @@ export default function HUD() {
   const { status, player, elapsedTime, countdown } = useGameStore();
   const activeSpeedEffect = useGameStore(selectActiveSpeedEffect);
   const speedMultiplier = useGameStore(selectSpeedMultiplier);
+  const coinsCollected = useGameStore(selectPlayerCoins);
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -58,6 +59,14 @@ export default function HUD() {
             <span className="text-white font-mono font-bold text-lg">
               {formatTime(elapsedTime)}
             </span>
+          </div>
+        </div>
+
+        {/* Coin counter - below main stats */}
+        <div className="mt-2 flex justify-start">
+          <div className="bg-yellow-600/70 px-4 py-2 rounded-lg flex items-center gap-2">
+            <span className="text-2xl">💰</span>
+            <span className="text-yellow-100 text-xl font-bold">{coinsCollected}</span>
           </div>
         </div>
 
@@ -143,6 +152,14 @@ export function VictoryScreen() {
             <div className="text-blue-200 text-sm">Army Size</div>
             <div className="text-white text-2xl font-bold">
               {result?.maxArmy || 1} soldiers
+            </div>
+          </div>
+
+          <div className="bg-yellow-600/30 rounded-lg p-3">
+            <div className="text-yellow-200 text-sm">Coins Collected</div>
+            <div className="text-white text-2xl font-bold flex items-center justify-center gap-2">
+              <span>💰</span>
+              <span>{result?.coinsCollected || 0}</span>
             </div>
           </div>
 

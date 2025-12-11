@@ -64,12 +64,13 @@ export async function buySkin(req: AuthRequest, res: Response) {
 
       await Transaction.create({
         userId: user._id,
-        type: 'purchase',
+        type: 'shop_purchase',
         currency: 'gems',
         amount: -skin.price.gems,
         balanceBefore: prevGems,
         balanceAfter: user.gems,
-        description: `Purchased skin: ${skin.name}`
+        description: `Purchased skin: ${skin.name}`,
+        relatedItemId: skinId
       });
     } else if (skin.price.coins) {
       if (user.coins < skin.price.coins) {
@@ -80,12 +81,13 @@ export async function buySkin(req: AuthRequest, res: Response) {
 
       await Transaction.create({
         userId: user._id,
-        type: 'purchase',
+        type: 'shop_purchase',
         currency: 'coins',
         amount: -skin.price.coins,
         balanceBefore: prevCoins,
         balanceAfter: user.coins,
-        description: `Purchased skin: ${skin.name}`
+        description: `Purchased skin: ${skin.name}`,
+        relatedItemId: skinId
       });
     }
 
@@ -197,12 +199,13 @@ export async function buyLootbox(req: AuthRequest, res: Response) {
     // Create transaction
     await Transaction.create({
       userId: user._id,
-      type: 'purchase',
+      type: 'shop_purchase',
       currency: 'gems',
       amount: -lootbox.price,
       balanceBefore: prevGems,
       balanceAfter: user.gems,
-      description: `Opened ${type} lootbox`
+      description: `Opened ${type} lootbox`,
+      relatedItemId: `lootbox_${type}`
     });
 
     res.json({
@@ -218,67 +221,6 @@ export async function buyLootbox(req: AuthRequest, res: Response) {
   }
 }
 
-// Buy gems with USDT
-export async function buyGems(req: AuthRequest, res: Response) {
-  try {
-    const user = req.user;
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Not authenticated' });
-    }
-
-    const { usdtAmount } = req.body;
-
-    if (usdtAmount < 1) {
-      return res.status(400).json({ success: false, error: 'Minimum purchase is 1 USDT' });
-    }
-
-    if (user.usdtBalance < usdtAmount) {
-      return res.status(400).json({ success: false, error: 'Insufficient USDT balance' });
-    }
-
-    const gemsAmount = usdtAmount * 100; // 1 USDT = 100 gems
-
-    const prevUsdt = user.usdtBalance;
-    const prevGems = user.gems;
-
-    user.usdtBalance -= usdtAmount;
-    user.gems += gemsAmount;
-
-    await user.save();
-
-    // Create transactions
-    await Transaction.create({
-      userId: user._id,
-      type: 'purchase',
-      currency: 'usdt',
-      amount: -usdtAmount,
-      balanceBefore: prevUsdt,
-      balanceAfter: user.usdtBalance,
-      description: `Purchased ${gemsAmount} gems`
-    });
-
-    await Transaction.create({
-      userId: user._id,
-      type: 'purchase',
-      currency: 'gems',
-      amount: gemsAmount,
-      balanceBefore: prevGems,
-      balanceAfter: user.gems,
-      description: `Received gems from USDT purchase`
-    });
-
-    res.json({
-      success: true,
-      data: {
-        gemsReceived: gemsAmount,
-        balance: {
-          usdt: user.usdtBalance,
-          gems: user.gems
-        }
-      }
-    });
-  } catch (error) {
-    console.error('Buy gems error:', error);
-    res.status(500).json({ success: false, error: 'Failed to buy gems' });
-  }
-}
+// ❌ REMOVED: buyGems with USDT (crypto removed)
+// Gems can be earned through missions/achievements
+// Future: Add IAP (In-App Purchase) integration for real money gem purchases

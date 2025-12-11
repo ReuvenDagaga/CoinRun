@@ -16,6 +16,8 @@ import {
   SPEED_BOOST_MULTIPLIER,
   SPEED_SLOW_MULTIPLIER,
 } from './gateTypes';
+import { CoinsRenderer } from './Coins';
+import { CoinData, generateCoins } from './coinTypes';
 
 import { useGameStore } from '@/store/gameStore';
 import { useUIStore } from '@/store/uiStore';
@@ -40,6 +42,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     startCountdown,
     updateTime,
     addSoldiers,
+    collectCoin,
     setSpeedMultiplier,
     multiplyArmy,
     divideArmy,
@@ -52,6 +55,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Gates state
   const [gates, setGates] = useState<GateData[]>([]);
+
+  // Coins state
+  const [coins, setCoins] = useState<CoinData[]>([]);
 
   // Initialize game with simplified track and soldiers
   useEffect(() => {
@@ -78,6 +84,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
     // Generate gates on the track
     setGates(generateGates(TRACK_LENGTH));
+
+    // Generate coins on the track
+    setCoins(generateCoins(TRACK_LENGTH));
 
     // Start countdown after brief delay
     setTimeout(() => {
@@ -159,6 +168,26 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
   }, [setSpeedMultiplier, multiplyArmy, divideArmy, isVibrationEnabled]);
 
+  // Handle coin collection
+  const handleCoinCollect = useCallback((coinId: string) => {
+    // Mark coin as collected
+    setCoins(prev =>
+      prev.map(c =>
+        c.id === coinId
+          ? { ...c, isCollected: true }
+          : c
+      )
+    );
+
+    // Add to coin count
+    collectCoin(1);
+
+    // Light haptic feedback
+    if (isVibrationEnabled) {
+      vibrate(5);
+    }
+  }, [collectCoin, isVibrationEnabled]);
+
   // Swipe/keyboard controls
   useSwipeDetector({
     minSwipeDistance: CLIENT_CONSTANTS.MIN_SWIPE_DISTANCE,
@@ -233,6 +262,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         {/* Track with random textures and finish line */}
         <Track />
+
+        {/* Coins on track */}
+        <CoinsRenderer coins={coins} onCoinCollect={handleCoinCollect} armySize={armySize} />
 
         {/* Gates on track */}
         <GatesRenderer gates={gates} onGateTrigger={handleGateTrigger} armySize={armySize} />

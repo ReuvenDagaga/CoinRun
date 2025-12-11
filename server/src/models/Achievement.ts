@@ -47,7 +47,6 @@ const achievementSchema = new Schema<IAchievement>({
 });
 
 // Indexes
-achievementSchema.index({ achievementId: 1 }, { unique: true });
 achievementSchema.index({ tier: 1, active: 1 });
 achievementSchema.index({ order: 1 });
 

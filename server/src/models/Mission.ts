@@ -44,6 +44,5 @@ const missionSchema = new Schema<IMission>({
 
 // Indexes
 missionSchema.index({ type: 1, active: 1 });
-missionSchema.index({ missionId: 1 }, { unique: true });
 
 export const Mission = mongoose.model<IMission>('Mission', missionSchema);

@@ -1,5 +1,6 @@
 import { useRef, useState, useMemo, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import type { CoinState } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';

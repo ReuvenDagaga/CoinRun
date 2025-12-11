@@ -2,7 +2,11 @@ import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Vector3 } from '@shared/types/game.types';
-import { CLIENT_CONSTANTS } from '@/utils/constants';
+
+// Lerp helper for smooth interpolation
+function lerp(start: number, end: number, factor: number): number {
+  return start + (end - start) * factor;
+}
 
 interface GameCameraProps {
   target: Vector3;
@@ -10,69 +14,68 @@ interface GameCameraProps {
 
 export default function GameCamera({ target }: GameCameraProps) {
   const { camera } = useThree();
-  const targetPosition = useRef(new THREE.Vector3());
-  const currentPosition = useRef(new THREE.Vector3());
 
-  useFrame((_, delta) => {
-    // Calculate target camera position (behind and above player)
-    const offset = CLIENT_CONSTANTS.CAMERA_OFFSET;
-    targetPosition.current.set(
-      target.x + offset.x,
-      target.y + offset.y,
-      target.z + offset.z
-    );
+  // Camera offset from player (behind and above)
+  const CAMERA_OFFSET = { x: 0, y: 8, z: -15 };
 
-    // Smooth camera movement
-    const smoothSpeed = 5;
-    currentPosition.current.lerp(targetPosition.current, smoothSpeed * delta);
+  // Smooth follow factors (0 to 1, higher = snappier)
+  const POSITION_SMOOTH = 0.1; // For X position (lateral)
+  const Z_SMOOTH = 0.15; // For Z position (forward)
 
-    // Update camera position
-    camera.position.copy(currentPosition.current);
-
-    // Look at player (slightly ahead)
-    camera.lookAt(target.x, target.y + 1, target.z + 5);
-  });
-
-  return null;
-}
-
-// Alternative: Fixed angle camera that follows player
-export function FixedCamera({ target }: GameCameraProps) {
-  const { camera } = useThree();
+  // Track current smoothed position
+  const smoothedX = useRef(0);
+  const smoothedZ = useRef(CAMERA_OFFSET.z);
 
   useFrame(() => {
-    // Fixed position relative to player
-    camera.position.set(target.x, target.y + 10, target.z - 15);
-    camera.lookAt(target.x, target.y, target.z + 10);
+    // Target camera position
+    const targetX = target.x + CAMERA_OFFSET.x;
+    const targetY = target.y + CAMERA_OFFSET.y;
+    const targetZ = target.z + CAMERA_OFFSET.z;
+
+    // Smooth interpolation for X (lateral movement follows player smoothly)
+    smoothedX.current = lerp(smoothedX.current, targetX, POSITION_SMOOTH);
+
+    // Z follows more closely for the forward movement
+    smoothedZ.current = lerp(smoothedZ.current, targetZ, Z_SMOOTH);
+
+    // Update camera position with smoothed values
+    camera.position.x = smoothedX.current;
+    camera.position.y = targetY; // Y doesn't need smoothing (constant height)
+    camera.position.z = smoothedZ.current;
+
+    // Look at a point slightly ahead of the player for better feel
+    camera.lookAt(
+      target.x,
+      target.y + 1, // Look slightly above player
+      target.z + 5  // Look ahead of player
+    );
   });
 
   return null;
 }
 
-// Third-person camera with smooth following
-export function ThirdPersonCamera({ target }: GameCameraProps) {
+// Alternative: More cinematic camera with lag
+export function CinematicCamera({ target }: GameCameraProps) {
   const { camera } = useThree();
-  const cameraOffset = useRef(new THREE.Vector3(0, 8, -12));
-  const lookAhead = useRef(new THREE.Vector3(0, 0, 10));
+  const smoothPosition = useRef(new THREE.Vector3(0, 8, -15));
+  const lookAtPoint = useRef(new THREE.Vector3());
 
   useFrame((_, delta) => {
-    // Desired position
-    const desiredPosition = new THREE.Vector3(
-      target.x + cameraOffset.current.x,
-      target.y + cameraOffset.current.y,
-      target.z + cameraOffset.current.z
+    // Desired camera position
+    const desired = new THREE.Vector3(
+      target.x * 0.5, // Less lateral movement for cinematic feel
+      8,
+      target.z - 15
     );
 
-    // Smooth interpolation
-    camera.position.lerp(desiredPosition, 5 * delta);
+    // Very smooth follow
+    smoothPosition.current.lerp(desired, 0.05);
+    camera.position.copy(smoothPosition.current);
 
-    // Look ahead of player
-    const lookAtPoint = new THREE.Vector3(
-      target.x + lookAhead.current.x,
-      target.y + lookAhead.current.y,
-      target.z + lookAhead.current.z
-    );
-    camera.lookAt(lookAtPoint);
+    // Smooth look-at
+    const targetLookAt = new THREE.Vector3(target.x, target.y + 1, target.z + 10);
+    lookAtPoint.current.lerp(targetLookAt, 0.08);
+    camera.lookAt(lookAtPoint.current);
   });
 
   return null;

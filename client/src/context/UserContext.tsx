@@ -79,23 +79,6 @@ const defaultStats: UserStats = {
   highestArmy: 0
 };
 
-const createDefaultUserData = (userId: string, username: string): UserData => ({
-  id: userId,
-  username,
-  usdtBalance: 0,
-  coins: 1000,
-  gems: 50,
-  currentSkin: 'default',
-  ownedSkins: ['default'],
-  upgrades: defaultUpgrades,
-  stats: defaultStats,
-  dailyMissionsCompleted: [],
-  lastDailyReward: null,
-  spinUsedToday: false,
-  dailyStreak: 0,
-  achievements: []
-});
-
 interface UserProviderProps {
   children: ReactNode;
 }
@@ -119,14 +102,12 @@ export function UserProvider({ children }: UserProviderProps) {
     }
   }, []);
 
-  // Initialize user data when auth user changes
+  // Clear user data when user logs out
   useEffect(() => {
-    if (authUser && !userData) {
-      const defaultData = createDefaultUserData(authUser.id, authUser.username);
-      setUserData(defaultData);
-      setPowerLevel(calculatePowerLevel(defaultData.upgrades));
-    } else if (!authUser) {
-      // Don't clear on logout - data persists
+    if (!authUser && userData) {
+      setUserData(null);
+      setPowerLevel(0);
+      localStorage.removeItem('coinrun-user-data');
     }
   }, [authUser, userData]);
 
@@ -418,9 +399,4 @@ export function useUser() {
     throw new Error('useUser must be used within a UserProvider');
   }
   return context;
-}
-
-// Helper function to initialize guest user
-export function createGuestUserData(): UserData {
-  return createDefaultUserData('guest-' + Date.now(), 'Guest');
 }

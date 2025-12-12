@@ -1,20 +1,10 @@
-import { useEffect } from 'react';
 import PreGame from '@/components/ui/PreGame';
-import { useAuth, useUser, createGuestUserData } from '@/context';
+import { useUser } from '@/context';
 
 export default function Home() {
-  const { user: authUser, isAuthenticated, login } = useAuth();
-  const { userData, initializeUserData } = useUser();
+  const { userData } = useUser();
 
-  // Initialize guest user if not logged in
-  useEffect(() => {
-    if (!authUser && !userData) {
-      const guestData = createGuestUserData();
-      login({ id: guestData.id, username: guestData.username, email: guestData.email });
-      initializeUserData(guestData);
-    }
-  }, [authUser, userData, login, initializeUserData]);
-
+  // Show loading state if user data is not yet loaded
   if (!userData) {
     return (
       <div className="flex items-center justify-center h-screen">

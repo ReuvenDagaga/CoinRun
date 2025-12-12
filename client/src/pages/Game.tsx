@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import GameScene from '@/components/game/GameScene';
 import HUD from '@/components/ui/HUD';
 import PostGame from '@/components/ui/PostGame';
-import { useGame, useAuth, useUser, createGuestUserData } from '@/context';
+import { useGame, useUser } from '@/context';
 
 export default function Game() {
   const { mode = 'solo' } = useParams<{ mode?: string }>();
@@ -11,17 +11,7 @@ export default function Game() {
   const navigate = useNavigate();
 
   const { status, reset } = useGame();
-  const { user: authUser, login } = useAuth();
-  const { userData, initializeUserData } = useUser();
-
-  // Initialize user if needed
-  useEffect(() => {
-    if (!authUser && !userData) {
-      const guestData = createGuestUserData();
-      login({ id: guestData.id, username: guestData.username, email: guestData.email });
-      initializeUserData(guestData);
-    }
-  }, [authUser, userData, login, initializeUserData]);
+  const { userData } = useUser();
 
   // Validate mode
   const gameMode = mode === '1v1' ? '1v1' : 'solo';

@@ -113,27 +113,39 @@ export default function PreGame() {
           className="w-full"
         />
 
-        {/* Balances */}
-        <div className="flex justify-center gap-3 py-2">
+        {/* Balances - VIRTUAL CURRENCIES ONLY */}
+        <div className="flex justify-center gap-6 py-2">
           <StatDisplay icon="💰" value={user.coins.toLocaleString()} color="#FFD700" />
           <StatDisplay icon="💎" value={user.gems} color="#9370DB" />
-          <StatDisplay icon="💵" value={`$${user.usdtBalance.toFixed(2)}`} color="#32CD32" />
         </div>
       </div>
     </div>
   );
 }
 
-// Betting mode selection with bet amounts
+/**
+ * REMOVED: BettingModeSelector
+ *
+ * Betting with real currency (USDT) has been removed from the game.
+ * All gameplay now uses virtual currencies (coins/gems) only.
+ *
+ * If betting needs to be re-implemented, use coins instead:
+ * - Display coin bet amounts (e.g., 100, 500, 1000, 5000 coins)
+ * - Winner takes all with house fee deducted
+ * - No real money involved
+ */
+
+// Coin-based betting for 1v1 matches (VIRTUAL CURRENCY ONLY)
 export function BettingModeSelector() {
-  const [betAmount, setBetAmount] = useState<number>(1);
+  const [betAmount, setBetAmount] = useState<number>(100);
   const { userData } = useUser();
   const navigate = useNavigate();
   const user = userData;
 
-  const betOptions = [1, 2, 5, 10];
+  // Bet amounts in COINS (not real money)
+  const betOptions = [100, 500, 1000, 5000];
 
-  const canBet = user && user.usdtBalance >= betAmount;
+  const canBet = user && user.coins >= betAmount;
 
   const handleFindMatch = () => {
     if (canBet) {
@@ -143,29 +155,29 @@ export function BettingModeSelector() {
 
   return (
     <div className="bg-gray-800 rounded-2xl p-4">
-      <h3 className="text-white font-semibold mb-3">Select Bet Amount</h3>
+      <h3 className="text-white font-semibold mb-3">Select Coin Bet</h3>
 
       <div className="grid grid-cols-4 gap-2 mb-4">
         {betOptions.map((amount) => (
           <button
             key={amount}
             onClick={() => setBetAmount(amount)}
-            disabled={!user || user.usdtBalance < amount}
+            disabled={!user || user.coins < amount}
             className={`py-3 rounded-xl font-semibold transition-all ${
               betAmount === amount
-                ? 'bg-green-500 text-white'
-                : user && user.usdtBalance >= amount
+                ? 'bg-yellow-500 text-black'
+                : user && user.coins >= amount
                 ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 : 'bg-gray-800 text-gray-500 cursor-not-allowed'
             }`}
           >
-            ${amount}
+            💰 {amount}
           </button>
         ))}
       </div>
 
       <div className="text-center text-sm text-gray-400 mb-4">
-        Win: <span className="text-green-400 font-bold">${(betAmount * 1.9).toFixed(2)}</span>
+        Win: <span className="text-yellow-400 font-bold">💰 {Math.floor(betAmount * 1.9)}</span>
         <span className="ml-2">(10% fee)</span>
       </div>
 
@@ -174,7 +186,7 @@ export function BettingModeSelector() {
         disabled={!canBet}
         className={`w-full py-4 rounded-xl font-bold text-lg ${
           canBet
-            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+            ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black'
             : 'bg-gray-700 text-gray-500 cursor-not-allowed'
         }`}
       >

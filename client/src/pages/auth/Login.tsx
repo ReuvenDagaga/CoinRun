@@ -25,12 +25,10 @@ const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
 
     const { user, userData, token } = response.data;
 
-    login({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-    }, token);
+    // Pass the full user object - it already matches BasicUserResponse
+    login(user, token);
 
+    // Initialize full user data - matches FullUserResponse
     initializeUserData(userData);
     navigate('/');
   } catch (err) {

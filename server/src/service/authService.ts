@@ -1,6 +1,7 @@
 import { User, IUser } from '../models/Users.js';
 import { generateToken } from '../middleware/authMiddleware.js';
 import { LOGGER } from '../log/logger.js';
+import type { BasicUserResponse, FullUserResponse } from '@shared/types/user.types.js';
 
 interface GoogleAuthData {
     googleId: string;
@@ -57,9 +58,16 @@ export const updateAvatar = async (user: IUser, avatar: string | undefined): Pro
     }
 }
 
-export function formatUserResponse(user: IUser) {
+/**
+ * Format user data for basic API responses
+ * Returns only essential user information
+ *
+ * @param user - MongoDB user document
+ * @returns BasicUserResponse matching shared type definition
+ */
+export function formatUserResponse(user: IUser): BasicUserResponse {
     return {
-        id: user._id,
+        id: user._id.toString(),
         username: user.username,
         email: user.email,
         avatar: user.avatar,
@@ -68,9 +76,19 @@ export function formatUserResponse(user: IUser) {
     };
 }
 
-export function formatFullUserResponse(user: IUser) {
+/**
+ * Format user data for full API responses (auth, profile, etc.)
+ * Returns complete user data needed by the frontend
+ *
+ * IMPORTANT: This response shape is the SINGLE SOURCE OF TRUTH
+ * All frontend code must expect this exact structure
+ *
+ * @param user - MongoDB user document
+ * @returns FullUserResponse matching shared type definition
+ */
+export function formatFullUserResponse(user: IUser): FullUserResponse {
     return {
-        id: user._id,
+        id: user._id.toString(),
         username: user.username,
         email: user.email,
         avatar: user.avatar,

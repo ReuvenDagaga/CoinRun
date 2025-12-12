@@ -187,24 +187,8 @@ export interface TrackData {
   totalLength: number;
 }
 
-export interface UserUpgrades {
-  capacity: number;
-  addWarrior: number;
-  warriorUpgrade: number;
-  income: number;
-  speed: number;
-  jump: number;
-  bulletPower: number;
-  magnetRadius: number;
-}
-
-export interface UserStats {
-  gamesPlayed: number;
-  gamesWon: number;
-  totalDistance: number;
-  totalCoinsCollected: number;
-  highestArmy: number;
-}
+// Re-export user types from the single source of truth
+export type { UserUpgrades, UserStats } from './user.types.js';
 
 export interface GameResult {
   finalScore: number;
@@ -289,6 +273,9 @@ export interface DailyMission {
   claimed: boolean;
 }
 
+// Achievement display data (for UI rendering)
+// Note: UserAchievement in user.types.ts is the database model
+// This interface is for displaying achievement definitions (from achievement system)
 export interface Achievement {
   id: string;
   name: string;

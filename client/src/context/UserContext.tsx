@@ -1,25 +1,17 @@
 import { createContext, useContext, useState, useEffect, useMemo, ReactNode, useCallback } from 'react';
-import type { UserUpgrades, UserStats, Achievement } from '@shared/types/game.types';
+import type { FullUserResponse, Mission, ActiveBoost, UserAchievement, UserSettings } from '@shared/types/user.types';
+import type { UserUpgrades, UserStats } from '@shared/types/game.types';
 import { calculatePowerLevel, calculateUpgradeCost, GAME_CONSTANTS } from '@shared/types/game.types';
 import { useAuth } from './AuthContext';
 
-interface UserData {
-  id: string;
-  username: string;
-  email?: string;
-  usdtBalance: number;
-  coins: number;
-  gems: number;
-  currentSkin: string;
-  ownedSkins: string[];
-  upgrades: UserUpgrades;
-  stats: UserStats;
-  dailyMissionsCompleted: string[];
-  lastDailyReward: string | null;
-  spinUsedToday: boolean;
-  dailyStreak: number;
-  achievements: Achievement[];
-}
+/**
+ * SINGLE SOURCE OF TRUTH - User Data Type
+ *
+ * This interface matches FullUserResponse from the backend exactly.
+ * DO NOT add fields that aren't in the backend response.
+ * DO NOT create alternative user data structures.
+ */
+type UserData = FullUserResponse;
 
 interface UserContextValue {
   userData: UserData | null;
@@ -30,8 +22,6 @@ interface UserContextValue {
   spendCoins: (amount: number) => boolean;
   addGems: (amount: number) => void;
   spendGems: (amount: number) => boolean;
-  addUsdt: (amount: number) => void;
-  spendUsdt: (amount: number) => boolean;
 
   // Upgrade actions
   purchaseUpgrade: (type: keyof UserUpgrades) => boolean;
@@ -43,19 +33,19 @@ interface UserContextValue {
   equipSkin: (skinId: string) => void;
 
   // Stats actions
-  updateStats: (gameResult: { coinsCollected: number; distanceTraveled: number; won: boolean; armySize: number }) => void;
+  updateStats: (gameResult: { coinsCollected: number; distanceTraveled: number; won: boolean; armySize: number; score: number }) => void;
 
-  // Daily actions
-  claimDailyReward: () => { coins: number; gems?: number } | null;
-  useDailySpin: () => boolean;
-  resetDailyProgress: () => void;
+  // Mission actions
+  updateMissionProgress: (missionId: string, progress: number) => void;
+  claimMission: (missionId: string, reward: { coins?: number; gems?: number }) => void;
 
   // Achievement actions
-  unlockAchievement: (achievementId: string) => void;
+  unlockAchievement: (achievementId: string, progress: number) => void;
 
   // Initialize user data
   initializeUserData: (data: UserData) => void;
   clearUserData: () => void;
+  refreshUserData: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextValue | undefined>(undefined);
@@ -76,7 +66,8 @@ const defaultStats: UserStats = {
   gamesWon: 0,
   totalDistance: 0,
   totalCoinsCollected: 0,
-  highestArmy: 0
+  highestArmy: 0,
+  bestScore: 0
 };
 
 interface UserProviderProps {
@@ -169,25 +160,8 @@ export function UserProvider({ children }: UserProviderProps) {
     return success;
   }, []);
 
-  const addUsdt = useCallback((amount: number) => {
-    setUserData(prev => {
-      if (!prev) return prev;
-      return { ...prev, usdtBalance: prev.usdtBalance + amount };
-    });
-  }, []);
-
-  const spendUsdt = useCallback((amount: number): boolean => {
-    let success = false;
-    setUserData(prev => {
-      if (!prev || prev.usdtBalance < amount) {
-        success = false;
-        return prev;
-      }
-      success = true;
-      return { ...prev, usdtBalance: prev.usdtBalance - amount };
-    });
-    return success;
-  }, []);
+  // REMOVED: addUsdt and spendUsdt functions
+  // USDT is not part of the user model - all balances are virtual (coins/gems only)
 
   const getUpgradeCost = useCallback((type: keyof UserUpgrades): number => {
     if (!userData) return 0;
@@ -260,7 +234,7 @@ export function UserProvider({ children }: UserProviderProps) {
     setUserData({ ...userData, currentSkin: skinId });
   }, [userData]);
 
-  const updateStats = useCallback((gameResult: { coinsCollected: number; distanceTraveled: number; won: boolean; armySize: number }) => {
+  const updateStats = useCallback((gameResult: { coinsCollected: number; distanceTraveled: number; won: boolean; armySize: number; score: number }) => {
     setUserData(prev => {
       if (!prev) return prev;
       return {
@@ -270,77 +244,95 @@ export function UserProvider({ children }: UserProviderProps) {
           gamesWon: prev.stats.gamesWon + (gameResult.won ? 1 : 0),
           totalDistance: prev.stats.totalDistance + gameResult.distanceTraveled,
           totalCoinsCollected: prev.stats.totalCoinsCollected + gameResult.coinsCollected,
-          highestArmy: Math.max(prev.stats.highestArmy, gameResult.armySize)
+          highestArmy: Math.max(prev.stats.highestArmy, gameResult.armySize),
+          bestScore: Math.max(prev.stats.bestScore, gameResult.score)
         }
       };
     });
   }, []);
 
-  const claimDailyReward = useCallback((): { coins: number; gems?: number } | null => {
-    if (!userData) return null;
+  // REMOVED: claimDailyReward, useDailySpin, resetDailyProgress
+  // These were client-side only functions not backed by the server
+  // Daily missions are now handled by the backend mission system
 
-    const today = new Date().toDateString();
-    if (userData.lastDailyReward === today) return null;
-
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const isConsecutive = userData.lastDailyReward === yesterday.toDateString();
-    const newStreak = isConsecutive ? Math.min(userData.dailyStreak + 1, 7) : 1;
-
-    const rewards = [
-      { coins: 50 },
-      { coins: 75 },
-      { coins: 100, gems: 10 },
-      { coins: 150 },
-      { coins: 200, gems: 25 },
-      { coins: 300 },
-      { coins: 500, gems: 50 }
-    ];
-
-    const reward = rewards[newStreak - 1];
-
-    setUserData({
-      ...userData,
-      coins: userData.coins + reward.coins,
-      gems: userData.gems + (reward.gems || 0),
-      lastDailyReward: today,
-      dailyStreak: newStreak
-    });
-
-    return reward;
-  }, [userData]);
-
-  const useDailySpin = useCallback((): boolean => {
-    if (!userData || userData.spinUsedToday) return false;
-
-    setUserData({ ...userData, spinUsedToday: true });
-    return true;
-  }, [userData]);
-
-  const resetDailyProgress = useCallback(() => {
+  const updateMissionProgress = useCallback((missionId: string, progress: number) => {
     setUserData(prev => {
       if (!prev) return prev;
+
+      const updatedDaily = prev.dailyMissions.map(m =>
+        m.missionId === missionId ? { ...m, progress, completed: progress >= 100 } : m
+      );
+      const updatedWeekly = prev.weeklyMissions.map(m =>
+        m.missionId === missionId ? { ...m, progress, completed: progress >= 100 } : m
+      );
+
       return {
         ...prev,
-        dailyMissionsCompleted: [],
-        spinUsedToday: false
+        dailyMissions: updatedDaily,
+        weeklyMissions: updatedWeekly
       };
     });
   }, []);
 
-  const unlockAchievement = useCallback((achievementId: string) => {
+  const claimMission = useCallback((missionId: string, reward: { coins?: number; gems?: number }) => {
     setUserData(prev => {
       if (!prev) return prev;
-      if (prev.achievements.some(a => a.id === achievementId)) return prev;
+
+      const updatedDaily = prev.dailyMissions.map(m =>
+        m.missionId === missionId ? { ...m, claimed: true } : m
+      );
+      const updatedWeekly = prev.weeklyMissions.map(m =>
+        m.missionId === missionId ? { ...m, claimed: true } : m
+      );
 
       return {
         ...prev,
-        achievements: [
-          ...prev.achievements,
-          { id: achievementId, name: '', description: '', reward: {}, unlockedAt: new Date() }
-        ]
+        coins: prev.coins + (reward.coins || 0),
+        gems: prev.gems + (reward.gems || 0),
+        dailyMissions: updatedDaily,
+        weeklyMissions: updatedWeekly
       };
     });
+  }, []);
+
+  const unlockAchievement = useCallback((achievementId: string, progress: number) => {
+    setUserData(prev => {
+      if (!prev) return prev;
+
+      const existingIndex = prev.achievements.findIndex(a => a.achievementId === achievementId);
+
+      if (existingIndex >= 0) {
+        // Update existing achievement
+        const updated = [...prev.achievements];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          progress,
+          unlocked: progress >= 100,
+          unlockedAt: progress >= 100 ? new Date().toISOString() : updated[existingIndex].unlockedAt
+        };
+        return { ...prev, achievements: updated };
+      } else {
+        // Add new achievement
+        return {
+          ...prev,
+          achievements: [
+            ...prev.achievements,
+            {
+              achievementId,
+              progress,
+              unlocked: progress >= 100,
+              unlockedAt: progress >= 100 ? new Date().toISOString() : undefined
+            }
+          ]
+        };
+      }
+    });
+  }, []);
+
+  const refreshUserData = useCallback(async () => {
+    // TODO: Implement API call to refresh user data from server
+    // This should call /api/auth/me and update local state
+    console.warn('refreshUserData not implemented yet');
   }, []);
 
   const value = useMemo(
@@ -351,20 +343,18 @@ export function UserProvider({ children }: UserProviderProps) {
       spendCoins,
       addGems,
       spendGems,
-      addUsdt,
-      spendUsdt,
       purchaseUpgrade,
       canAffordUpgrade,
       getUpgradeCost,
       purchaseSkin,
       equipSkin,
       updateStats,
-      claimDailyReward,
-      useDailySpin,
-      resetDailyProgress,
+      updateMissionProgress,
+      claimMission,
       unlockAchievement,
       initializeUserData,
       clearUserData,
+      refreshUserData,
     }),
     [
       userData,
@@ -373,20 +363,18 @@ export function UserProvider({ children }: UserProviderProps) {
       spendCoins,
       addGems,
       spendGems,
-      addUsdt,
-      spendUsdt,
       purchaseUpgrade,
       canAffordUpgrade,
       getUpgradeCost,
       purchaseSkin,
       equipSkin,
       updateStats,
-      claimDailyReward,
-      useDailySpin,
-      resetDailyProgress,
+      updateMissionProgress,
+      claimMission,
       unlockAchievement,
       initializeUserData,
       clearUserData,
+      refreshUserData,
     ]
   );
 

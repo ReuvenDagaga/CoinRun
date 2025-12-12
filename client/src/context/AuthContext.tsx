@@ -1,17 +1,16 @@
 import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import type { BasicUserResponse } from '@shared/types/user.types';
 
-interface AuthUser {
-  id: string;
-  username: string;
-  email?: string;
-}
-
+/**
+ * AuthContext stores minimal authentication data (user identity + token)
+ * For full user data (stats, upgrades, etc.), use UserContext
+ */
 interface AuthContextValue {
-  user: AuthUser | null;
+  user: BasicUserResponse | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (userData: AuthUser, token?: string) => void;
+  login: (userData: BasicUserResponse, token?: string) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 }
@@ -19,7 +18,7 @@ interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<BasicUserResponse | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     token,
     isAuthenticated,
     isLoading,
-    login: (userData: AuthUser, authToken?: string) => {
+    login: (userData: BasicUserResponse, authToken?: string) => {
       setUser(userData);
       setToken(authToken || null);
     },

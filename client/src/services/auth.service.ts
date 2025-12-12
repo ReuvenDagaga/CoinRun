@@ -1,53 +1,24 @@
+import type { BasicUserResponse, FullUserResponse } from '@shared/types/user.types';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  username: string;
-  avatar?: string;
-  coins: number;
-  gems: number;
-}
+/**
+ * DEPRECATED: Use BasicUserResponse from @shared/types/user.types instead
+ * Keeping for backward compatibility during migration
+ */
+export type AuthUser = BasicUserResponse;
 
-export interface AuthUserData {
-  id: string;
-  username: string;
-  email: string;
-  avatar?: string;
-  coins: number;
-  gems: number;
-  currentSkin: string;
-  ownedSkins: string[];
-  upgrades: {
-    capacity: number;
-    addWarrior: number;
-    warriorUpgrade: number;
-    income: number;
-    speed: number;
-    jump: number;
-    bulletPower: number;
-    magnetRadius: number;
-  };
-  stats: {
-    gamesPlayed: number;
-    gamesWon: number;
-    totalDistance: number;
-    totalCoinsCollected: number;
-    highestArmy: number;
-    bestScore: number;
-  };
-  settings: any;
-  dailyMissions: any[];
-  weeklyMissions: any[];
-  achievements: any[];
-  activeBoosts: any[];
-}
+/**
+ * DEPRECATED: Use FullUserResponse from @shared/types/user.types instead
+ * Keeping for backward compatibility during migration
+ */
+export type AuthUserData = FullUserResponse;
 
 export interface GoogleAuthResponse {
   success: boolean;
   data: {
-    user: AuthUser;
-    userData: AuthUserData;
+    user: BasicUserResponse;
+    userData: FullUserResponse;
     token: string;
     isNewUser: boolean;
   };

@@ -1,7 +1,7 @@
 import { useRef, useMemo, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 import CharacterModel, { PLAYER_COLOR } from './CharacterModel';
 import { GROUND_Y } from './Player';
 
@@ -49,7 +49,7 @@ const SingleSoldier = memo(function SingleSoldier({
   const groupRef = useRef<THREE.Group>(null);
   const isCollectedRef = useRef(false);
 
-  const { player, status } = useGameStore();
+  const { player, status } = useGame();
 
   useFrame((state) => {
     if (!groupRef.current || isCollectedRef.current || status !== 'playing') return;

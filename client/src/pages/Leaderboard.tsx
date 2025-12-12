@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useUserStore } from '@/store/userStore';
+import { useUser } from '@/context';
 
 type LeaderboardType = 'daily' | 'weekly' | 'alltime' | 'friends';
 
@@ -26,7 +26,8 @@ const mockLeaderboard: LeaderboardEntry[] = [
 
 export default function Leaderboard() {
   const [activeType, setActiveType] = useState<LeaderboardType>('daily');
-  const { user } = useUserStore();
+  const { userData } = useUser();
+  const user = userData;
 
   const types: { key: LeaderboardType; label: string }[] = [
     { key: 'daily', label: 'Daily' },

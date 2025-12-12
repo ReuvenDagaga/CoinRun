@@ -1,15 +1,15 @@
 // @ts-nocheck
 // Profile page - temporarily disabled type checking due to pre-existing issues
-import { useUserStore } from '@/store/userStore';
+import { useUser } from '@/context';
 import { calculatePowerLevel, getStartingArmy, getMaxArmy } from '@shared/types/game.types';
 import { ACHIEVEMENTS, DAILY_MISSIONS } from '@/utils/constants';
 
 export default function Profile() {
-  const { user, claimDailyReward, useDailySpin } = useUserStore();
+  const { userData, powerLevel, claimDailyReward, useDailySpin } = useUser();
 
-  if (!user) return null;
+  if (!userData) return null;
 
-  const powerLevel = calculatePowerLevel(user.upgrades);
+  const user = userData;
 
   return (
     <div className="p-4 space-y-4">
@@ -78,7 +78,7 @@ function StatItem({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function DailyLogin({ user, onClaim }: { user: NonNullable<ReturnType<typeof useUserStore>['user']>; onClaim: () => any }) {
+function DailyLogin({ user, onClaim }: { user: NonNullable<ReturnType<typeof useUser>['userData']>; onClaim: () => any }) {
   const today = new Date().toDateString();
   const canClaim = user.lastDailyReward !== today;
 
@@ -126,7 +126,7 @@ function DailyLogin({ user, onClaim }: { user: NonNullable<ReturnType<typeof use
   );
 }
 
-function DailySpin({ user, onSpin }: { user: NonNullable<ReturnType<typeof useUserStore>['user']>; onSpin: () => boolean }) {
+function DailySpin({ user, onSpin }: { user: NonNullable<ReturnType<typeof useUser>['userData']>; onSpin: () => boolean }) {
   const canSpin = !user.spinUsedToday;
 
   return (
@@ -148,7 +148,7 @@ function DailySpin({ user, onSpin }: { user: NonNullable<ReturnType<typeof useUs
   );
 }
 
-function DailyMissions({ user }: { user: NonNullable<ReturnType<typeof useUserStore>['user']> }) {
+function DailyMissions({ user }: { user: NonNullable<ReturnType<typeof useUser>['userData']> }) {
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-white mb-3">Daily Missions</h2>
@@ -187,7 +187,7 @@ function DailyMissions({ user }: { user: NonNullable<ReturnType<typeof useUserSt
   );
 }
 
-function AchievementsPreview({ user }: { user: NonNullable<ReturnType<typeof useUserStore>['user']> }) {
+function AchievementsPreview({ user }: { user: NonNullable<ReturnType<typeof useUser>['userData']> }) {
   const achievementsList = Object.values(ACHIEVEMENTS).slice(0, 4);
 
   return (

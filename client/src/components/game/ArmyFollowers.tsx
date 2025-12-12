@@ -1,7 +1,7 @@
 import { useRef, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 import CharacterModel, { PLAYER_COLOR } from './CharacterModel';
 import { GROUND_Y } from './Player';
 
@@ -103,7 +103,7 @@ interface ArmyFollowersProps {
 export const ArmyFollowers = memo(function ArmyFollowers({
   armySize,
 }: ArmyFollowersProps) {
-  const { player, status } = useGameStore();
+  const { player, status } = useGame();
 
   // Don't render if no army or game not active
   if (armySize <= 0) return null;

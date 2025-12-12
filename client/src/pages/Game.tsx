@@ -3,23 +3,25 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import GameScene from '@/components/game/GameScene';
 import HUD from '@/components/ui/HUD';
 import PostGame from '@/components/ui/PostGame';
-import { useGameStore } from '@/store/gameStore';
-import { useUserStore, initializeGuestUser } from '@/store/userStore';
+import { useGame, useAuth, useUser, createGuestUserData } from '@/context';
 
 export default function Game() {
   const { mode = 'solo' } = useParams<{ mode?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const { status, reset } = useGameStore();
-  const { user } = useUserStore();
+  const { status, reset } = useGame();
+  const { user: authUser, login } = useAuth();
+  const { userData, initializeUserData } = useUser();
 
   // Initialize user if needed
   useEffect(() => {
-    if (!user) {
-      initializeGuestUser();
+    if (!authUser && !userData) {
+      const guestData = createGuestUserData();
+      login({ id: guestData.id, username: guestData.username, email: guestData.email });
+      initializeUserData(guestData);
     }
-  }, [user]);
+  }, [authUser, userData, login, initializeUserData]);
 
   // Validate mode
   const gameMode = mode === '1v1' ? '1v1' : 'solo';
@@ -45,7 +47,7 @@ export default function Game() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [reset, navigate]);
 
-  if (!user) {
+  if (!userData) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900">
         <div className="spinner" />
@@ -73,7 +75,7 @@ export default function Game() {
 }
 
 function PauseMenu() {
-  const { resumeGame, reset } = useGameStore();
+  const { resumeGame, reset } = useGame();
   const navigate = useNavigate();
 
   const handleQuit = () => {

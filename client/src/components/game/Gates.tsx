@@ -2,7 +2,7 @@ import { useRef, memo, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 import {
   SimpleGateType,
   GateData,
@@ -51,7 +51,7 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
   const innerFillRef = useRef<THREE.Mesh>(null);
   const isTriggeredRef = useRef(false);
 
-  const { player, status } = useGameStore();
+  const { player, status } = useGame();
   const config = GATE_CONFIGS[gate.type];
 
   // Check if gate has been triggered (from props or local ref)

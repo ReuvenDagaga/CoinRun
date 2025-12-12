@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 
 export default function PostGame() {
   const navigate = useNavigate();
-  const { status, result, gameMode, reset } = useGameStore();
+  const { status, result, gameMode, reset } = useGame();
 
   const isVictory = status === 'finished';
 

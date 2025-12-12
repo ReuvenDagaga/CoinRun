@@ -19,8 +19,7 @@ import {
 import { CoinsRenderer } from './Coins';
 import { CoinData, generateCoins } from './coinTypes';
 
-import { useGameStore } from '@/store/gameStore';
-import { useUIStore } from '@/store/uiStore';
+import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';
 import { CLIENT_CONSTANTS } from '@/utils/constants';
 
@@ -46,9 +45,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     setSpeedMultiplier,
     multiplyArmy,
     divideArmy,
-  } = useGameStore();
+  } = useGame();
 
-  const { graphicsQuality, isVibrationEnabled } = useUIStore();
+  const { graphicsQuality, isVibrationEnabled } = useUI();
 
   // Soldier pickups state
   const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);

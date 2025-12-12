@@ -1,13 +1,10 @@
-import { useGameStore, selectActiveSpeedEffect, selectSpeedMultiplier, selectPlayerCoins } from '@/store/gameStore';
+import { useGame } from '@/context';
 
 // Track length constant
 const TRACK_LENGTH = 800;
 
 export default function HUD() {
-  const { status, player, elapsedTime, countdown } = useGameStore();
-  const activeSpeedEffect = useGameStore(selectActiveSpeedEffect);
-  const speedMultiplier = useGameStore(selectSpeedMultiplier);
-  const coinsCollected = useGameStore(selectPlayerCoins);
+  const { status, player, elapsedTime, countdown, activeSpeedEffect, speedMultiplier, coinsCollected } = useGame();
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -117,7 +114,7 @@ export default function HUD() {
 
 // Victory screen shown when player finishes
 export function VictoryScreen() {
-  const { status, result, reset } = useGameStore();
+  const { status, result, reset } = useGame();
 
   if (status !== 'finished') return null;
 
@@ -187,7 +184,7 @@ export function VictoryScreen() {
 
 // Pause button (for solo mode)
 export function PauseButton() {
-  const { pauseGame, gameMode, status } = useGameStore();
+  const { pauseGame, gameMode, status } = useGame();
 
   if (gameMode === '1v1' || status !== 'playing') return null;
 
@@ -203,7 +200,7 @@ export function PauseButton() {
 
 // Pause overlay
 export function PauseOverlay() {
-  const { status, resumeGame, reset } = useGameStore();
+  const { status, resumeGame, reset } = useGame();
 
   if (status !== 'paused') return null;
 

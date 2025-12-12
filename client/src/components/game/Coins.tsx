@@ -1,7 +1,7 @@
 import { useRef, memo, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 import {
   CoinData,
   COIN_RADIUS,
@@ -45,7 +45,7 @@ const SingleCoin = memo(function SingleCoin({ coin, onCollect, armySize }: CoinP
   const isCollectedRef = useRef(false);
   const collectAnimationRef = useRef(0); // 0 = not collecting, >0 = animation progress
 
-  const { player, status } = useGameStore();
+  const { player, status } = useGame();
 
   // Gold metallic material
   const coinMaterial = useMemo(
@@ -157,7 +157,7 @@ export const CoinsRenderer = memo(function CoinsRenderer({
   onCoinCollect,
   armySize,
 }: CoinsProps) {
-  const { player } = useGameStore();
+  const { player } = useGame();
 
   // Only render coins within view distance for performance
   const visibleCoins = useMemo(() => {

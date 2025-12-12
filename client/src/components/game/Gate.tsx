@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import type { GateState } from '@shared/types/game.types';
 import { GateType } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 
 // Performance constants
 const RENDER_DISTANCE = 100;
@@ -267,7 +267,7 @@ interface GatesRendererProps {
 }
 
 export const GatesRenderer = memo(function GatesRenderer({ gates, onCollect }: GatesRendererProps) {
-  const { player } = useGameStore();
+  const { player } = useGame();
 
   // Filter gates by render distance
   const visibleGates = useMemo(() => {

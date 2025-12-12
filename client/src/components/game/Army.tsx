@@ -3,7 +3,7 @@
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 import { COLORS } from '@/utils/constants';
 import { playerPath, PathPoint } from './Player';
 import { GAME_CONSTANTS } from '@shared/types/game.types';
@@ -53,7 +53,7 @@ function getPositionAtDelay(delay: number): PathPoint | null {
 
 export default function Army() {
   const groupRef = useRef<THREE.Group>(null);
-  const { player, status } = useGameStore();
+  const { player, status } = useGame();
 
   // Soldier positions stored as refs for smooth animation
   const soldierPositions = useRef<Map<number, THREE.Vector3>>(new Map());
@@ -144,7 +144,7 @@ interface SoldierProps {
 
 function Soldier({ index, soldierPositions, animationOffset }: SoldierProps) {
   const meshRef = useRef<THREE.Group>(null);
-  const { player, status } = useGameStore();
+  const { player, status } = useGame();
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -198,7 +198,7 @@ function Soldier({ index, soldierPositions, animationOffset }: SoldierProps) {
 // Instanced version for better performance with large armies - Snake following
 export function ArmyInstanced() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const { player, status } = useGameStore();
+  const { player, status } = useGame();
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const maxSoldiers = 130; // Max possible army size

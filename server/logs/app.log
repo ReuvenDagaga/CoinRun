@@ -1,2 +1,4 @@
 {"level":30,"time":1765532791957,"pid":84796,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
 {"level":30,"time":1765532791959,"pid":84796,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 4000 in production mode"}
+{"level":30,"time":1765537084905,"pid":87590,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765537084907,"pid":87590,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 4000 in production mode"}

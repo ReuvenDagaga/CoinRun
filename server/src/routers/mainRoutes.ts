@@ -1,9 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware, optionalAuthMiddleware } from '../middleware/authMiddleware.js';
 
-// Auth controllers
-import { googleAuth, getCurrentUser, logout } from '../controllers/authController.js';
-
 // Runner controllers
 import { startSoloGame, finishSoloGame, getLeaderboard, getPlayerStats } from '../controllers/runnerController.js';
 
@@ -22,13 +19,12 @@ import { getAchievements } from '../controllers/achievementController.js';
 // Settings controllers
 import { getSettings, updateSettings } from '../controllers/settingsController.js';
 
+import authRouter from './authRoutes.js';
+
 const router = Router();
 
-// ==================== Auth Routes ====================
-// ✅ GOOGLE OAUTH ONLY - No username/password, no anonymous
-router.post('/auth/google', googleAuth);
-router.get('/auth/me', authMiddleware, getCurrentUser);
-router.post('/auth/logout', authMiddleware, logout);
+router.use('/auth', authRouter);
+
 
 // ==================== Runner Game Routes ====================
 router.post('/runner/solo', authMiddleware, startSoloGame);

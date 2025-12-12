@@ -29,7 +29,7 @@ export default {
         }
       },
       fontFamily: {
-        game: ['Inter', 'system-ui', 'sans-serif'],
+        game: ['Lilita One', 'cursive'],
       },
       animation: {
         'bounce-slow': 'bounce 2s infinite',

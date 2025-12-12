@@ -39,7 +39,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Lilita One', cursive;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: white;
   overscroll-behavior: none;

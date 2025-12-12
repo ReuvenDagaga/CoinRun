@@ -4,9 +4,8 @@ import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import type { CoinState } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
-import { useGameStore } from '@/store/gameStore';
+import { useGame, useUser } from '@/context';
 import { GateType, getMagnetRadius } from '@shared/types/game.types';
-import { useUserStore } from '@/store/userStore';
 
 // Performance constants
 const RENDER_DISTANCE = 80; // Only render/animate coins within this distance
@@ -22,8 +21,9 @@ export default function Coin({ coin, onCollect }: CoinProps) {
   const [isCollected, setIsCollected] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const { player, activePowerUps } = useGameStore();
-  const user = useUserStore((state) => state.user);
+  const { player, activePowerUps } = useGame();
+  const { userData } = useUser();
+  const user = userData;
 
   // Check for magnet power-up
   const hasMagnet = activePowerUps.some(p => p.type === GateType.MAGNET);
@@ -121,8 +121,9 @@ export const CoinsRenderer = memo(function CoinsRenderer({ coins, onCollect }: C
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const collectedIds = useRef<Set<string>>(new Set());
 
-  const { player, activePowerUps } = useGameStore();
-  const user = useUserStore((state) => state.user);
+  const { player, activePowerUps } = useGame();
+  const { userData } = useUser();
+  const user = userData;
 
   // Check for magnet power-up
   const hasMagnet = activePowerUps.some(p => p.type === GateType.MAGNET);

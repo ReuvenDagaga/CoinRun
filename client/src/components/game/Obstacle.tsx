@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import type { ObstacleState } from '@shared/types/game.types';
 import { ObstacleType } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 
 // Performance constants
 const RENDER_DISTANCE = 80;
@@ -109,7 +109,7 @@ interface ObstaclesRendererProps {
 }
 
 export const ObstaclesRenderer = memo(function ObstaclesRenderer({ obstacles, onCollision }: ObstaclesRendererProps) {
-  const { player } = useGameStore();
+  const { player } = useGame();
 
   // Filter obstacles by render distance
   const visibleObstacles = useMemo(() => {

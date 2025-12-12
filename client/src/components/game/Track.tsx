@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '@/store/gameStore';
+import { useGame } from '@/context';
 
 // Track configuration
 const TRACK_LENGTH = 800; // Total track length in meters
@@ -30,7 +30,7 @@ function seededRandom(seed: number): () => number {
 }
 
 export default function Track() {
-  const track = useGameStore((state) => state.track);
+  const { track } = useGame();
 
   // Generate segments with random textures
   const segments = useMemo(() => {
@@ -220,7 +220,7 @@ const SKYBOX_COLORS = [
 
 // Environment component with random background
 export function Environment() {
-  const track = useGameStore((state) => state.track);
+  const { track } = useGame();
 
   // Get random sky based on track seed
   const skyColors = useMemo(() => {
@@ -309,7 +309,7 @@ export function Environment() {
 
 // Simple decorative elements along the track
 function TrackDecorations() {
-  const track = useGameStore((state) => state.track);
+  const { track } = useGame();
 
   const decorations = useMemo(() => {
     const seedValue = track?.seed ?

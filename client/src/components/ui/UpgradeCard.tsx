@@ -1,4 +1,4 @@
-import { useUserStore } from '@/store/userStore';
+import { useUser } from '@/context';
 import { GAME_CONSTANTS, UserUpgrades } from '@shared/types/game.types';
 
 interface UpgradeCardProps {
@@ -62,9 +62,10 @@ const UPGRADE_INFO: Record<keyof UserUpgrades, {
 };
 
 export default function UpgradeCard({ type }: UpgradeCardProps) {
-  const { user, purchaseUpgrade, canAffordUpgrade, getUpgradeCost } = useUserStore();
+  const { userData, purchaseUpgrade, canAffordUpgrade, getUpgradeCost } = useUser();
 
-  if (!user) return null;
+  if (!userData) return null;
+  const user = userData;
 
   const info = UPGRADE_INFO[type];
   const currentLevel = user.upgrades[type];
@@ -131,9 +132,10 @@ export default function UpgradeCard({ type }: UpgradeCardProps) {
 
 // Compact version for in-game quick upgrade
 export function UpgradeCardCompact({ type }: UpgradeCardProps) {
-  const { user, purchaseUpgrade, canAffordUpgrade, getUpgradeCost } = useUserStore();
+  const { userData, purchaseUpgrade, canAffordUpgrade, getUpgradeCost } = useUser();
 
-  if (!user) return null;
+  if (!userData) return null;
+  const user = userData;
 
   const info = UPGRADE_INFO[type];
   const currentLevel = user.upgrades[type];

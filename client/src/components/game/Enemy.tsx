@@ -4,8 +4,7 @@ import * as THREE from 'three';
 import type { EnemyState } from '@shared/types/game.types';
 import { EnemyType, GAME_CONSTANTS, GateType, getBulletDamage } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
-import { useGameStore } from '@/store/gameStore';
-import { useUserStore } from '@/store/userStore';
+import { useGame, useUser } from '@/context';
 import { getActiveBullets, deactivateBullet } from './PowerUp';
 
 // Performance constants
@@ -44,8 +43,9 @@ const Enemy = memo(function Enemy({ enemy, onDefeat, onDamagePlayer }: EnemyProp
   const patrolOffset = useRef(0);
   const lastCollisionTime = useRef(0);
 
-  const { player, activePowerUps } = useGameStore();
-  const user = useUserStore((state) => state.user);
+  const { player, activePowerUps } = useGame();
+  const { userData } = useUser();
+  const user = userData;
 
   const color = ENEMY_COLORS[enemy.type];
   const size = ENEMY_SIZES[enemy.type];
@@ -253,7 +253,7 @@ interface EnemiesRendererProps {
 }
 
 export function EnemiesRenderer({ enemies, onDefeat, onDamagePlayer }: EnemiesRendererProps) {
-  const { player } = useGameStore();
+  const { player } = useGame();
 
   // Filter enemies by render distance for initial culling
   const visibleEnemies = useMemo(() => {

@@ -4,8 +4,7 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GateType, GAME_CONSTANTS, getBulletDamage } from '@shared/types/game.types';
-import { useGameStore } from '@/store/gameStore';
-import { useUserStore } from '@/store/userStore';
+import { useGame, useUser } from '@/context';
 import { COLORS } from '@/utils/constants';
 import { playerPath } from './Player';
 
@@ -35,7 +34,7 @@ for (let i = 0; i < MAX_BULLETS; i++) {
 
 // Visual effects for active power-ups
 export function PowerUpEffects() {
-  const { activePowerUps, player } = useGameStore();
+  const { activePowerUps, player } = useGame();
 
   return (
     <group position={[player.position.x, player.position.y, player.position.z]}>
@@ -49,8 +48,9 @@ export function PowerUpEffects() {
 // Bullet System - Continuous shooting from all soldiers
 export function BulletSystem() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const { player, status, activePowerUps, killEnemy } = useGameStore();
-  const user = useUserStore((state) => state.user);
+  const { player, status, activePowerUps, killEnemy } = useGame();
+  const { userData } = useUser();
+  const user = userData;
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 

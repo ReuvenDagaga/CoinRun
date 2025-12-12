@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore, selectSpeedMultiplier } from '@/store/gameStore';
+import { useGame } from '@/context';
 import { GAME_CONSTANTS } from '@shared/types/game.types';
 import CharacterModel, { PLAYER_COLOR } from './CharacterModel';
 
@@ -34,8 +34,7 @@ export default function Player() {
   const targetX = useRef(0);
   const positionZ = useRef(0);
 
-  const { status, player, updatePlayerPosition, finishGame } = useGameStore();
-  const speedMultiplier = useGameStore(selectSpeedMultiplier);
+  const { status, player, updatePlayerPosition, finishGame, speedMultiplier } = useGame();
 
   // Movement constants - tuned for smooth feel
   const FORWARD_SPEED = 25; // Reduced to 25 m/s (half of 50) for testing

@@ -8,9 +8,10 @@ interface AuthUser {
 
 interface AuthContextValue {
   user: AuthUser | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (userData: AuthUser) => void;
+  login: (userData: AuthUser, token?: string) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 }
@@ -23,6 +24,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,6 +35,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const parsed = JSON.parse(storedAuth);
         setUser(parsed.user);
+        setToken(parsed.token);
         setIsAuthenticated(parsed.isAuthenticated);
       } catch (error) {
         console.error('Failed to parse auth from localStorage:', error);
@@ -43,19 +46,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Save auth state to localStorage whenever it changes
   useEffect(() => {
     if (user || isAuthenticated) {
-      localStorage.setItem('coinrun-auth', JSON.stringify({ user, isAuthenticated }));
+      localStorage.setItem('coinrun-auth', JSON.stringify({ user, token, isAuthenticated }));
     } else {
       localStorage.removeItem('coinrun-auth');
     }
-  }, [user, isAuthenticated]);
+  }, [user, token, isAuthenticated]);
 
-  const login = (userData: AuthUser) => {
+  const login = (userData: AuthUser, authToken?: string) => {
     setUser(userData);
+    setToken(authToken || null);
     setIsAuthenticated(true);
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     setIsAuthenticated(false);
   };
 
@@ -66,13 +71,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value = useMemo(
     () => ({
       user,
+      token,
       isAuthenticated,
       isLoading,
       login,
       logout,
       setLoading: handleSetLoading,
     }),
-    [user, isAuthenticated, isLoading]
+    [user, token, isAuthenticated, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

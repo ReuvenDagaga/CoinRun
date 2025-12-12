@@ -2,28 +2,54 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware.js';
 import { ApiRes } from '../utils/response.js';
 import { LOGGER } from '../log/logger.js';
+import { OAuth2Client } from 'google-auth-library';
 import {
   authenticateWithGoogle,
   formatUserResponse,
   formatFullUserResponse
 } from '../service/authService';
 
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
 export async function googleAuth(req: Request, res: Response) {
   try {
-    const { googleId, email, username, avatar } = req.body;
+    const { credential } = req.body;
 
-    if (!googleId || !email) return ApiRes.badRequest(res, 'Google ID and email are required');
+    if (!credential) {
+      return ApiRes.badRequest(res, 'Google credential is required');
+    }
 
-    const { token, user, isNewUser } = await authenticateWithGoogle({
-      googleId,
-      email,
-      username,
-      avatar
+    // Verify the Google JWT token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
     });
 
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.sub || !payload.email) {
+      return ApiRes.badRequest(res, 'Invalid Google token');
+    }
+
+    // Extract user data from verified token
+    const googleData = {
+      googleId: payload.sub,
+      email: payload.email,
+      username: payload.name,
+      avatar: payload.picture,
+    };
+
+    const { token, user, isNewUser } = await authenticateWithGoogle(googleData);
+
     const status = isNewUser ? ApiRes.created : ApiRes.ok;
-    
-    return status(res, {token, user: formatUserResponse(user)});
+
+    return status(res, {
+      token,
+      user: formatUserResponse(user),
+      userData: formatFullUserResponse(user),
+      isNewUser
+    });
 
   } catch (error: any) {
     if (error.status) {

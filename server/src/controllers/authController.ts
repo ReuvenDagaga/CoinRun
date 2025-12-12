@@ -8,9 +8,9 @@ import {
   formatUserResponse,
   formatFullUserResponse
 } from '../service/authService';
+import { CONFIG } from 'src/config/enviroments.js';
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(CONFIG.GOOGLE_CLIENT_ID);
 
 export async function googleAuth(req: Request, res: Response) {
   try {
@@ -23,7 +23,7 @@ export async function googleAuth(req: Request, res: Response) {
     // Verify the Google JWT token
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
-      audience: GOOGLE_CLIENT_ID,
+      audience: CONFIG.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
@@ -55,7 +55,7 @@ export async function googleAuth(req: Request, res: Response) {
     if (error.status) {
       return ApiRes.badRequest(res, error.message);
     }
-    LOGGER.error('Google auth error:', error);
+    LOGGER.error('Google auth error:', error.message);
     return ApiRes.serverError(res, 'Authentication failed');
   }
 }

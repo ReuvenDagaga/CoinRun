@@ -54,18 +54,18 @@ export const authApi = {
     }),
 
   googleAuth: (googleId: string, email: string, name: string) =>
-    apiRequest('/auth/google', {
+    apiRequest('api/auth/google', {
       method: 'POST',
       body: { googleId, email, name }
     }),
 
   getCurrentUser: () =>
-    apiRequest('/auth/me', {
+    apiRequest('api/auth/me', {
       token: getToken() || undefined
     }),
 
   logout: () =>
-    apiRequest('/auth/logout', {
+    apiRequest('api/auth/logout', {
       method: 'POST',
       token: getToken() || undefined
     })

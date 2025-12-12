@@ -5,7 +5,6 @@ import { LOGGER } from '../log/logger.js';
 import { OAuth2Client } from 'google-auth-library';
 import {
   authenticateWithGoogle,
-  formatUserResponse,
   formatFullUserResponse
 } from '../service/authService';
 import { CONFIG } from 'src/config/enviroments.js';
@@ -46,8 +45,7 @@ export async function googleAuth(req: Request, res: Response) {
 
     return status(res, {
       token,
-      user: formatUserResponse(user),
-      userData: formatFullUserResponse(user),
+      user: formatFullUserResponse(user),
       isNewUser
     });
 

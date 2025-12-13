@@ -1,22 +1,50 @@
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { useAuth } from './hooks/useAuth';
 import Layout from './components/layout/Layout';
+import Loading from './components/ui/Loading';
+import Login from './pages/auth/Login';
 import { AppRoutes } from './Routes/AppRoutes';
-import { AuthProvider, UserProvider, GameProvider, UIProvider } from './context';
+import { AuthProvider, GameProvider, UIProvider } from './context';
 
-// Google OAuth Client ID from environment variables
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
+// Main app content - only renders when user is logged in
+function MainApp() {
+  return (
+    <GameProvider>
+      <UIProvider>
+        <Layout>
+          <AppRoutes />
+        </Layout>
+      </UIProvider>
+    </GameProvider>
+  );
+}
+
+// Auth wrapper - handles login state
+function AppContent() {
+  const { user, isLoading } = useAuth();
+
+  // Loading state
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  // Not logged in - show login page
+  if (!user) {
+    return <Login />;
+  }
+
+  // Logged in - show main app
+  return <MainApp />;
+}
+
+// Root app component
 const App = () => {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
-        <UserProvider>
-          <GameProvider>
-            <UIProvider>
-              <Layout children={<AppRoutes />}/>
-            </UIProvider>
-          </GameProvider>
-        </UserProvider>
+        <AppContent />
       </AuthProvider>
     </GoogleOAuthProvider>
   );

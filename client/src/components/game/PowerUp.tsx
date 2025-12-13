@@ -4,7 +4,8 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GateType, GAME_CONSTANTS, getBulletDamage } from '@shared/types/game.types';
-import { useGame, useUser } from '@/context';
+import { useGame } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { COLORS } from '@/utils/constants';
 import { playerPath } from './Player';
 
@@ -49,8 +50,7 @@ export function PowerUpEffects() {
 export function BulletSystem() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const { player, status, activePowerUps, killEnemy } = useGame();
-  const { userData } = useUser();
-  const user = userData;
+  const { user } = useAuth();
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 

@@ -3,7 +3,8 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import GameScene from '@/components/game/GameScene';
 import HUD from '@/components/ui/HUD';
 import PostGame from '@/components/ui/PostGame';
-import { useGame, useUser } from '@/context';
+import { useGame } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Game() {
   const { mode = 'solo' } = useParams<{ mode?: string }>();
@@ -11,7 +12,7 @@ export default function Game() {
   const navigate = useNavigate();
 
   const { status, reset } = useGame();
-  const { userData } = useUser();
+  const { user } = useAuth();
 
   // Validate mode
   const gameMode = mode === '1v1' ? '1v1' : 'solo';
@@ -37,7 +38,7 @@ export default function Game() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [reset, navigate]);
 
-  if (!userData) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900">
         <div className="spinner" />

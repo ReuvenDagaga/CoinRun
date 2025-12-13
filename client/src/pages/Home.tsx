@@ -1,5 +1,4 @@
 import PreGame from '@/components/ui/PreGame';
-import { useUser } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Home() {

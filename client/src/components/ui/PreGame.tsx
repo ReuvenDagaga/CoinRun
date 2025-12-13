@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { calculatePowerLevel, getStartingArmy, getMaxArmy } from '@shared/types/game.types';
 import UpgradeCard from './UpgradeCard';
 import AssetButton, { StatDisplay, GamePanel } from './AssetButton';
 
 export default function PreGame() {
   const navigate = useNavigate();
-  const { userData, powerLevel } = useUser();
+  const { user, powerLevel } = useAuth();
   const [selectedMode, setSelectedMode] = useState<'solo' | '1v1'>('solo');
 
-  if (!userData) return null;
-  const user = userData;
+  if (!user) return null;
 
   const startingArmy = getStartingArmy(user.upgrades.addWarrior);
   const maxArmy = getMaxArmy(user.upgrades.capacity);
@@ -127,9 +126,8 @@ export default function PreGame() {
 // Betting mode selection with bet amounts
 export function BettingModeSelector() {
   const [betAmount, setBetAmount] = useState<number>(1);
-  const { userData } = useUser();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const user = userData;
 
   const betOptions = [1, 2, 5, 10];
 

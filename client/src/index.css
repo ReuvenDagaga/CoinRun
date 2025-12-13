@@ -12,7 +12,6 @@
   --color-background: #8B4513;
   --color-gold: #FFD700;
   --color-gem: #9333EA;
-  --color-usdt: #26A17B;
 
   /* Safe area for notch */
   --safe-area-top: env(safe-area-inset-top, 0px);
@@ -288,10 +287,6 @@ canvas {
 
 .currency-gem {
   @apply text-purple-400;
-}
-
-.currency-usdt {
-  @apply text-green-400;
 }
 
 /* Floating notification */

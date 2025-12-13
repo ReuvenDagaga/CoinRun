@@ -135,10 +135,10 @@ export const shopApi = {
       token: getToken() || undefined
     }),
 
-  buyGems: (usdtAmount: number) =>
+  buyGems: (amount: number) =>
     apiRequest('/shop/buy/gems', {
       method: 'POST',
-      body: { usdtAmount },
+      body: { amount },
       token: getToken() || undefined
     })
 };

@@ -22,7 +22,6 @@ export default {
         game: {
           gold: '#FFD700',
           gem: '#9333EA',
-          usdt: '#26A17B',
           success: '#22C55E',
           danger: '#EF4444',
           warning: '#F59E0B',

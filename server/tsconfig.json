@@ -16,6 +16,6 @@
     "baseUrl": ".",
     "rootDir": ".."
   },
-  "include": ["src/**/*", "../shared/**/*"],
+  "include": ["src/**/*", "../shared/**/*", "../shared/interface"],
   "exclude": ["node_modules", "dist"]
 }

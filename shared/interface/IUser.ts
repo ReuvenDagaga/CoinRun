@@ -1,0 +1,111 @@
+import { IAchievement } from "./IAchievement";
+import { IActiveBoost } from "./IActiveBoost";
+import { IMission } from "./IMission";
+import { ISettings } from "./ISettings";
+import { IUpgrades } from "./IUpgrades";
+import mongoose, { Document } from 'mongoose';
+
+
+
+
+export interface IUser extends Document {
+  // Basic Info (Google OAuth required)
+  username: string;
+  email: string;
+  googleId: string;
+  avatar?: string;
+
+  // Balances (VIRTUAL CURRENCIES ONLY - NO CRYPTO)
+  coins: number;
+  gems: number;
+
+  // Stats
+  gamesPlayed: number;
+  gamesWon: number;
+  totalDistance: number;
+  totalCoinsCollected: number;
+  highestArmy: number;
+  bestScore: number;
+
+  // Upgrades (INFINITE LEVELS - no max)
+  upgrades: IUpgrades;
+
+  // Missions
+  dailyMissions: IMission[];
+  weeklyMissions: IMission[];
+  lastDailyReset?: Date;
+  lastWeeklyReset?: Date;
+
+  // Achievements
+  achievements: IAchievement[];
+
+  // Shop & Customization
+  currentSkin: string;
+  ownedSkins: string[];
+  activeBoosts: IActiveBoost[];
+
+  // Settings
+  settings: ISettings;
+
+  // Social (Future feature)
+  friends: mongoose.Types.ObjectId[];
+  referralCode: string;
+  referredBy?: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Methods
+  getPowerLevel(): number;
+}
+
+export interface IUserData {
+  // Basic Info (Google OAuth required)
+  username: string;
+  email: string;
+  googleId: string;
+  avatar?: string;
+
+  // Balances (VIRTUAL CURRENCIES ONLY - NO CRYPTO)
+  coins: number;
+  gems: number;
+
+  // Stats
+  gamesPlayed: number;
+  gamesWon: number;
+  totalDistance: number;
+  totalCoinsCollected: number;
+  highestArmy: number;
+  bestScore: number;
+
+  // Upgrades (INFINITE LEVELS - no max)
+  upgrades: IUpgrades;
+
+  // Missions
+  dailyMissions: IMission[];
+  weeklyMissions: IMission[];
+  lastDailyReset?: Date;
+  lastWeeklyReset?: Date;
+
+  // Achievements
+  achievements: IAchievement[];
+
+  // Shop & Customization
+  currentSkin: string;
+  ownedSkins: string[];
+  activeBoosts: IActiveBoost[];
+
+  // Settings
+  settings: ISettings;
+
+  // Social (Future feature)
+  friends: mongoose.Types.ObjectId[];
+  referralCode: string;
+  referredBy?: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Methods
+  getPowerLevel(): number;
+}

@@ -1,6 +1,7 @@
-import { User, IUser } from '../models/Users.js';
+import { User } from '../models/Users.js';
 import { generateToken } from '../middleware/authMiddleware.js';
 import { LOGGER } from '../log/logger.js';
+import { IUser } from '@shared/interface/IUser.js';
 
 interface GoogleAuthData {
     googleId: string;
@@ -44,6 +45,7 @@ export const createUser = async (
         username: username || `user_${googleId.substring(0, 8)}`,
         avatar
     });
+    LOGGER.info(`Creating new user with email: ${user}`);
     await user.save();    
     LOGGER.info(`New user registered: ${user.email}`);
     return user;

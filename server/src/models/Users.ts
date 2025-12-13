@@ -1,94 +1,12 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
+import { IUpgrades } from "../../../shared/interface/IUpgrades";
+import { IMission } from "@shared/interface/IMission";
+import { ISettings } from "@shared/interface/ISettings";
+import { IActiveBoost } from "@shared/interface/IActiveBoost";
+import { IAchievement } from "@shared/interface/IAchievement";
+import { IUser } from "@shared/interface/IUser";
 
-export interface IUpgrades {
-  capacity: number;        // Army capacity (infinite levels)
-  addWarrior: number;      // Starting army size (infinite levels)
-  warriorUpgrade: number;  // Warrior power (infinite levels)
-  income: number;          // Coin value multiplier (infinite levels)
-  speed: number;           // Movement speed (infinite levels)
-  jump: number;            // Jump height (infinite levels)
-  bulletPower: number;     // Bullet damage (infinite levels)
-  magnetRadius: number;    // Coin magnet radius (infinite levels)
-}
 
-export interface IMission {
-  missionId: string;
-  progress: number;
-  completed: boolean;
-  claimed: boolean;
-}
-
-export interface ISettings {
-  masterVolume: number;
-  musicVolume: number;
-  sfxVolume: number;
-  graphicsQuality: 'low' | 'medium' | 'high';
-  showFPS: boolean;
-  controlSensitivity: number;
-}
-
-export interface IActiveBoost {
-  boostId: string;
-  expiresAt: Date;
-}
-
-export interface IAchievement {
-  achievementId: string;
-  progress: number;
-  unlocked: boolean;
-  unlockedAt?: Date;
-}
-
-export interface IUser extends Document {
-  // Basic Info (Google OAuth required)
-  username: string;
-  email: string;
-  googleId: string;
-  avatar?: string;
-
-  // Balances (VIRTUAL CURRENCIES ONLY - NO CRYPTO)
-  coins: number;
-  gems: number;
-
-  // Stats
-  gamesPlayed: number;
-  gamesWon: number;
-  totalDistance: number;
-  totalCoinsCollected: number;
-  highestArmy: number;
-  bestScore: number;
-
-  // Upgrades (INFINITE LEVELS - no max)
-  upgrades: IUpgrades;
-
-  // Missions
-  dailyMissions: IMission[];
-  weeklyMissions: IMission[];
-  lastDailyReset?: Date;
-  lastWeeklyReset?: Date;
-
-  // Achievements
-  achievements: IAchievement[];
-
-  // Shop & Customization
-  currentSkin: string;
-  ownedSkins: string[];
-  activeBoosts: IActiveBoost[];
-
-  // Settings
-  settings: ISettings;
-
-  // Social (Future feature)
-  friends: mongoose.Types.ObjectId[];
-  referralCode: string;
-  referredBy?: string;
-
-  createdAt: Date;
-  updatedAt: Date;
-
-  // Methods
-  getPowerLevel(): number;
-}
 
 // INFINITE LEVELS - No max level restrictions!
 const upgradesSchema = new Schema<IUpgrades>({

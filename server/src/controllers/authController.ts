@@ -11,15 +11,14 @@ import { CONFIG } from 'src/config/enviroments.js';
 
 const googleClient = new OAuth2Client(CONFIG.GOOGLE_CLIENT_ID);
 
-export async function googleAuth(req: Request, res: Response) {
+export const googleAuth = async (req: Request, res: Response) => {
   try {
     const { credential } = req.body;
+    LOGGER.info('Google auth attempt' + (credential ? '' : 'without credential'));
+    
 
-    if (!credential) {
-      return ApiRes.badRequest(res, 'Google credential is required');
-    }
+    if (!credential) return ApiRes.badRequest(res, 'Google credential is required');
 
-    // Verify the Google JWT token
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
       audience: CONFIG.GOOGLE_CLIENT_ID,
@@ -27,9 +26,7 @@ export async function googleAuth(req: Request, res: Response) {
 
     const payload = ticket.getPayload();
 
-    if (!payload || !payload.sub || !payload.email) {
-      return ApiRes.badRequest(res, 'Invalid Google token');
-    }
+    if (!payload || !payload.sub || !payload.email) return ApiRes.badRequest(res, 'Invalid Google token');
 
     // Extract user data from verified token
     const googleData = {
@@ -42,17 +39,14 @@ export async function googleAuth(req: Request, res: Response) {
     const { token, user, isNewUser } = await authenticateWithGoogle(googleData);
 
     const status = isNewUser ? ApiRes.created : ApiRes.ok;
-
+    
     return status(res, {
       token,
-      user: formatFullUserResponse(user),
+      user,
       isNewUser
     });
 
   } catch (error: any) {
-    if (error.status) {
-      return ApiRes.badRequest(res, error.message);
-    }
     LOGGER.error('Google auth error:', error.message);
     return ApiRes.serverError(res, 'Authentication failed');
   }
@@ -61,7 +55,7 @@ export async function googleAuth(req: Request, res: Response) {
 export async function getCurrentUser(req: AuthRequest, res: Response) {
   try {
     if (!req.user) return ApiRes.unauthorized(res);
-    
+
     return ApiRes.ok(res, formatFullUserResponse(req.user));
   } catch (error) {
     LOGGER.error('Get current user error:' + error);

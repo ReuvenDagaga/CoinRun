@@ -19,6 +19,9 @@ import { getAchievements } from '../controllers/achievementController.js';
 // Settings controllers
 import { getSettings, updateSettings } from '../controllers/settingsController.js';
 
+// User controllers
+import { updateUser } from '../controllers/userController.js';
+
 import authRouter from './authRoutes.js';
 
 const router = Router();
@@ -53,5 +56,8 @@ router.get('/achievements', authMiddleware, getAchievements);
 // ==================== Settings Routes ====================
 router.get('/settings', authMiddleware, getSettings);
 router.put('/settings', authMiddleware, updateSettings);
+
+// ==================== User Routes ====================
+router.put('/user/update', authMiddleware, updateUser);
 
 export default router;

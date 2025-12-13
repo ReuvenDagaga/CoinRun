@@ -1,15 +1,17 @@
 // @ts-nocheck
 // Profile page - temporarily disabled type checking due to pre-existing issues
-import { useUser } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { calculatePowerLevel, getStartingArmy, getMaxArmy } from '@shared/types/game.types';
 import { ACHIEVEMENTS, DAILY_MISSIONS } from '@/utils/constants';
 
 export default function Profile() {
-  const { userData, powerLevel, claimDailyReward, useDailySpin } = useUser();
+  const { user, powerLevel } = useAuth();
 
-  if (!userData) return null;
+  if (!user) return null;
 
-  const user = userData;
+  // Placeholder functions for daily rewards/spins (implement later if needed)
+  const claimDailyReward = () => console.log('Claim daily reward');
+  const useDailySpin = () => console.log('Use daily spin');
 
   return (
     <div className="p-4 space-y-4">
@@ -33,11 +35,6 @@ export default function Profile() {
             <p className="text-white font-bold">{user.gems}</p>
             <p className="text-xs text-gray-400">Gems</p>
           </div>
-          <div className="text-center">
-            <span className="text-green-400 text-2xl">💵</span>
-            <p className="text-white font-bold">${user.usdtBalance.toFixed(2)}</p>
-            <p className="text-xs text-gray-400">USDT</p>
-          </div>
         </div>
       </div>
 
@@ -45,12 +42,12 @@ export default function Profile() {
       <div className="card">
         <h2 className="text-lg font-semibold text-white mb-3">Statistics</h2>
         <div className="grid grid-cols-2 gap-3">
-          <StatItem label="Games Played" value={user.stats.gamesPlayed} />
-          <StatItem label="Games Won" value={user.stats.gamesWon} />
-          <StatItem label="Win Rate" value={`${user.stats.gamesPlayed > 0 ? Math.round((user.stats.gamesWon / user.stats.gamesPlayed) * 100) : 0}%`} />
-          <StatItem label="Total Distance" value={`${Math.floor(user.stats.totalDistance / 1000)}km`} />
-          <StatItem label="Coins Collected" value={user.stats.totalCoinsCollected.toLocaleString()} />
-          <StatItem label="Highest Army" value={user.stats.highestArmy.toString()} />
+          <StatItem label="Games Played" value={user.gamesPlayed} />
+          <StatItem label="Games Won" value={user.gamesWon} />
+          <StatItem label="Win Rate" value={`${user.gamesPlayed > 0 ? Math.round((user.gamesWon / user.gamesPlayed) * 100) : 0}%`} />
+          <StatItem label="Total Distance" value={`${Math.floor(user.totalDistance / 1000)}km`} />
+          <StatItem label="Coins Collected" value={user.totalCoinsCollected.toLocaleString()} />
+          <StatItem label="Highest Army" value={user.highestArmy.toString()} />
         </div>
       </div>
 
@@ -78,7 +75,7 @@ function StatItem({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function DailyLogin({ user, onClaim }: { user: NonNullable<ReturnType<typeof useUser>['userData']>; onClaim: () => any }) {
+function DailyLogin({ user, onClaim }: { user: any; onClaim: () => any }) {
   const today = new Date().toDateString();
   const canClaim = user.lastDailyReward !== today;
 
@@ -126,7 +123,7 @@ function DailyLogin({ user, onClaim }: { user: NonNullable<ReturnType<typeof use
   );
 }
 
-function DailySpin({ user, onSpin }: { user: NonNullable<ReturnType<typeof useUser>['userData']>; onSpin: () => boolean }) {
+function DailySpin({ user, onSpin }: { user: any; onSpin: () => boolean }) {
   const canSpin = !user.spinUsedToday;
 
   return (
@@ -148,7 +145,7 @@ function DailySpin({ user, onSpin }: { user: NonNullable<ReturnType<typeof useUs
   );
 }
 
-function DailyMissions({ user }: { user: NonNullable<ReturnType<typeof useUser>['userData']> }) {
+function DailyMissions({ user }: { user: any }) {
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-white mb-3">Daily Missions</h2>
@@ -187,7 +184,7 @@ function DailyMissions({ user }: { user: NonNullable<ReturnType<typeof useUser>[
   );
 }
 
-function AchievementsPreview({ user }: { user: NonNullable<ReturnType<typeof useUser>['userData']> }) {
+function AchievementsPreview({ user }: { user: any }) {
   const achievementsList = Object.values(ACHIEVEMENTS).slice(0, 4);
 
   return (

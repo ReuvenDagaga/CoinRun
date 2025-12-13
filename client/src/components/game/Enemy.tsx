@@ -4,7 +4,8 @@ import * as THREE from 'three';
 import type { EnemyState } from '@shared/types/game.types';
 import { EnemyType, GAME_CONSTANTS, GateType, getBulletDamage } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
-import { useGame, useUser } from '@/context';
+import { useGame } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { getActiveBullets, deactivateBullet } from './PowerUp';
 
 // Performance constants
@@ -44,8 +45,7 @@ const Enemy = memo(function Enemy({ enemy, onDefeat, onDamagePlayer }: EnemyProp
   const lastCollisionTime = useRef(0);
 
   const { player, activePowerUps } = useGame();
-  const { userData } = useUser();
-  const user = userData;
+  const { user } = useAuth();
 
   const color = ENEMY_COLORS[enemy.type];
   const size = ENEMY_SIZES[enemy.type];

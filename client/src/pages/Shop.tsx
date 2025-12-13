@@ -1,17 +1,16 @@
 // @ts-nocheck
 // Shop page - temporarily disabled type checking due to pre-existing issues
 import { useState } from 'react';
-import { useUser } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { SKINS } from '@/utils/constants';
 
 type ShopTab = 'skins' | 'boosts' | 'lootboxes';
 
 export default function Shop() {
   const [activeTab, setActiveTab] = useState<ShopTab>('skins');
-  const { userData, purchaseSkin, equipSkin, spendGems, addCoins } = useUser();
+  const { user, purchaseSkin, equipSkin, spendGems, addCoins } = useAuth();
 
-  if (!userData) return null;
-  const user = userData;
+  if (!user) return null;
 
   return (
     <div className="p-4">
@@ -70,7 +69,7 @@ export default function Shop() {
 }
 
 interface SkinsGridProps {
-  user: NonNullable<ReturnType<typeof useUser>['userData']>;
+  user: NonNullable<ReturnType<typeof useAuth>['user']>;
   onPurchase: (skinId: string, price: { coins?: number; gems?: number }) => boolean;
   onEquip: (skinId: string) => void;
 }
@@ -146,7 +145,7 @@ function SkinsGrid({ user, onPurchase, onEquip }: SkinsGridProps) {
 }
 
 interface BoostsGridProps {
-  user: NonNullable<ReturnType<typeof useUser>['userData']>;
+  user: NonNullable<ReturnType<typeof useAuth>['user']>;
   onPurchase: (amount: number) => boolean;
 }
 
@@ -185,7 +184,7 @@ function BoostsGrid({ user, onPurchase }: BoostsGridProps) {
 }
 
 interface LootboxGridProps {
-  user: NonNullable<ReturnType<typeof useUser>['userData']>;
+  user: NonNullable<ReturnType<typeof useAuth>['user']>;
   onPurchase: (amount: number) => boolean;
   onReward: (amount: number) => void;
 }

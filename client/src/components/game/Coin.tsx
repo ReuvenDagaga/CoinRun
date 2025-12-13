@@ -4,7 +4,8 @@ import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import type { CoinState } from '@shared/types/game.types';
 import { COLORS } from '@/utils/constants';
-import { useGame, useUser } from '@/context';
+import { useGame } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { GateType, getMagnetRadius } from '@shared/types/game.types';
 
 // Performance constants
@@ -22,8 +23,7 @@ export default function Coin({ coin, onCollect }: CoinProps) {
   const [isAnimating, setIsAnimating] = useState(false);
 
   const { player, activePowerUps } = useGame();
-  const { userData } = useUser();
-  const user = userData;
+  const { user } = useAuth();
 
   // Check for magnet power-up
   const hasMagnet = activePowerUps.some(p => p.type === GateType.MAGNET);
@@ -122,8 +122,7 @@ export const CoinsRenderer = memo(function CoinsRenderer({ coins, onCollect }: C
   const collectedIds = useRef<Set<string>>(new Set());
 
   const { player, activePowerUps } = useGame();
-  const { userData } = useUser();
-  const user = userData;
+  const { user } = useAuth();
 
   // Check for magnet power-up
   const hasMagnet = activePowerUps.some(p => p.type === GateType.MAGNET);

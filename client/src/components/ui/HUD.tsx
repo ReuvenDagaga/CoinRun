@@ -4,7 +4,7 @@ import { useGame } from '@/context';
 const TRACK_LENGTH = 800;
 
 export default function HUD() {
-  const { status, player, elapsedTime, countdown, activeSpeedEffect, speedMultiplier, coinsCollected } = useGame();
+  const { status, player, elapsedTime, countdown, activeSpeedEffect, speedMultiplier } = useGame();
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -63,7 +63,7 @@ export default function HUD() {
         <div className="mt-2 flex justify-start">
           <div className="bg-yellow-600/70 px-4 py-2 rounded-lg flex items-center gap-2">
             <span className="text-2xl">💰</span>
-            <span className="text-yellow-100 text-xl font-bold">{coinsCollected}</span>
+            <span className="text-yellow-100 text-xl font-bold">{player.coinsCollected}</span>
           </div>
         </div>
 

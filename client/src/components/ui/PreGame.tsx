@@ -116,22 +116,21 @@ export default function PreGame() {
         <div className="flex justify-center gap-3 py-2">
           <StatDisplay icon="💰" value={user.coins.toLocaleString()} color="#FFD700" />
           <StatDisplay icon="💎" value={user.gems} color="#9370DB" />
-          <StatDisplay icon="💵" value={`$${user.usdtBalance.toFixed(2)}`} color="#32CD32" />
         </div>
       </div>
     </div>
   );
 }
 
-// Betting mode selection with bet amounts
+// Betting mode selection with bet amounts (using coins instead of USDT)
 export function BettingModeSelector() {
-  const [betAmount, setBetAmount] = useState<number>(1);
+  const [betAmount, setBetAmount] = useState<number>(100);
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const betOptions = [1, 2, 5, 10];
+  const betOptions = [100, 500, 1000, 5000];
 
-  const canBet = user && user.usdtBalance >= betAmount;
+  const canBet = user && user.coins >= betAmount;
 
   const handleFindMatch = () => {
     if (canBet) {
@@ -148,22 +147,22 @@ export function BettingModeSelector() {
           <button
             key={amount}
             onClick={() => setBetAmount(amount)}
-            disabled={!user || user.usdtBalance < amount}
+            disabled={!user || user.coins < amount}
             className={`py-3 rounded-xl font-semibold transition-all ${
               betAmount === amount
                 ? 'bg-green-500 text-white'
-                : user && user.usdtBalance >= amount
+                : user && user.coins >= amount
                 ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 : 'bg-gray-800 text-gray-500 cursor-not-allowed'
             }`}
           >
-            ${amount}
+            💰{amount}
           </button>
         ))}
       </div>
 
       <div className="text-center text-sm text-gray-400 mb-4">
-        Win: <span className="text-green-400 font-bold">${(betAmount * 1.9).toFixed(2)}</span>
+        Win: <span className="text-green-400 font-bold">💰{Math.floor(betAmount * 1.9)}</span>
         <span className="ml-2">(10% fee)</span>
       </div>
 

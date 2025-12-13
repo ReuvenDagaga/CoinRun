@@ -40,7 +40,7 @@ export default function Leaderboard() {
     ? [...mockLeaderboard, {
         rank: 42,
         username: user.username,
-        score: user.stats.totalCoinsCollected,
+        score: user.totalCoinsCollected,
         isCurrentUser: true
       }].sort((a, b) => b.score - a.score).map((entry, i) => ({ ...entry, rank: i + 1 }))
     : mockLeaderboard;

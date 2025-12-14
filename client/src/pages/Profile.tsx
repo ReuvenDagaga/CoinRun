@@ -1,220 +1,256 @@
-// @ts-nocheck
-// Profile page - temporarily disabled type checking due to pre-existing issues
+// pages/Profile.tsx
 import { useAuth } from '@/hooks/useAuth';
-import { calculatePowerLevel, getStartingArmy, getMaxArmy } from '@shared/types/game.types';
-import { ACHIEVEMENTS, DAILY_MISSIONS } from '@/utils/constants';
+import TextWithShadow from '@/components/TextWithShadow';
 
 export default function Profile() {
   const { user, powerLevel } = useAuth();
 
   if (!user) return null;
 
-  // Placeholder functions for daily rewards/spins (implement later if needed)
-  const claimDailyReward = () => console.log('Claim daily reward');
-  const useDailySpin = () => console.log('Use daily spin');
-
   return (
-    <div className="p-4 space-y-4">
-      {/* Profile header */}
-      <div className="card text-center">
-        <div className="w-20 h-20 mx-auto mb-3 bg-primary-500/20 rounded-full flex items-center justify-center">
-          <span className="text-4xl">🏃</span>
-        </div>
-        <h1 className="text-xl font-bold text-white">{user.username}</h1>
-        <p className="text-primary-400 text-lg font-semibold">Power Level: {powerLevel}</p>
-
-        {/* Balances */}
-        <div className="flex justify-center gap-4 mt-4">
-          <div className="text-center">
-            <span className="text-yellow-400 text-2xl">💰</span>
-            <p className="text-white font-bold">{user.coins.toLocaleString()}</p>
-            <p className="text-xs text-gray-400">Coins</p>
-          </div>
-          <div className="text-center">
-            <span className="text-purple-400 text-2xl">💎</span>
-            <p className="text-white font-bold">{user.gems}</p>
-            <p className="text-xs text-gray-400">Gems</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-white mb-3">Statistics</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <StatItem label="Games Played" value={user.gamesPlayed} />
-          <StatItem label="Games Won" value={user.gamesWon} />
-          <StatItem label="Win Rate" value={`${user.gamesPlayed > 0 ? Math.round((user.gamesWon / user.gamesPlayed) * 100) : 0}%`} />
-          <StatItem label="Total Distance" value={`${Math.floor(user.totalDistance / 1000)}km`} />
-          <StatItem label="Coins Collected" value={user.totalCoinsCollected.toLocaleString()} />
-          <StatItem label="Highest Army" value={user.highestArmy.toString()} />
-        </div>
-      </div>
-
-      {/* Daily login */}
-      <DailyLogin user={user} onClaim={claimDailyReward} />
-
-      {/* Daily spin */}
-      <DailySpin user={user} onSpin={useDailySpin} />
-
-      {/* Daily missions */}
-      <DailyMissions user={user} />
-
-      {/* Achievements preview */}
-      <AchievementsPreview user={user} />
+    <div className="min-h-full pb-32">
+      <ProfileHeader user={user} powerLevel={powerLevel} />
+      <StatsSection user={user} />
+      <DailyRewardsSection user={user} />
+      <AchievementsSection user={user} />
     </div>
   );
 }
 
-function StatItem({ label, value }: { label: string; value: string | number }) {
+function ProfileHeader({ user, powerLevel }: { user: any; powerLevel: number }) {
   return (
-    <div className="bg-gray-700/50 p-2 rounded-lg">
-      <p className="text-gray-400 text-xs">{label}</p>
-      <p className="text-white font-bold">{value}</p>
-    </div>
+    <section className="relative px-4 py-6">
+      <div className="relative bg-gradient-to-b from-purple-600/30 to-transparent rounded-3xl p-4">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <img 
+              src="/ui/profile/avatar-frame.png" 
+              alt="Frame" 
+              className="w-24 h-24"
+            />
+            <img 
+              src={user.avatar || '/ui/profile/default-avatar.png'} 
+              alt="Avatar" 
+              className="absolute inset-2 w-20 h-20 rounded-full object-cover"
+            />
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 px-3 py-0.5 rounded-full">
+              <TextWithShadow as="span" className="text-white text-xs font-bold">
+                Lvl {Math.floor(powerLevel / 100) + 1}
+              </TextWithShadow>
+            </div>
+          </div>
+          
+          <div className="flex-1">
+            <TextWithShadow className="text-white text-xl font-bold">
+              {user.username}
+            </TextWithShadow>
+            <div className="flex items-center gap-1 mt-1">
+              <img src="/ui/icons/power.png" alt="Power" className="w-5 h-5" />
+              <TextWithShadow as="span" className="text-yellow-400 font-bold">
+                {powerLevel}
+              </TextWithShadow>
+              <span className="text-white/60 text-sm">Power</span>
+            </div>
+            <div className="flex gap-3 mt-2">
+              <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1">
+                <img src="/ui/Coin.Png" alt="Coins" className="w-4 h-4" />
+                <TextWithShadow as="span" className="text-yellow-400 text-sm font-bold">
+                  {user.coins.toLocaleString()}
+                </TextWithShadow>
+              </div>
+              <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1">
+                <img src="/ui/Gem.Png" alt="Gems" className="w-4 h-4" />
+                <TextWithShadow as="span" className="text-purple-400 text-sm font-bold">
+                  {user.gems}
+                </TextWithShadow>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
-function DailyLogin({ user, onClaim }: { user: any; onClaim: () => any }) {
-  const today = new Date().toDateString();
-  const canClaim = user.lastDailyReward !== today;
-
-  const rewards = [
-    { day: 1, coins: 50 },
-    { day: 2, coins: 75 },
-    { day: 3, coins: 100, gems: 10 },
-    { day: 4, coins: 150 },
-    { day: 5, coins: 200, gems: 25 },
-    { day: 6, coins: 300 },
-    { day: 7, coins: 500, gems: 50 }
+function StatsSection({ user }: { user: any }) {
+  const stats = [
+    { icon: '/ui/stats/games.png', label: 'Games', value: user.gamesPlayed },
+    { icon: '/ui/stats/wins.png', label: 'Wins', value: user.gamesWon },
+    { icon: '/ui/stats/winrate.png', label: 'Win %', value: `${user.gamesPlayed > 0 ? Math.round((user.gamesWon / user.gamesPlayed) * 100) : 0}%` },
+    { icon: '/ui/stats/distance.png', label: 'Distance', value: `${Math.floor(user.totalDistance / 1000)}km` },
+    { icon: '/ui/stats/coins.png', label: 'Collected', value: user.totalCoinsCollected.toLocaleString() },
+    { icon: '/ui/stats/army.png', label: 'Best Army', value: user.highestArmy },
   ];
 
   return (
-    <div className="card">
-      <h2 className="text-lg font-semibold text-white mb-3">Daily Login</h2>
-      <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
-        {rewards.map((reward, i) => (
-          <div
-            key={i}
-            className={`flex-shrink-0 w-14 p-2 rounded-lg text-center ${
-              i < user.dailyStreak
-                ? 'bg-green-500/20 border border-green-500'
-                : i === user.dailyStreak && canClaim
-                ? 'bg-yellow-500/20 border border-yellow-500 animate-pulse'
-                : 'bg-gray-700/50'
-            }`}
-          >
-            <p className="text-xs text-gray-400">Day {i + 1}</p>
-            <p className="text-yellow-400 text-xs">💰{reward.coins}</p>
-            {reward.gems && <p className="text-purple-400 text-xs">💎{reward.gems}</p>}
-          </div>
-        ))}
-      </div>
-      <button
-        onClick={onClaim}
-        disabled={!canClaim}
-        className={`w-full py-2 rounded-lg font-semibold ${
-          canClaim ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-gray-500'
-        }`}
-      >
-        {canClaim ? 'Claim Reward!' : 'Claimed ✓'}
-      </button>
-    </div>
-  );
-}
-
-function DailySpin({ user, onSpin }: { user: any; onSpin: () => boolean }) {
-  const canSpin = !user.spinUsedToday;
-
-  return (
-    <div className="card">
-      <h2 className="text-lg font-semibold text-white mb-3">Daily Spin</h2>
-      <div className="text-center">
-        <div className="text-6xl mb-2 animate-spin-slow">🎡</div>
-        <button
-          onClick={onSpin}
-          disabled={!canSpin}
-          className={`w-full py-3 rounded-lg font-semibold ${
-            canSpin ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-gray-700 text-gray-500'
-          }`}
-        >
-          {canSpin ? '🎰 Spin Now!' : 'Spin Used Today'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function DailyMissions({ user }: { user: any }) {
-  return (
-    <div className="card">
-      <h2 className="text-lg font-semibold text-white mb-3">Daily Missions</h2>
-      <div className="space-y-2">
-        {DAILY_MISSIONS.map((mission) => {
-          const completed = user.dailyMissionsCompleted.includes(mission.id);
-          const progress = Math.min(mission.target, mission.target); // Would be actual progress
-
-          return (
-            <div key={mission.id} className="flex items-center gap-3 bg-gray-700/50 p-2 rounded-lg">
-              <div className="flex-1">
-                <p className="text-white text-sm">{mission.description}</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1 bg-gray-600 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary-500"
-                      style={{ width: `${(progress / mission.target) * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-gray-400">{progress}/{mission.target}</span>
-                </div>
+    <section className="px-4 py-4">
+      <div className="relative rounded-2xl overflow-hidden">
+        <img 
+          src="/ui/panels/stats-bg.png" 
+          alt="Stats BG" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="relative p-4">
+          <TextWithShadow as="h2" className="text-white text-lg font-bold text-center mb-3">
+            Statistics
+          </TextWithShadow>
+          <div className="grid grid-cols-3 gap-2">
+            {stats.map((stat, i) => (
+              <div key={i} className="bg-black/30 rounded-xl p-2 text-center">
+                <img src={stat.icon} alt={stat.label} className="w-8 h-8 mx-auto mb-1" />
+                <TextWithShadow className="text-white font-bold text-sm">
+                  {stat.value}
+                </TextWithShadow>
+                <p className="text-white/60 text-[10px]">{stat.label}</p>
               </div>
-              <button
-                disabled={!completed}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                  completed ? 'bg-green-500 text-white' : 'bg-gray-600 text-gray-400'
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DailyRewardsSection({ user }: { user: any }) {
+  const today = new Date().toDateString();
+  const lastReset = user.lastDailyReset ? new Date(user.lastDailyReset).toDateString() : null;
+  const canClaim = lastReset !== today;
+
+  const rewards = [
+    { day: 1, coins: 50, claimed: false },
+    { day: 2, coins: 75, claimed: false },
+    { day: 3, coins: 100, gems: 10, claimed: false },
+    { day: 4, coins: 150, claimed: false },
+    { day: 5, coins: 200, gems: 25, claimed: false },
+    { day: 6, coins: 300, claimed: false },
+    { day: 7, coins: 500, gems: 50, special: true, claimed: false },
+  ];
+
+  return (
+    <section className="px-4 py-4">
+      <div className="relative rounded-2xl overflow-hidden">
+        <img 
+          src="/ui/panels/daily-bg.png" 
+          alt="Daily BG" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="relative p-4">
+          <TextWithShadow as="h2" className="text-white text-lg font-bold text-center mb-3">
+            Daily Rewards
+          </TextWithShadow>
+          <div className="flex gap-1.5 overflow-x-auto pb-2">
+            {rewards.map((reward, i) => (
+              <div
+                key={i}
+                className={`relative flex-shrink-0 w-12 rounded-xl overflow-hidden ${
+                  reward.claimed ? 'opacity-50' : ''
                 }`}
               >
-                💰 {mission.reward.coins}
-              </button>
-            </div>
-          );
-        })}
+                <img 
+                  src={reward.special ? '/ui/daily/day-special.png' : '/ui/daily/day-normal.png'} 
+                  alt={`Day ${reward.day}`}
+                  className="w-full h-auto"
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-1">
+                  <TextWithShadow as="span" className="text-white text-[8px] font-bold">
+                    Day {reward.day}
+                  </TextWithShadow>
+                  <img src="/ui/Coin.Png" alt="Coins" className="w-4 h-4 my-0.5" />
+                  <TextWithShadow as="span" className="text-yellow-400 text-[8px] font-bold">
+                    {reward.coins}
+                  </TextWithShadow>
+                  {reward.gems && (
+                    <TextWithShadow as="span" className="text-purple-400 text-[8px] font-bold">
+                      +{reward.gems}💎
+                    </TextWithShadow>
+                  )}
+                </div>
+                {reward.claimed && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <img src="/ui/icons/checkmark.png" alt="Claimed" className="w-6 h-6" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            disabled={!canClaim}
+            className={`relative w-full mt-3 rounded-xl overflow-hidden active:scale-95 transition-transform ${
+              !canClaim ? 'opacity-50' : ''
+            }`}
+          >
+            <img 
+              src={canClaim ? '/ui/buttons/claim-btn.png' : '/ui/buttons/claimed-btn.png'} 
+              alt="Claim" 
+              className="w-full h-auto"
+            />
+            <TextWithShadow as="span" className="absolute inset-0 flex items-center justify-center text-white font-bold">
+              {canClaim ? 'Claim Reward!' : 'Claimed ✓'}
+            </TextWithShadow>
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-function AchievementsPreview({ user }: { user: any }) {
-  const achievementsList = Object.values(ACHIEVEMENTS).slice(0, 4);
+function AchievementsSection({ user }: { user: any }) {
+  const achievements = [
+    { id: 'first_win', name: 'First Victory', icon: '/ui/achievements/first-win.png', unlocked: user.gamesWon >= 1 },
+    { id: 'collector', name: 'Coin Collector', icon: '/ui/achievements/collector.png', unlocked: user.totalCoinsCollected >= 10000 },
+    { id: 'runner', name: 'Marathon Runner', icon: '/ui/achievements/runner.png', unlocked: user.totalDistance >= 100000 },
+    { id: 'champion', name: 'Champion', icon: '/ui/achievements/champion.png', unlocked: user.gamesWon >= 100 },
+  ];
+
+  const unlockedCount = achievements.filter(a => a.unlocked).length;
 
   return (
-    <div className="card">
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="text-lg font-semibold text-white">Achievements</h2>
-        <span className="text-sm text-gray-400">{user.achievements.length}/{Object.keys(ACHIEVEMENTS).length}</span>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {achievementsList.map((achievement) => {
-          const unlocked = user.achievements.some(a => a.id === achievement.id);
-
-          return (
-            <div
-              key={achievement.id}
-              className={`p-2 rounded-lg ${unlocked ? 'bg-yellow-500/20' : 'bg-gray-700/50'}`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">{unlocked ? '🏆' : '🔒'}</span>
-                <div>
-                  <p className={`text-sm ${unlocked ? 'text-yellow-400' : 'text-gray-400'}`}>
-                    {achievement.name}
-                  </p>
-                  <p className="text-xs text-gray-500">{achievement.description}</p>
+    <section className="px-4 py-4">
+      <div className="relative rounded-2xl overflow-hidden">
+        <img 
+          src="/ui/panels/achievements-bg.png" 
+          alt="Achievements BG" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="relative p-4">
+          <div className="flex justify-between items-center mb-3">
+            <TextWithShadow as="h2" className="text-white text-lg font-bold">
+              Achievements
+            </TextWithShadow>
+            <TextWithShadow as="span" className="text-yellow-400 text-sm font-bold">
+              {unlockedCount}/{achievements.length}
+            </TextWithShadow>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {achievements.map((achievement) => (
+              <div
+                key={achievement.id}
+                className={`relative rounded-xl overflow-hidden ${
+                  !achievement.unlocked ? 'opacity-40 grayscale' : ''
+                }`}
+              >
+                <img 
+                  src="/ui/achievements/achievement-frame.png" 
+                  alt="Frame" 
+                  className="w-full h-auto"
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-1">
+                  <img 
+                    src={achievement.icon} 
+                    alt={achievement.name} 
+                    className="w-8 h-8"
+                  />
                 </div>
+                {!achievement.unlocked && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <img src="/ui/icons/lock.png" alt="Locked" className="w-6 h-6" />
+                  </div>
+                )}
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

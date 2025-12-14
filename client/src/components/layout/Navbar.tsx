@@ -5,7 +5,7 @@ const navItems = [
   { path: '/cards', icon: '/ui/Cards.Png', label: 'Cards' },
   { path: '/', icon: '/ui/Home.Png', label: 'Home' },
   { path: '/leaderboard', icon: '/ui/Trophy.Png', label: 'Ranks' },
-  { path: '/profile', icon: '/ui/profile.png', label: 'Profile' }
+  { path: '/profile', icon: '/ui/Profile.Png', label: 'Profile' }
 ];
 
 export default function Navbar() {

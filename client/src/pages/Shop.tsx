@@ -1,7 +1,6 @@
 // pages/Shop.tsx
-import { useState } from 'react';
 
-const textShadow = '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000';
+import TextWithShadow from "@/components/TextWithShadow";
 
 interface ShopItem {
   id: string;
@@ -53,18 +52,12 @@ function GiftCard({ item, onPurchase }: { item: ShopItem; onPurchase: () => void
         className="w-full h-32 object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
-        <p 
-          className="text-white text-lg font-bold text-center"
-          style={{ textShadow }}
-        >
+        <TextWithShadow className="text-white text-lg font-bold text-center">
           {item.description}
-        </p>
-        <p 
-          className="text-green-400 text-xl font-bold text-center mt-1"
-          style={{ textShadow }}
-        >
+        </TextWithShadow>
+        <TextWithShadow className="text-green-400 text-xl font-bold text-center mt-1">
           ▶ {item.price}
-        </p>
+        </TextWithShadow>
       </div>
     </div>
   );
@@ -87,18 +80,12 @@ function ShopCard({ item, onPurchase }: { item: ShopItem; onPurchase: () => void
         </div>
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-3">
-        <p 
-          className="text-white text-sm font-bold text-center leading-tight"
-          style={{ textShadow }}
-        >
+        <TextWithShadow className="text-white text-sm font-bold text-center leading-tight">
           {item.description}
-        </p>
-        <p 
-          className="text-yellow-400 text-lg font-bold text-center mt-1"
-          style={{ textShadow }}
-        >
+        </TextWithShadow>
+        <TextWithShadow className="text-yellow-400 text-lg font-bold text-center mt-1">
           {item.price}
-        </p>
+        </TextWithShadow>
       </div>
     </div>
   );
@@ -121,12 +108,9 @@ function ShopSection({
 
   return (
     <section className={`${bgClass} px-4 py-6`}>
-      <h2 
-        className="text-2xl font-bold text-white text-center mb-4"
-        style={{ textShadow }}
-      >
+      <TextWithShadow as="h2" className="text-2xl font-bold text-white text-center mb-4">
         {title}
-      </h2>
+      </TextWithShadow>
       {isGift ? (
         <div className="flex flex-col gap-3">
           {items.map((item) => (

@@ -5,19 +5,23 @@ import Loading from './components/ui/Loading';
 import Login from './pages/auth/Login';
 import { AppRoutes } from './Routes/AppRoutes';
 import { AuthProvider, GameProvider, UIProvider } from './context';
+import { ToastProvider } from './context/ToastContext';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 // Main app content - only renders when user is logged in
 function MainApp() {
   return (
-    <GameProvider>
-      <UIProvider>
-        <Layout>
-          <AppRoutes />
-        </Layout>
-      </UIProvider>
-    </GameProvider>
+    <ToastProvider>
+      <GameProvider>
+        <UIProvider>
+          <Layout>
+            <AppRoutes />
+          </Layout>
+        </UIProvider>
+      </GameProvider>
+    </ToastProvider>
+
   );
 }
 

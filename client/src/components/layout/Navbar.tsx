@@ -32,7 +32,7 @@ export default function Navbar() {
                     <img
                       src={item.icon}
                       alt={item.label}
-                      className="w-11 h-11 object-contain"
+                      className="w-13 h-13 object-contain"
                     />
                   </div>
                   <span 

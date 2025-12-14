@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, ReactNode } from 'react';
+import Header from './Header';
 import Navbar from './Navbar';
 
 const SCROLLABLE_PAGES = ['/shop', '/leaderboard', '/profile'];
@@ -29,8 +30,9 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className="screen-fixed bg-gradient-to-b from-gray-900 to-gray-800 flex flex-col">
-      <main className={`flex-1 ${isScrollable ? 'overflow-y-auto' : 'overflow-hidden'} pb-20`}>
+    <div className="screen-fixed flex flex-col bg-gradient-to-b from-sky-400 via-sky-500 to-cyan-600">
+      <Header />
+      <main className={`flex-1 ${isScrollable ? 'overflow-y-auto' : 'overflow-hidden'}`}>
         {children}
       </main>
       <Navbar />

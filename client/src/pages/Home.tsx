@@ -18,7 +18,7 @@ const upgrades: UpgradeType[] = [
   {
     key: 'addWarrior',
     name: 'Add Warrior',
-    icon: '/ui/upgrades/warrior.png',
+    icon: '/ui/AddWarriors.Png',
     headerColor: '#7cb342',
     bgColor: '#c5e1a5',
     borderColor: '#aed581'
@@ -26,7 +26,7 @@ const upgrades: UpgradeType[] = [
   {
     key: 'warriorUpgrade',
     name: 'Warrior Upgrade',
-    icon: '/ui/upgrades/power.png',
+    icon: '/ui/Power.Png',
     headerColor: '#5c6bc0',
     bgColor: '#c5cae9',
     borderColor: '#9fa8da'
@@ -34,7 +34,7 @@ const upgrades: UpgradeType[] = [
   {
     key: 'income',
     name: 'Income',
-    icon: '/ui/upgrades/income.png',
+    icon: '/ui/Income.Png',
     headerColor: '#26a69a',
     bgColor: '#b2dfdb',
     borderColor: '#80cbc4'
@@ -42,7 +42,7 @@ const upgrades: UpgradeType[] = [
   {
     key: 'speed',
     name: 'Speed',
-    icon: '/ui/upgrades/speed.png',
+    icon: '/ui/Speed.Png',
     headerColor: '#ef5350',
     bgColor: '#ffcdd2',
     borderColor: '#ef9a9a'
@@ -106,11 +106,11 @@ export default function Home() {
                   </TextWithShadow>
                 </div>
 
-                <div className="flex flex-col items-center py-2 px-1">
+                <div className="flex flex-col items-center py-1 px-1">
                   <img
                     src={upgrade.icon}
                     alt={upgrade.name}
-                    className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+                    className="w-12 h-12 sm:w-12 sm:h-12 object-contain"
                   />
 
                   <div className="flex items-center justify-center gap-1 mt-1">

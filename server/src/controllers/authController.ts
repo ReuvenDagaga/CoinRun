@@ -52,7 +52,7 @@ export const googleAuth = async (req: Request, res: Response) => {
   }
 }
 
-export async function getCurrentUser(req: AuthRequest, res: Response) {
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return ApiRes.unauthorized(res);
 
@@ -61,8 +61,8 @@ export async function getCurrentUser(req: AuthRequest, res: Response) {
     LOGGER.error('Get current user error:' + error);
     return ApiRes.serverError(res, 'Failed to get user data');
   }
-}
+};
 
-export async function logout(req: AuthRequest, res: Response) {
+export const logout = async (req: AuthRequest, res: Response) => {
   return ApiRes.noContent(res);
-}
+};

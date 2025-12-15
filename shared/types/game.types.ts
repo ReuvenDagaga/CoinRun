@@ -51,27 +51,39 @@ export const GAME_CONSTANTS = {
   MIN_WITHDRAW: 10,
   WITHDRAW_FEE: 0.5,
 
-  // Upgrades
+  // Upgrades - Base costs for first level (level 0→1)
   UPGRADE_COSTS: {
-    capacity: 5,
-    addWarrior: 50,
+    capacity: 100,
+    addWarrior: 1000,
     warriorUpgrade: 5,
-    income: 5,
-    speed: 20,
-    jump: 15,
-    bulletPower: 30,
-    magnetRadius: 25
+    income: 10,
+    speed: 5,
+    jump: 50,
+    bulletPower: 200,
+    magnetRadius: 150
+  },
+
+  // Cost growth multipliers
+  COST_MULTIPLIERS: {
+    capacity: 1.5,
+    addWarrior: 3.5,
+    warriorUpgrade: 1.2,
+    income: 1.7,
+    speed: 1.2,
+    jump: 1.4,
+    bulletPower: 1.8,
+    magnetRadius: 1.6
   },
 
   MAX_LEVELS: {
-    capacity: 20,
-    addWarrior: 10,
-    warriorUpgrade: 20,
-    income: 20,
-    speed: 15,
-    jump: 10,
-    bulletPower: 10,
-    magnetRadius: 5
+    capacity: 999,
+    addWarrior: 999,
+    warriorUpgrade: 999,
+    income: 999,
+    speed: 999,
+    jump: 999,
+    bulletPower: 999,
+    magnetRadius: 999
   }
 } as const;
 
@@ -333,51 +345,61 @@ export function calculatePowerLevel(upgrades: UserUpgrades): number {
   );
 }
 
-// Upgrade cost calculation
+// Upgrade cost calculation with custom multipliers
+// Formula: baseCost × (costMultiplier ^ currentLevel)
 export function calculateUpgradeCost(
   upgradeType: keyof UserUpgrades,
   currentLevel: number
 ): number {
   const baseCost = GAME_CONSTANTS.UPGRADE_COSTS[upgradeType];
-  return baseCost * Math.pow(2, currentLevel);
+  const multiplier = GAME_CONSTANTS.COST_MULTIPLIERS[upgradeType];
+  return Math.floor(baseCost * Math.pow(multiplier, currentLevel));
 }
 
 // Get starting army based on upgrades
+// LINEAR: +1 soldier per level
 export function getStartingArmy(addWarriorLevel: number): number {
-  return GAME_CONSTANTS.BASE_STARTING_ARMY + addWarriorLevel * 2;
+  return GAME_CONSTANTS.BASE_STARTING_ARMY + addWarriorLevel;
 }
 
 // Get max army based on upgrades
+// LINEAR: +1 capacity per level
 export function getMaxArmy(capacityLevel: number): number {
-  return GAME_CONSTANTS.BASE_MAX_ARMY + capacityLevel * 5;
+  return GAME_CONSTANTS.BASE_MAX_ARMY + capacityLevel;
 }
 
 // Get player speed based on upgrades
+// EXPONENTIAL: 3% compound growth per level (1.03^level)
 export function getPlayerSpeed(speedLevel: number): number {
-  return GAME_CONSTANTS.BASE_SPEED * (1 + speedLevel * 0.02);
+  return GAME_CONSTANTS.BASE_SPEED * Math.pow(1.03, speedLevel);
 }
 
 // Get jump height based on upgrades
+// EXPONENTIAL: 5% compound growth per level (1.05^level)
 export function getJumpHeight(jumpLevel: number): number {
-  return GAME_CONSTANTS.BASE_JUMP_HEIGHT * (1 + jumpLevel * 0.05);
+  return GAME_CONSTANTS.BASE_JUMP_HEIGHT * Math.pow(1.05, jumpLevel);
 }
 
 // Get warrior damage multiplier
+// EXPONENTIAL: 10% compound growth per level (1.1^level)
 export function getWarriorDamage(warriorUpgradeLevel: number): number {
-  return 1.0 + warriorUpgradeLevel * 0.1;
+  return Math.pow(1.1, warriorUpgradeLevel);
 }
 
 // Get income multiplier
+// EXPONENTIAL: 10% compound growth per level (1.1^level)
 export function getIncomeMultiplier(incomeLevel: number): number {
-  return 1.0 + incomeLevel * 0.15;
+  return Math.pow(1.1, incomeLevel);
 }
 
 // Get bullet damage multiplier
+// EXPONENTIAL: 8% compound growth per level (1.08^level)
 export function getBulletDamage(bulletPowerLevel: number): number {
-  return 10 * (1 + bulletPowerLevel * 0.1);
+  return 10 * Math.pow(1.08, bulletPowerLevel);
 }
 
 // Get magnet radius
+// EXPONENTIAL: 4% compound growth per level (1.04^level)
 export function getMagnetRadius(magnetRadiusLevel: number): number {
-  return 2 + magnetRadiusLevel * 1;
+  return 2 * Math.pow(1.04, magnetRadiusLevel);
 }

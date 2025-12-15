@@ -4,7 +4,7 @@ import { User } from '../models/Users.js';
 /**
  * Get user settings
  */
-export async function getSettings(req: Request, res: Response) {
+export const getSettings = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     if (!user) {
@@ -19,12 +19,12 @@ export async function getSettings(req: Request, res: Response) {
     console.error('Get settings error:', error);
     res.status(500).json({ success: false, error: 'Failed to get settings' });
   }
-}
+};
 
 /**
  * Update user settings
  */
-export async function updateSettings(req: Request, res: Response) {
+export const updateSettings = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     if (!user) {
@@ -90,4 +90,4 @@ export async function updateSettings(req: Request, res: Response) {
     console.error('Update settings error:', error);
     res.status(500).json({ success: false, error: 'Failed to update settings' });
   }
-}
+};

@@ -6,7 +6,7 @@ import { Transaction } from '../models/Transactions.js';
 /**
  * Get all achievements with user progress
  */
-export async function getAchievements(req: Request, res: Response) {
+export const getAchievements = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     if (!user) {
@@ -47,12 +47,12 @@ export async function getAchievements(req: Request, res: Response) {
     console.error('Get achievements error:', error);
     res.status(500).json({ success: false, error: 'Failed to get achievements' });
   }
-}
+};
 
 /**
  * Update achievement progress (called internally from game/upgrade controllers)
  */
-export async function updateAchievementProgress(userId: string, updateData: {
+export const updateAchievementProgress = async (userId: string, updateData: {
   gamesPlayed?: number;
   gamesWon?: number;
   totalCoins?: number;
@@ -61,7 +61,7 @@ export async function updateAchievementProgress(userId: string, updateData: {
   bestScore?: number;
   upgradeType?: string;
   upgradeLevel?: number;
-}) {
+}) => {
   try {
     const user = await User.findById(userId);
     if (!user) return;
@@ -177,4 +177,4 @@ export async function updateAchievementProgress(userId: string, updateData: {
     console.error('Update achievement progress error:', error);
     return [];
   }
-}
+};

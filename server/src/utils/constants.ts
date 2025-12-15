@@ -38,14 +38,14 @@ export const GAME_CONSTANTS = {
   } as const,
 
   MAX_LEVELS: {
-    capacity: 20,
-    addWarrior: 10,
-    warriorUpgrade: 20,
-    income: 20,
-    speed: 15,
-    jump: 10,
-    bulletPower: 10,
-    magnetRadius: 5
+    capacity: 999,
+    addWarrior: 999,
+    warriorUpgrade: 999,
+    income: 999,
+    speed: 999,
+    jump: 999,
+    bulletPower: 999,
+    magnetRadius: 999
   } as const
 };
 

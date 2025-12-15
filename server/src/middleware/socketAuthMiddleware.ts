@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { verifyToken } from './authMiddleware.js';
-import { User, IUser } from '../models/Users.js';
+import { User } from '../models/Users.js';
+import { IUser } from '../../../shared/interface/IUser.js';
 
 export interface AuthenticatedSocket extends Socket {
   user?: IUser;

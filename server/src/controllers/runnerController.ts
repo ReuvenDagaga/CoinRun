@@ -16,7 +16,7 @@ const MAX_COINS_PER_METER = 2; // Generous estimate
 /**
  * Start solo game
  */
-export async function startSoloGame(req: AuthRequest, res: Response) {
+export const startSoloGame = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -66,12 +66,12 @@ export async function startSoloGame(req: AuthRequest, res: Response) {
     console.error('Start solo game error:', error);
     res.status(500).json({ success: false, error: 'Failed to start game' });
   }
-}
+};
 
 /**
  * Validate game results for anti-cheat
  */
-function validateGameResults(result: any, upgradeLevels: any): { valid: boolean; reason?: string } {
+const validateGameResults = (result: any, upgradeLevels: any): { valid: boolean; reason?: string } => {
   // Max coins based on track length
   const maxCoins = TRACK_LENGTH * MAX_COINS_PER_METER;
   if (result.coinsCollected > maxCoins) {
@@ -102,12 +102,12 @@ function validateGameResults(result: any, upgradeLevels: any): { valid: boolean;
   }
 
   return { valid: true };
-}
+};
 
 /**
  * Finish solo game
  */
-export async function finishSoloGame(req: AuthRequest, res: Response) {
+export const finishSoloGame = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -236,12 +236,12 @@ export async function finishSoloGame(req: AuthRequest, res: Response) {
     console.error('Finish solo game error:', error);
     res.status(500).json({ success: false, error: 'Failed to finish game' });
   }
-}
+};
 
 /**
  * Get leaderboard
  */
-export async function getLeaderboard(req: AuthRequest, res: Response) {
+export const getLeaderboard = async (req: AuthRequest, res: Response) => {
   try {
     const { type = 'daily', limit = 100 } = req.query;
 
@@ -312,12 +312,12 @@ export async function getLeaderboard(req: AuthRequest, res: Response) {
     console.error('Get leaderboard error:', error);
     res.status(500).json({ success: false, error: 'Failed to get leaderboard' });
   }
-}
+};
 
 /**
  * Get player stats and game history
  */
-export async function getPlayerStats(req: AuthRequest, res: Response) {
+export const getPlayerStats = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -361,4 +361,4 @@ export async function getPlayerStats(req: AuthRequest, res: Response) {
     console.error('Get player stats error:', error);
     res.status(500).json({ success: false, error: 'Failed to get stats' });
   }
-}
+};

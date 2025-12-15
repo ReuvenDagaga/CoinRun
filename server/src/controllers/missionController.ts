@@ -6,7 +6,7 @@ import { Transaction } from '../models/Transactions.js';
 /**
  * Get all missions (daily and weekly) with user progress
  */
-export async function getMissions(req: Request, res: Response) {
+export const getMissions = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     if (!user) {
@@ -63,12 +63,12 @@ export async function getMissions(req: Request, res: Response) {
     console.error('Get missions error:', error);
     res.status(500).json({ success: false, error: 'Failed to get missions' });
   }
-}
+};
 
 /**
  * Claim mission reward
  */
-export async function claimMission(req: Request, res: Response) {
+export const claimMission = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     if (!user) {
@@ -158,19 +158,19 @@ export async function claimMission(req: Request, res: Response) {
     console.error('Claim mission error:', error);
     res.status(500).json({ success: false, error: 'Failed to claim mission' });
   }
-}
+};
 
 /**
  * Update mission progress (called internally from game controller)
  */
-export async function updateMissionProgress(userId: string, updateData: {
+export const updateMissionProgress = async (userId: string, updateData: {
   gamesPlayed?: number;
   coinsCollected?: number;
   maxArmy?: number;
   didFinish?: boolean;
   timeTaken?: number;
   totalCoins?: number;
-}) {
+}) => {
   try {
     const user = await User.findById(userId);
     if (!user) return;
@@ -270,12 +270,12 @@ export async function updateMissionProgress(userId: string, updateData: {
   } catch (error) {
     console.error('Update mission progress error:', error);
   }
-}
+};
 
 /**
  * Reset daily missions (run at midnight UTC)
  */
-export async function resetDailyMissions() {
+export const resetDailyMissions = async () => {
   try {
     const missions = await Mission.find({ type: 'daily', active: true });
 
@@ -295,12 +295,12 @@ export async function resetDailyMissions() {
   } catch (error) {
     console.error('Reset daily missions error:', error);
   }
-}
+};
 
 /**
  * Reset weekly missions (run at Monday midnight UTC)
  */
-export async function resetWeeklyMissions() {
+export const resetWeeklyMissions = async () => {
   try {
     const missions = await Mission.find({ type: 'weekly', active: true });
 
@@ -320,4 +320,4 @@ export async function resetWeeklyMissions() {
   } catch (error) {
     console.error('Reset weekly missions error:', error);
   }
-}
+};

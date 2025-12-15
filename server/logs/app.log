@@ -120,3 +120,119 @@
 {"level":30,"time":1765699137221,"pid":24067,"hostname":"reuvens-MacBook-Pro.local","msg":"New user registered: notbemilk@gmail.com"}
 {"level":30,"time":1765726005811,"pid":2231,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
 {"level":30,"time":1765726005812,"pid":2231,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765750168010,"pid":2231,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
+{"level":30,"time":1765786675662,"pid":2231,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765786677073,"pid":2231,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765786680301,"pid":7236,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765786680302,"pid":7236,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765786773066,"pid":7236,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765786773076,"pid":7236,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765786775884,"pid":7279,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765786775886,"pid":7279,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765786783424,"pid":7279,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765786783434,"pid":7279,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765786786333,"pid":7296,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765786786335,"pid":7296,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765786997749,"pid":7296,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765786997761,"pid":7296,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787000229,"pid":7540,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787000230,"pid":7540,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787007056,"pid":7540,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787007066,"pid":7540,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787009735,"pid":7572,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787009737,"pid":7572,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787026818,"pid":7572,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787026825,"pid":7572,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787029171,"pid":7662,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787029172,"pid":7662,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787363299,"pid":7662,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787363309,"pid":7662,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787366139,"pid":7824,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787366141,"pid":7824,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787397673,"pid":7824,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787397687,"pid":7824,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787400407,"pid":7851,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787400408,"pid":7851,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787487988,"pid":7851,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787488000,"pid":7851,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787491135,"pid":7877,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787491136,"pid":7877,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787542125,"pid":7877,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787542137,"pid":7877,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787544540,"pid":7914,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787544542,"pid":7914,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787735414,"pid":7914,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787735424,"pid":7914,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787741059,"pid":8013,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787741061,"pid":8013,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765787962285,"pid":8013,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765787962293,"pid":8013,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765787984334,"pid":8281,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765787984335,"pid":8281,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788015347,"pid":8281,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788015355,"pid":8281,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788022156,"pid":8346,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788022158,"pid":8346,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788029640,"pid":8346,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788029656,"pid":8346,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788032890,"pid":8370,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788032891,"pid":8370,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788036318,"pid":8370,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788036325,"pid":8370,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788044296,"pid":8386,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788044298,"pid":8386,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788049732,"pid":8386,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788049745,"pid":8386,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788053564,"pid":8399,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788053566,"pid":8399,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788348012,"pid":8399,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788348021,"pid":8399,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788419632,"pid":8635,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788419633,"pid":8635,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788433148,"pid":8635,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788433158,"pid":8635,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788460784,"pid":8756,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788460786,"pid":8756,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788601061,"pid":8756,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788601070,"pid":8756,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788604339,"pid":8799,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788604340,"pid":8799,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788639172,"pid":8799,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788639183,"pid":8799,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788640190,"pid":8841,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788642255,"pid":8855,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788644293,"pid":8867,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788646345,"pid":8881,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788648425,"pid":8893,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788649747,"pid":8893,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788649758,"pid":8893,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788649759,"pid":8893,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788652069,"pid":8902,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788652071,"pid":8902,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788665709,"pid":8902,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788665730,"pid":8902,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788666655,"pid":8928,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788668619,"pid":8940,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788670623,"pid":8952,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788672732,"pid":8967,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788674780,"pid":8979,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788675994,"pid":8979,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788676005,"pid":8979,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788676006,"pid":8979,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788678431,"pid":8989,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788678433,"pid":8989,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788688411,"pid":8989,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788688424,"pid":8989,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788689432,"pid":9008,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788691520,"pid":9022,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788693553,"pid":9044,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788695668,"pid":9058,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788696786,"pid":9058,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788696796,"pid":9058,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788696798,"pid":9058,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788699149,"pid":9073,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788699151,"pid":9073,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1765788893618,"pid":9073,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1765788893631,"pid":9073,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1765788896028,"pid":9236,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1765788896030,"pid":9236,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}

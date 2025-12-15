@@ -15,7 +15,7 @@ const SKINS = {
 };
 
 // Get all skins
-export async function getSkins(req: AuthRequest, res: Response) {
+export const getSkins = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
 
@@ -33,10 +33,10 @@ export async function getSkins(req: AuthRequest, res: Response) {
     console.error('Get skins error:', error);
     res.status(500).json({ success: false, error: 'Failed to get skins' });
   }
-}
+};
 
 // Buy skin
-export async function buySkin(req: AuthRequest, res: Response) {
+export const buySkin = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -106,10 +106,10 @@ export async function buySkin(req: AuthRequest, res: Response) {
     console.error('Buy skin error:', error);
     res.status(500).json({ success: false, error: 'Failed to buy skin' });
   }
-}
+};
 
 // Equip skin
-export async function equipSkin(req: AuthRequest, res: Response) {
+export const equipSkin = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -133,10 +133,10 @@ export async function equipSkin(req: AuthRequest, res: Response) {
     console.error('Equip skin error:', error);
     res.status(500).json({ success: false, error: 'Failed to equip skin' });
   }
-}
+};
 
 // Buy lootbox
-export async function buyLootbox(req: AuthRequest, res: Response) {
+export const buyLootbox = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -219,7 +219,7 @@ export async function buyLootbox(req: AuthRequest, res: Response) {
     console.error('Buy lootbox error:', error);
     res.status(500).json({ success: false, error: 'Failed to open lootbox' });
   }
-}
+};
 
 // ❌ REMOVED: buyGems with USDT (crypto removed)
 // Gems can be earned through missions/achievements

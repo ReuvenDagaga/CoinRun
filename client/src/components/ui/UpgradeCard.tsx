@@ -15,49 +15,49 @@ const UPGRADE_INFO: Record<keyof UserUpgrades, {
     name: 'Capacity',
     icon: '📦',
     description: 'Max army size',
-    effectText: (level) => `Max: ${30 + level * 5}`
+    effectText: (level) => `Max: ${30 + level}`
   },
   addWarrior: {
     name: 'Add Warrior',
     icon: '➕',
     description: 'Starting soldiers',
-    effectText: (level) => `Start: ${1 + level * 2}`
+    effectText: (level) => `Start: ${1 + level}`
   },
   warriorUpgrade: {
     name: 'Warrior Power',
     icon: '⚔️',
     description: 'Combat damage',
-    effectText: (level) => `+${(level * 10)}% damage`
+    effectText: (level) => `×${Math.pow(1.1, level).toFixed(2)}`
   },
   income: {
     name: 'Income',
     icon: '💰',
     description: 'Coin multiplier',
-    effectText: (level) => `×${(1 + level * 0.15).toFixed(2)}`
+    effectText: (level) => `×${Math.pow(1.1, level).toFixed(2)}`
   },
   speed: {
     name: 'Speed',
     icon: '👟',
     description: 'Run faster',
-    effectText: (level) => `+${level * 2}% speed`
+    effectText: (level) => `×${Math.pow(1.03, level).toFixed(2)}`
   },
   jump: {
     name: 'Jump',
     icon: '🦘',
     description: 'Jump higher',
-    effectText: (level) => `+${level * 5}% height`
+    effectText: (level) => `×${Math.pow(1.05, level).toFixed(2)}`
   },
   bulletPower: {
     name: 'Bullet Power',
     icon: '🔫',
     description: 'Ranged damage',
-    effectText: (level) => `+${level * 10}% damage`
+    effectText: (level) => `×${Math.pow(1.08, level).toFixed(2)}`
   },
   magnetRadius: {
     name: 'Magnet',
     icon: '🧲',
     description: 'Coin attraction',
-    effectText: (level) => `${2 + level}m radius`
+    effectText: (level) => `${(2 * Math.pow(1.04, level)).toFixed(1)}m`
   }
 };
 

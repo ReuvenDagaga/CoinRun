@@ -28,6 +28,9 @@ const router = Router();
 
 router.use('/auth', authRouter);
 
+// ==================== Upgrade Routes ====================
+router.get('/upgrades', authMiddleware, getUpgrades);
+router.post('/upgrades/:type', authMiddleware, purchaseUpgrade);
 
 // ==================== Runner Game Routes ====================
 router.post('/runner/solo', authMiddleware, startSoloGame);
@@ -35,9 +38,6 @@ router.post('/runner/solo/finish', authMiddleware, finishSoloGame);
 router.get('/runner/leaderboard', optionalAuthMiddleware, getLeaderboard);
 router.get('/runner/stats', authMiddleware, getPlayerStats);
 
-// ==================== Upgrade Routes ====================
-router.get('/upgrades', authMiddleware, getUpgrades);
-router.post('/upgrades/:type', authMiddleware, purchaseUpgrade);
 
 // ==================== Shop Routes ====================
 // ❌ REMOVED: buyGems with USDT (crypto removed)

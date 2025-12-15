@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { User, IUser } from '../models/Users.js';
+import { User } from '../models/Users.js';
+import { IUser } from '../../../shared/interface/IUser.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 

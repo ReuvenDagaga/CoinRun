@@ -1,93 +1,33 @@
 import { Request, Response } from 'express';
-import { User } from '../models/Users.js';
+import { ApiRes } from '../utils/response.js';
+import { LOGGER } from '../log/logger.js';
+import { getUserSettings, updateUserSettings } from '../services/settings.service.js';
 
-/**
- * Get user settings
- */
 export const getSettings = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Not authenticated' });
-    }
+    if (!user) return ApiRes.unauthorized(res);
 
-    res.json({
-      success: true,
-      data: user.settings
-    });
-  } catch (error) {
-    console.error('Get settings error:', error);
-    res.status(500).json({ success: false, error: 'Failed to get settings' });
+    const data = getUserSettings(user);
+    return ApiRes.ok(res, data);
+  } catch (error: any) {
+    LOGGER.error('Get settings error:', error.message);
+    return ApiRes.serverError(res, 'Failed to get settings');
   }
 };
 
-/**
- * Update user settings
- */
 export const updateSettings = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Not authenticated' });
+    if (!user) return ApiRes.unauthorized(res);
+
+    const data = await updateUserSettings(user, req.body);
+    return ApiRes.ok(res, data);
+  } catch (error: any) {
+    LOGGER.error('Update settings error:', error.message);
+    if (error.message.includes('must be') || error.message.includes('Invalid')) {
+      return ApiRes.badRequest(res, error.message);
     }
-
-    const {
-      masterVolume,
-      musicVolume,
-      sfxVolume,
-      graphicsQuality,
-      showFPS,
-      controlSensitivity
-    } = req.body;
-
-    // Validate and update settings
-    if (masterVolume !== undefined) {
-      if (masterVolume < 0 || masterVolume > 1) {
-        return res.status(400).json({ success: false, error: 'Master volume must be between 0 and 1' });
-      }
-      user.settings.masterVolume = masterVolume;
-    }
-
-    if (musicVolume !== undefined) {
-      if (musicVolume < 0 || musicVolume > 1) {
-        return res.status(400).json({ success: false, error: 'Music volume must be between 0 and 1' });
-      }
-      user.settings.musicVolume = musicVolume;
-    }
-
-    if (sfxVolume !== undefined) {
-      if (sfxVolume < 0 || sfxVolume > 1) {
-        return res.status(400).json({ success: false, error: 'SFX volume must be between 0 and 1' });
-      }
-      user.settings.sfxVolume = sfxVolume;
-    }
-
-    if (graphicsQuality !== undefined) {
-      if (!['low', 'medium', 'high'].includes(graphicsQuality)) {
-        return res.status(400).json({ success: false, error: 'Invalid graphics quality' });
-      }
-      user.settings.graphicsQuality = graphicsQuality;
-    }
-
-    if (showFPS !== undefined) {
-      user.settings.showFPS = Boolean(showFPS);
-    }
-
-    if (controlSensitivity !== undefined) {
-      if (controlSensitivity < 0 || controlSensitivity > 1) {
-        return res.status(400).json({ success: false, error: 'Control sensitivity must be between 0 and 1' });
-      }
-      user.settings.controlSensitivity = controlSensitivity;
-    }
-
-    await user.save();
-
-    res.json({
-      success: true,
-      data: user.settings
-    });
-  } catch (error) {
-    console.error('Update settings error:', error);
-    res.status(500).json({ success: false, error: 'Failed to update settings' });
+    return ApiRes.serverError(res, 'Failed to update settings');
   }
 };

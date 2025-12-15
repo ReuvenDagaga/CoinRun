@@ -1,45 +1,23 @@
-import { Request, Response } from 'express';
-import { User } from '../models/Users.js';
+import { Response } from 'express';
+import { AuthRequest } from '../middleware/authMiddleware.js';
+import { ApiRes } from '../utils/response.js';
+import { LOGGER } from '../log/logger.js';
+import { updateUserData } from '../services/user.service.js';
 
-/**
- * Update user data
- * PUT /api/user/update
- * Protected route - requires authentication
- */
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
-    const updates = req.body;
+    const user = req.user;
+    if (!user) return ApiRes.unauthorized(res);
 
-    // Prevent updating sensitive fields
-    const blockedFields = ['_id', 'googleId', 'email', 'createdAt', 'updatedAt', 'referralCode'];
-    blockedFields.forEach(field => delete updates[field]);
+    const userId = user._id.toString();
 
-    // Update user in database
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: updates },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+    const data = await updateUserData(userId, req.body);
+    return ApiRes.ok(res, data);
+  } catch (error: any) {
+    LOGGER.error('Update user error:', error.message);
+    if (error.message === 'User not found') {
+      return ApiRes.notFound(res, error.message);
     }
-
-    return res.status(200).json({
-      success: true,
-      data: updatedUser
-    });
-
-  } catch (error) {
-    console.error('Error updating user:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to update user',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return ApiRes.serverError(res, 'Failed to update user');
   }
 };

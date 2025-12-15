@@ -6,7 +6,7 @@ import { OAuth2Client } from 'google-auth-library';
 import {
   authenticateWithGoogle,
   formatFullUserResponse
-} from '../service/authService';
+} from '../services/auth.service.js';
 import { CONFIG } from 'src/config/enviroments.js';
 
 const googleClient = new OAuth2Client(CONFIG.GOOGLE_CLIENT_ID);
@@ -63,6 +63,6 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const logout = async (req: AuthRequest, res: Response) => {
+export const logout = async (_req: AuthRequest, res: Response) => {
   return ApiRes.noContent(res);
 };

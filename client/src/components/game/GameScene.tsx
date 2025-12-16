@@ -16,6 +16,10 @@ import {
   SPEED_EFFECT_DURATION,
   SPEED_BOOST_MULTIPLIER,
   SPEED_SLOW_MULTIPLIER,
+  SHIELD_DURATION,
+  DOUBLE_POINTS_DURATION,
+  MAGNET_DURATION,
+  GIANT_DURATION,
 } from './Track/Environment/types';
 import { CoinsRenderer, CoinData, generateCoins } from './coin';
 import { useGame, useUI } from '@/context';
@@ -44,6 +48,10 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     setSpeedMultiplier,
     multiplyArmy,
     divideArmy,
+    activateShield,
+    activateDoublePoints,
+    activateMagnet,
+    activateGiant,
   } = useGame();
 
   const { graphicsQuality, isVibrationEnabled } = useUI();
@@ -146,17 +154,35 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
     // Apply gate effect
     switch (gateType) {
+      case SimpleGateType.ADD_SOLDIERS:
+        addSoldiers(5);
+        break;
+      case SimpleGateType.SUBTRACT_SOLDIERS:
+        addSoldiers(-3);
+        break;
+      case SimpleGateType.MULTIPLY_SOLDIERS:
+        multiplyArmy(2);
+        break;
+      case SimpleGateType.DIVIDE_SOLDIERS:
+        divideArmy(2);
+        break;
       case SimpleGateType.SPEED_BOOST:
         setSpeedMultiplier(SPEED_BOOST_MULTIPLIER, 'boost', SPEED_EFFECT_DURATION);
         break;
-      case SimpleGateType.SPEED_SLOW:
+      case SimpleGateType.SLOW_DOWN:
         setSpeedMultiplier(SPEED_SLOW_MULTIPLIER, 'slow', SPEED_EFFECT_DURATION);
         break;
-      case SimpleGateType.MULTIPLY_ARMY:
-        multiplyArmy(2);
+      case SimpleGateType.SHIELD:
+        activateShield(SHIELD_DURATION);
         break;
-      case SimpleGateType.REDUCE_ARMY:
-        divideArmy(2);
+      case SimpleGateType.DOUBLE_POINTS:
+        activateDoublePoints(DOUBLE_POINTS_DURATION);
+        break;
+      case SimpleGateType.MAGNET:
+        activateMagnet(MAGNET_DURATION);
+        break;
+      case SimpleGateType.GIANT:
+        activateGiant(GIANT_DURATION);
         break;
     }
 
@@ -164,7 +190,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     if (isVibrationEnabled) {
       vibrate(30);
     }
-  }, [setSpeedMultiplier, multiplyArmy, divideArmy, isVibrationEnabled]);
+  }, [setSpeedMultiplier, multiplyArmy, divideArmy, addSoldiers, activateShield, activateDoublePoints, activateMagnet, activateGiant, isVibrationEnabled]);
 
   // Handle coin collection
   const handleCoinCollect = useCallback((coinId: string) => {

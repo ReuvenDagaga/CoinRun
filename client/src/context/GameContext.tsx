@@ -12,6 +12,12 @@ export interface SpeedEffect {
   startTime: number;
 }
 
+export interface TimedEffect {
+  active: boolean;
+  remainingTime: number;
+  startTime: number;
+}
+
 interface GameContextValue {
   // Game status
   status: 'idle' | 'loading' | 'countdown' | 'playing' | 'paused' | 'finished' | 'gameover';
@@ -33,6 +39,12 @@ interface GameContextValue {
   // Speed multiplier from gates
   speedMultiplier: number;
   activeSpeedEffect: SpeedEffect | null;
+
+  // New gate effects
+  shieldEffect: TimedEffect | null;
+  doublePointsEffect: TimedEffect | null;
+  magnetEffect: TimedEffect | null;
+  giantEffect: TimedEffect | null;
 
   // For backward compatibility
   activePowerUps: Array<{ type: string; remainingTime: number }>;
@@ -58,6 +70,10 @@ interface GameContextValue {
   clearSpeedEffect: () => void;
   multiplyArmy: (multiplier: number) => void;
   divideArmy: (divisor: number) => void;
+  activateShield: (duration: number) => void;
+  activateDoublePoints: (duration: number) => void;
+  activateMagnet: (duration: number) => void;
+  activateGiant: (duration: number) => void;
 
   // Legacy actions (kept for compatibility)
   collectCoin: (value: number) => void;
@@ -101,6 +117,10 @@ export function GameProvider({ children }: GameProviderProps) {
   const [result, setResult] = useState<GameResult | null>(null);
   const [speedMultiplier, setSpeedMultiplierState] = useState(1.0);
   const [activeSpeedEffect, setActiveSpeedEffect] = useState<SpeedEffect | null>(null);
+  const [shieldEffect, setShieldEffect] = useState<TimedEffect | null>(null);
+  const [doublePointsEffect, setDoublePointsEffect] = useState<TimedEffect | null>(null);
+  const [magnetEffect, setMagnetEffect] = useState<TimedEffect | null>(null);
+  const [giantEffect, setGiantEffect] = useState<TimedEffect | null>(null);
   const [activePowerUps] = useState<Array<{ type: string; remainingTime: number }>>([]);
   const [opponent] = useState(null);
   const [opponentProgress] = useState(0);
@@ -120,6 +140,10 @@ export function GameProvider({ children }: GameProviderProps) {
     setResult(null);
     setSpeedMultiplierState(1.0);
     setActiveSpeedEffect(null);
+    setShieldEffect(null);
+    setDoublePointsEffect(null);
+    setMagnetEffect(null);
+    setGiantEffect(null);
   }, []);
 
   const handleSwipe = useCallback((direction: SwipeDirection) => {
@@ -231,10 +255,42 @@ export function GameProvider({ children }: GameProviderProps) {
           }
         }
 
+        // Check if shield effect has expired
+        if (shieldEffect) {
+          const effectElapsed = (newElapsedTime - shieldEffect.startTime) * 1000;
+          if (effectElapsed >= shieldEffect.remainingTime) {
+            setShieldEffect(null);
+          }
+        }
+
+        // Check if double points effect has expired
+        if (doublePointsEffect) {
+          const effectElapsed = (newElapsedTime - doublePointsEffect.startTime) * 1000;
+          if (effectElapsed >= doublePointsEffect.remainingTime) {
+            setDoublePointsEffect(null);
+          }
+        }
+
+        // Check if magnet effect has expired
+        if (magnetEffect) {
+          const effectElapsed = (newElapsedTime - magnetEffect.startTime) * 1000;
+          if (effectElapsed >= magnetEffect.remainingTime) {
+            setMagnetEffect(null);
+          }
+        }
+
+        // Check if giant effect has expired
+        if (giantEffect) {
+          const effectElapsed = (newElapsedTime - giantEffect.startTime) * 1000;
+          if (effectElapsed >= giantEffect.remainingTime) {
+            setGiantEffect(null);
+          }
+        }
+
         return newElapsedTime;
       });
     }
-  }, [status, activeSpeedEffect]);
+  }, [status, activeSpeedEffect, shieldEffect, doublePointsEffect, magnetEffect, giantEffect]);
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -246,6 +302,10 @@ export function GameProvider({ children }: GameProviderProps) {
     setResult(null);
     setSpeedMultiplierState(1.0);
     setActiveSpeedEffect(null);
+    setShieldEffect(null);
+    setDoublePointsEffect(null);
+    setMagnetEffect(null);
+    setGiantEffect(null);
   }, []);
 
   const handleSetSpeedMultiplier = useCallback((multiplier: number, effectType: 'boost' | 'slow', duration: number) => {
@@ -261,6 +321,38 @@ export function GameProvider({ children }: GameProviderProps) {
     setSpeedMultiplierState(1.0);
     setActiveSpeedEffect(null);
   }, []);
+
+  const activateShield = useCallback((duration: number) => {
+    setShieldEffect({
+      active: true,
+      remainingTime: duration,
+      startTime: elapsedTime,
+    });
+  }, [elapsedTime]);
+
+  const activateDoublePoints = useCallback((duration: number) => {
+    setDoublePointsEffect({
+      active: true,
+      remainingTime: duration,
+      startTime: elapsedTime,
+    });
+  }, [elapsedTime]);
+
+  const activateMagnet = useCallback((duration: number) => {
+    setMagnetEffect({
+      active: true,
+      remainingTime: duration,
+      startTime: elapsedTime,
+    });
+  }, [elapsedTime]);
+
+  const activateGiant = useCallback((duration: number) => {
+    setGiantEffect({
+      active: true,
+      remainingTime: duration,
+      startTime: elapsedTime,
+    });
+  }, [elapsedTime]);
 
   const multiplyArmy = useCallback((multiplier: number) => {
     setPlayer(prev => ({
@@ -317,6 +409,10 @@ export function GameProvider({ children }: GameProviderProps) {
       result,
       speedMultiplier,
       activeSpeedEffect,
+      shieldEffect,
+      doublePointsEffect,
+      magnetEffect,
+      giantEffect,
       activePowerUps,
       opponent,
       opponentProgress,
@@ -336,6 +432,10 @@ export function GameProvider({ children }: GameProviderProps) {
       clearSpeedEffect,
       multiplyArmy,
       divideArmy,
+      activateShield,
+      activateDoublePoints,
+      activateMagnet,
+      activateGiant,
       collectCoin,
       collectGate,
       damageArmy,
@@ -357,6 +457,10 @@ export function GameProvider({ children }: GameProviderProps) {
       result,
       speedMultiplier,
       activeSpeedEffect,
+      shieldEffect,
+      doublePointsEffect,
+      magnetEffect,
+      giantEffect,
       activePowerUps,
       opponent,
       opponentProgress,
@@ -376,6 +480,10 @@ export function GameProvider({ children }: GameProviderProps) {
       clearSpeedEffect,
       multiplyArmy,
       divideArmy,
+      activateShield,
+      activateDoublePoints,
+      activateMagnet,
+      activateGiant,
       collectCoin,
       collectGate,
       damageArmy,

@@ -2,10 +2,16 @@
 // Green gates = positive effects, Red gates = negative effects
 
 export enum SimpleGateType {
+  ADD_SOLDIERS = 'add_soldiers',
+  SUBTRACT_SOLDIERS = 'subtract_soldiers',
+  MULTIPLY_SOLDIERS = 'multiply_soldiers',
+  DIVIDE_SOLDIERS = 'divide_soldiers',
   SPEED_BOOST = 'speed_boost',
-  SPEED_SLOW = 'speed_slow',
-  MULTIPLY_ARMY = 'multiply_army',
-  REDUCE_ARMY = 'reduce_army',
+  SLOW_DOWN = 'slow_down',
+  SHIELD = 'shield',
+  DOUBLE_POINTS = 'double_points',
+  MAGNET = 'magnet',
+  GIANT = 'giant',
 }
 
 export interface GateData {
@@ -24,29 +30,65 @@ export interface GateConfig {
 }
 
 export const GATE_CONFIGS: Record<SimpleGateType, GateConfig> = {
-  [SimpleGateType.SPEED_BOOST]: {
-    color: '#32CD32', // Lime Green
-    label: 'SPEED UP!',
+  [SimpleGateType.ADD_SOLDIERS]: {
+    color: '#00FF88', // Green
+    label: '+5',
     emissiveIntensity: 1.5,
     isPositive: true,
   },
-  [SimpleGateType.SPEED_SLOW]: {
-    color: '#DC143C', // Crimson Red
-    label: 'SLOW DOWN!',
+  [SimpleGateType.SUBTRACT_SOLDIERS]: {
+    color: '#FF4444', // Red
+    label: '-3',
     emissiveIntensity: 1.2,
     isPositive: false,
   },
-  [SimpleGateType.MULTIPLY_ARMY]: {
-    color: '#00FF00', // Bright Green
-    label: 'x2 ARMY!',
+  [SimpleGateType.MULTIPLY_SOLDIERS]: {
+    color: '#FFD700', // Gold
+    label: 'x2',
     emissiveIntensity: 1.8,
     isPositive: true,
   },
-  [SimpleGateType.REDUCE_ARMY]: {
-    color: '#8B0000', // Dark Red
-    label: 'HALF ARMY!',
+  [SimpleGateType.DIVIDE_SOLDIERS]: {
+    color: '#FF6B00', // Orange
+    label: '÷2',
+    emissiveIntensity: 1.2,
+    isPositive: false,
+  },
+  [SimpleGateType.SPEED_BOOST]: {
+    color: '#00DDFF', // Cyan
+    label: 'SPEED UP',
+    emissiveIntensity: 1.5,
+    isPositive: true,
+  },
+  [SimpleGateType.SLOW_DOWN]: {
+    color: '#8B4513', // Brown
+    label: 'SLOW',
     emissiveIntensity: 1.0,
     isPositive: false,
+  },
+  [SimpleGateType.SHIELD]: {
+    color: '#9966FF', // Purple
+    label: 'SHIELD',
+    emissiveIntensity: 1.6,
+    isPositive: true,
+  },
+  [SimpleGateType.DOUBLE_POINTS]: {
+    color: '#FF69B4', // Pink
+    label: '2x POINTS',
+    emissiveIntensity: 1.4,
+    isPositive: true,
+  },
+  [SimpleGateType.MAGNET]: {
+    color: '#FF1493', // Magenta
+    label: 'MAGNET',
+    emissiveIntensity: 1.5,
+    isPositive: true,
+  },
+  [SimpleGateType.GIANT]: {
+    color: '#FFD700', // Gold
+    label: 'GIANT',
+    emissiveIntensity: 1.7,
+    isPositive: true,
   },
 };
 
@@ -60,10 +102,16 @@ export function generateGates(trackLength: number = 800): GateData[] {
   const GATE_SPACING = 80; // Every 80m
 
   const gateTypes = [
+    SimpleGateType.ADD_SOLDIERS,
+    SimpleGateType.SUBTRACT_SOLDIERS,
+    SimpleGateType.MULTIPLY_SOLDIERS,
+    SimpleGateType.DIVIDE_SOLDIERS,
     SimpleGateType.SPEED_BOOST,
-    SimpleGateType.SPEED_SLOW,
-    SimpleGateType.MULTIPLY_ARMY,
-    SimpleGateType.REDUCE_ARMY,
+    SimpleGateType.SLOW_DOWN,
+    SimpleGateType.SHIELD,
+    SimpleGateType.DOUBLE_POINTS,
+    SimpleGateType.MAGNET,
+    SimpleGateType.GIANT,
   ];
 
   // Start at 100m (give player time to collect some soldiers)
@@ -95,7 +143,11 @@ export function generateGates(trackLength: number = 800): GateData[] {
   return gates;
 }
 
-// Effect durations
+// Effect durations (in milliseconds)
 export const SPEED_EFFECT_DURATION = 5000; // 5 seconds
 export const SPEED_BOOST_MULTIPLIER = 1.5; // +50% speed
 export const SPEED_SLOW_MULTIPLIER = 0.5; // -50% speed
+export const SHIELD_DURATION = 5000; // 5 seconds
+export const DOUBLE_POINTS_DURATION = 10000; // 10 seconds
+export const MAGNET_DURATION = 8000; // 8 seconds
+export const GIANT_DURATION = 5000; // 5 seconds

@@ -13,10 +13,17 @@ function lerp(start: number, end: number, factor: number): number {
   return start + (end - start) * factor;
 }
 
+// New tighter, organic formation constants
 const SOLDIERS_PER_ROW = 3;
-const SPACING_X = 1.2;
-const SPACING_Z = 1.5;
-const BACK_OFFSET = -2.0;
+const SPACING_X = 0.8; // Reduced from 1.2 - much tighter
+const SPACING_Z = 1.0; // Reduced from 1.5 - closer together
+const BACK_OFFSET = -1.5; // Closer to player
+
+// Seeded random for consistent randomization per soldier
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
 
 function getFormationPosition(
   index: number,
@@ -26,13 +33,28 @@ function getFormationPosition(
   const row = Math.floor(index / SOLDIERS_PER_ROW);
   const col = index % SOLDIERS_PER_ROW;
 
-  const xOffset = (col - (SOLDIERS_PER_ROW - 1) / 2) * SPACING_X;
-  const zOffset = BACK_OFFSET - row * SPACING_Z;
+  // Calculate soldiers in this row for dynamic width adjustment
+  const soldiersInRow = SOLDIERS_PER_ROW;
+
+  // Base position in tighter grid
+  const baseXOffset = (col - (soldiersInRow - 1) / 2) * SPACING_X;
+  const baseZOffset = BACK_OFFSET - row * SPACING_Z;
+
+  // Add seeded random offsets for organic feel
+  // Use different prime multipliers for X and Z to avoid correlation
+  const seedX = index * 7 + 13;
+  const seedZ = index * 11 + 17;
+  const randomXOffset = (seededRandom(seedX) - 0.5) * 0.6; // ±0.3 units
+  const randomZOffset = (seededRandom(seedZ) - 0.5) * 0.4; // ±0.2 units
+
+  // Soldiers closer to front are more centered, back rows spread wider
+  const rowSpreadMultiplier = 1 + row * 0.1; // Spread increases by 10% per row
+  const adjustedXOffset = baseXOffset * rowSpreadMultiplier;
 
   return {
-    x: playerX + xOffset,
+    x: playerX + adjustedXOffset + randomXOffset,
     y: GROUND_Y,
-    z: playerZ + zOffset,
+    z: playerZ + baseZOffset + randomZOffset,
   };
 }
 
@@ -55,24 +77,34 @@ const ArmySoldier = memo(function ArmySoldier({
   const characterRef = useRef<CharacterModelRef>(null);
   const lastAnimState = useRef(getAnimationFromSpeed(speedMultiplier));
 
+  // Each soldier has a unique animation phase offset and wobble frequency
+  const animPhaseOffset = seededRandom(index * 23 + 7) * Math.PI * 2;
+  const wobbleFrequency = 1.5 + seededRandom(index * 31 + 11) * 1.0; // 1.5-2.5 Hz
+  const wobbleAmplitude = 0.02 + seededRandom(index * 37 + 13) * 0.02; // 0.02-0.04 units
+
   const currentPos = useRef({
     x: playerX,
     y: GROUND_Y,
     z: playerZ + BACK_OFFSET - Math.floor(index / SOLDIERS_PER_ROW) * SPACING_Z,
   });
 
-  useFrame(() => {
+  useFrame((state) => {
     if (!groupRef.current) return;
 
     const target = getFormationPosition(index, playerX, playerZ);
 
-    const smoothFactor = 0.12;
+    // Smoother lerp factor for natural following
+    const smoothFactor = 0.15;
     currentPos.current.x = lerp(currentPos.current.x, target.x, smoothFactor);
     currentPos.current.z = lerp(currentPos.current.z, target.z, smoothFactor);
     currentPos.current.y = GROUND_Y;
 
+    // Add subtle side-to-side wobble unique to each soldier
+    const time = state.clock.elapsedTime;
+    const wobble = Math.sin(time * wobbleFrequency * Math.PI * 2 + animPhaseOffset) * wobbleAmplitude;
+
     groupRef.current.position.set(
-      currentPos.current.x,
+      currentPos.current.x + wobble,
       currentPos.current.y,
       currentPos.current.z
     );

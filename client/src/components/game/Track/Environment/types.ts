@@ -205,3 +205,81 @@ export const MAGNET_DURATION = 8000; // 8 seconds
 export const GIANT_DURATION = 5000; // 5 seconds
 export const REVERSE_CONTROLS_DURATION = 5000; // 5 seconds
 export const SHRINK_DURATION = 5000; // 5 seconds
+
+// =====================
+// Enemy Types
+// =====================
+
+export interface EnemyData {
+  id: string;
+  position: { x: number; y: number; z: number };
+  rotationSpeed: number; // Rotations per second
+  spikeRadius: number; // Kill radius for collision detection
+}
+
+export interface EnemyConfig {
+  baseColor: string;
+  poleColor: string;
+  spikeColor: string;
+  metalColor: string;
+}
+
+// Enemy visual configuration
+export const ENEMY_CONFIG: EnemyConfig = {
+  baseColor: '#5D4037', // Dark wood brown
+  poleColor: '#8B4513', // Saddle brown (wooden pole)
+  spikeColor: '#4A4A4A', // Dark metal gray
+  metalColor: '#2F2F2F', // Dark metal for bands
+};
+
+// Enemy dimensions
+export const ENEMY_POLE_HEIGHT = 3.5; // Total height of pole
+export const ENEMY_POLE_RADIUS = 0.15; // Radius of central pole
+export const ENEMY_SPIKE_LENGTH = 2.0; // Length of spike arms
+export const ENEMY_SPIKE_RADIUS = 0.08; // Thickness of spikes
+export const ENEMY_BASE_RADIUS = 0.5; // Base platform radius
+export const ENEMY_BASE_HEIGHT = 0.3; // Base platform height
+export const ENEMY_KILL_RADIUS = 2.2; // Collision detection radius
+
+// Enemy generation parameters
+export const ENEMY_START_DISTANCE = 150; // Enemies start appearing after this distance
+export const ENEMY_MIN_SPACING = 60; // Minimum distance between enemies
+export const ENEMY_MAX_SPACING = 100; // Maximum distance between enemies
+export const ENEMY_ROTATION_SPEED_MIN = 2.0; // Min rotations per second
+export const ENEMY_ROTATION_SPEED_MAX = 3.0; // Max rotations per second
+
+// Generate enemies along the track
+export function generateEnemies(trackLength: number = 800): EnemyData[] {
+  const enemies: EnemyData[] = [];
+
+  // Start after ENEMY_START_DISTANCE to give player time to build army
+  let z = ENEMY_START_DISTANCE;
+  let enemyIndex = 0;
+
+  while (z < trackLength - 50) {
+    // Random X position within track bounds (-3 to +3)
+    const xPosition = (Math.random() - 0.5) * 6;
+
+    // Random rotation speed
+    const rotationSpeed = ENEMY_ROTATION_SPEED_MIN +
+      Math.random() * (ENEMY_ROTATION_SPEED_MAX - ENEMY_ROTATION_SPEED_MIN);
+
+    enemies.push({
+      id: `enemy-${enemyIndex}`,
+      position: { x: xPosition, y: 0, z },
+      rotationSpeed,
+      spikeRadius: ENEMY_KILL_RADIUS,
+    });
+
+    // Increase density as track progresses (more enemies near end)
+    const progressRatio = z / trackLength;
+    const spacingMultiplier = 1 - (progressRatio * 0.3); // Reduce spacing by up to 30%
+    const spacing = ENEMY_MIN_SPACING +
+      Math.random() * (ENEMY_MAX_SPACING - ENEMY_MIN_SPACING) * spacingMultiplier;
+
+    z += spacing;
+    enemyIndex++;
+  }
+
+  return enemies;
+}

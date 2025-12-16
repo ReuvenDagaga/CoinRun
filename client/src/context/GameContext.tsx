@@ -83,6 +83,8 @@ interface GameContextValue {
   collectCoin: (value: number) => void;
   collectGate: (type: string, value: number) => void;
   damageArmy: (damage: number) => void;
+  killSoldier: () => void;
+  killPlayer: () => void;
   addSoldiers: (count: number) => void;
   multiplySoldiers: (multiplier: number) => void;
   activatePowerUp: (type: string, duration: number) => void;
@@ -431,9 +433,58 @@ export function GameProvider({ children }: GameProviderProps) {
     }));
   }, []);
 
+  // Damage army by removing soldiers
+  const damageArmy = useCallback((damage: number) => {
+    setPlayer(prev => {
+      const newArmyCount = Math.max(0, prev.armyCount - damage);
+      return {
+        ...prev,
+        armyCount: newArmyCount,
+      };
+    });
+  }, []);
+
+  // Kill a single soldier from the army
+  const killSoldier = useCallback(() => {
+    setPlayer(prev => {
+      const newArmyCount = Math.max(0, prev.armyCount - 1);
+      return {
+        ...prev,
+        armyCount: newArmyCount,
+      };
+    });
+  }, []);
+
+  // Kill the main player - if army exists, promote a soldier; otherwise game over
+  const killPlayer = useCallback(() => {
+    setPlayer(prev => {
+      if (prev.armyCount > 1) {
+        // There are soldiers in the army, so one becomes the new player
+        // armyCount stays the same (player dies, soldier becomes player)
+        return {
+          ...prev,
+          armyCount: prev.armyCount - 1,
+        };
+      } else {
+        // No soldiers left, trigger game over
+        return prev;
+      }
+    });
+
+    // Check if game over should be triggered (done outside setPlayer for proper state)
+    setPlayer(current => {
+      if (current.armyCount <= 0) {
+        // Trigger game over after state update
+        setTimeout(() => {
+          gameOver();
+        }, 0);
+      }
+      return current;
+    });
+  }, [gameOver]);
+
   // Stub functions for compatibility
   const collectGate = useCallback(() => {}, []);
-  const damageArmy = useCallback(() => {}, []);
   const activatePowerUp = useCallback(() => {}, []);
   const updatePowerUps = useCallback(() => {}, []);
   const killEnemy = useCallback(() => {}, []);
@@ -485,6 +536,8 @@ export function GameProvider({ children }: GameProviderProps) {
       collectCoin,
       collectGate,
       damageArmy,
+      killSoldier,
+      killPlayer,
       addSoldiers,
       multiplySoldiers,
       activatePowerUp,
@@ -537,6 +590,8 @@ export function GameProvider({ children }: GameProviderProps) {
       collectCoin,
       collectGate,
       damageArmy,
+      killSoldier,
+      killPlayer,
       addSoldiers,
       multiplySoldiers,
       activatePowerUp,

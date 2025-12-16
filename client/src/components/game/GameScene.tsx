@@ -23,7 +23,10 @@ import {
   GIANT_DURATION,
   REVERSE_CONTROLS_DURATION,
   SHRINK_DURATION,
+  EnemyData,
+  generateEnemies,
 } from './Track/Environment/types';
+import { EnemiesRenderer } from './Track/Environment/Enemies';
 import { CoinsRenderer, CoinData, generateCoins } from './coin';
 import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';
@@ -57,6 +60,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     activateGiant,
     activateReverseControls,
     activateShrink,
+    killSoldier,
+    killPlayer,
   } = useGame();
 
   const { graphicsQuality, isVibrationEnabled } = useUI();
@@ -70,6 +75,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Coins state
   const [coins, setCoins] = useState<CoinData[]>([]);
+
+  // Enemies state
+  const [enemies, setEnemies] = useState<EnemyData[]>([]);
 
   // Initialize game with simplified track and soldiers
   useEffect(() => {
@@ -100,6 +108,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
     // Generate coins on the track
     setCoins(generateCoins(TRACK_LENGTH));
+
+    // Generate enemies on the track (start after 150m, increasing density)
+    setEnemies(generateEnemies(TRACK_LENGTH));
 
     // Start countdown after brief delay
     setTimeout(() => {
@@ -233,6 +244,26 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
   }, [collectCoin, isVibrationEnabled]);
 
+  // Handle player being killed by enemy
+  const handlePlayerKill = useCallback(() => {
+    killPlayer();
+
+    // Strong haptic feedback for player death
+    if (isVibrationEnabled) {
+      vibrate(100);
+    }
+  }, [killPlayer, isVibrationEnabled]);
+
+  // Handle soldier being killed by enemy
+  const handleSoldierKill = useCallback((_soldierIndex: number) => {
+    killSoldier();
+
+    // Medium haptic feedback for soldier death
+    if (isVibrationEnabled) {
+      vibrate(50);
+    }
+  }, [killSoldier, isVibrationEnabled]);
+
   // Swipe/keyboard controls
   useSwipeDetector({
     minSwipeDistance: CLIENT_CONSTANTS.MIN_SWIPE_DISTANCE,
@@ -313,6 +344,14 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         {/* Gates on track */}
         <GatesRenderer gates={gates} onGateTrigger={handleGateTrigger} armySize={armySize} />
+
+        {/* Enemies on track (spinning spike obstacles) */}
+        <EnemiesRenderer
+          enemies={enemies}
+          onPlayerKill={handlePlayerKill}
+          onSoldierKill={handleSoldierKill}
+          armySize={armySize}
+        />
 
         {/* Soldier pickups on track */}
         <SoldierPickups

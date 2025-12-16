@@ -1,10 +1,13 @@
-import { useRef, memo } from 'react';
+import { useRef, memo, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 import { CharacterModel, CharacterModelRef } from './characters';
 import { GROUND_Y, getAnimationFromSpeed } from './Player';
+
+// Maximum soldiers to add per frame to prevent freeze
+const MAX_SOLDIERS_PER_FRAME = 5;
 
 function lerp(start: number, end: number, factor: number): number {
   return start + (end - start) * factor;
@@ -103,14 +106,38 @@ export const ArmyFollowers = memo(function ArmyFollowers({
   const { player, status, speedMultiplier } = useGame();
   const { user } = useAuth();
 
+  // Gradually animate to target army size to prevent frame freeze
+  const [displayedArmySize, setDisplayedArmySize] = useState(0);
+  const targetArmySizeRef = useRef(armySize);
+
+  // Update target when armySize prop changes
+  useEffect(() => {
+    targetArmySizeRef.current = armySize;
+  }, [armySize]);
+
+  // Gradually adjust displayed army size in useFrame to spread load across frames
+  useFrame(() => {
+    const target = targetArmySizeRef.current;
+    const current = displayedArmySize;
+
+    if (current < target) {
+      // Adding soldiers - add up to MAX_SOLDIERS_PER_FRAME per frame
+      const toAdd = Math.min(MAX_SOLDIERS_PER_FRAME, target - current);
+      setDisplayedArmySize(current + toAdd);
+    } else if (current > target) {
+      // Removing soldiers - can happen instantly (no new components to create)
+      setDisplayedArmySize(target);
+    }
+  });
+
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
-  if (armySize <= 0) return null;
+  if (displayedArmySize <= 0) return null;
   if (status !== 'playing' && status !== 'countdown' && status !== 'finished') return null;
 
   return (
     <group>
-      {Array.from({ length: armySize }).map((_, index) => (
+      {Array.from({ length: displayedArmySize }).map((_, index) => (
         <ArmySoldier
           key={`army-soldier-${index}`}
           index={index}

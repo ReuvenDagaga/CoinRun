@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 
 import Player from './Player';
@@ -16,10 +16,13 @@ import {
   SPEED_EFFECT_DURATION,
   SPEED_BOOST_MULTIPLIER,
   SPEED_SLOW_MULTIPLIER,
+  SUPER_SLOW_MULTIPLIER,
   SHIELD_DURATION,
   DOUBLE_POINTS_DURATION,
   MAGNET_DURATION,
   GIANT_DURATION,
+  REVERSE_CONTROLS_DURATION,
+  SHRINK_DURATION,
 } from './Track/Environment/types';
 import { CoinsRenderer, CoinData, generateCoins } from './coin';
 import { useGame, useUI } from '@/context';
@@ -52,6 +55,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     activateDoublePoints,
     activateMagnet,
     activateGiant,
+    activateReverseControls,
+    activateShrink,
   } = useGame();
 
   const { graphicsQuality, isVibrationEnabled } = useUI();
@@ -59,8 +64,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   // Soldier pickups state
   const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);
 
-  // Gates state
+  // Gates state - use stable array + Set for triggered IDs to avoid re-renders
   const [gates, setGates] = useState<GateData[]>([]);
+  const triggeredGateIds = useRef<Set<string>>(new Set());
 
   // Coins state
   const [coins, setCoins] = useState<CoinData[]>([]);
@@ -88,7 +94,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     // Generate soldiers on the track
     setSoldiers(generateSoldiers(TRACK_LENGTH));
 
-    // Generate gates on the track
+    // Generate gates on the track and reset triggered set
+    triggeredGateIds.current.clear();
     setGates(generateGates(TRACK_LENGTH));
 
     // Generate coins on the track
@@ -141,16 +148,11 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
   }, [addSoldiers, isVibrationEnabled]);
 
-  // Handle gate trigger
+  // Handle gate trigger - uses ref to track triggered IDs to avoid re-renders
   const handleGateTrigger = useCallback((gateId: string, gateType: SimpleGateType) => {
-    // Mark gate as triggered
-    setGates(prev =>
-      prev.map(g =>
-        g.id === gateId
-          ? { ...g, isTriggered: true }
-          : g
-      )
-    );
+    // Track triggered gate in Set (doesn't cause re-render)
+    // The SingleGate component manages its own visual state via isTriggeredRef
+    triggeredGateIds.current.add(gateId);
 
     // Apply gate effect
     switch (gateType) {
@@ -184,13 +186,32 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       case SimpleGateType.GIANT:
         activateGiant(GIANT_DURATION);
         break;
+      // Additional negative gates
+      case SimpleGateType.SUPER_SLOW:
+        setSpeedMultiplier(SUPER_SLOW_MULTIPLIER, 'slow', SPEED_EFFECT_DURATION);
+        break;
+      case SimpleGateType.SUBTRACT_SOLDIERS_5:
+        addSoldiers(-5);
+        break;
+      case SimpleGateType.SUBTRACT_SOLDIERS_10:
+        addSoldiers(-10);
+        break;
+      case SimpleGateType.DIVIDE_SOLDIERS_3:
+        divideArmy(3);
+        break;
+      case SimpleGateType.REVERSE_CONTROLS:
+        activateReverseControls(REVERSE_CONTROLS_DURATION);
+        break;
+      case SimpleGateType.SHRINK:
+        activateShrink(SHRINK_DURATION);
+        break;
     }
 
     // Haptic feedback for gates
     if (isVibrationEnabled) {
       vibrate(30);
     }
-  }, [setSpeedMultiplier, multiplyArmy, divideArmy, addSoldiers, activateShield, activateDoublePoints, activateMagnet, activateGiant, isVibrationEnabled]);
+  }, [setSpeedMultiplier, multiplyArmy, divideArmy, addSoldiers, activateShield, activateDoublePoints, activateMagnet, activateGiant, activateReverseControls, activateShrink, isVibrationEnabled]);
 
   // Handle coin collection
   const handleCoinCollect = useCallback((coinId: string) => {

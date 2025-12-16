@@ -297,3 +297,5 @@
 {"level":30,"time":1765791697649,"pid":10312,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693e6e41cb74199f17bcb29e updated profile"}
 {"level":30,"time":1765791697860,"pid":10312,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693e6e41cb74199f17bcb29e updated profile"}
 {"level":30,"time":1765791697932,"pid":10312,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693e6e41cb74199f17bcb29e updated profile"}
+{"level":30,"time":1765795205606,"pid":10312,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693e6e41cb74199f17bcb29e updated profile"}
+{"level":30,"time":1765795218524,"pid":10312,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}

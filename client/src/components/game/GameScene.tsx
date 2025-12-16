@@ -16,9 +16,7 @@ import {
   SPEED_BOOST_MULTIPLIER,
   SPEED_SLOW_MULTIPLIER,
 } from './gateTypes';
-import { CoinsRenderer } from './Coins';
-import { CoinData, generateCoins } from './coinTypes';
-
+import { CoinsRenderer, CoinData, generateCoins } from './coin';
 import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';
 import { CLIENT_CONSTANTS } from '@/utils/constants';

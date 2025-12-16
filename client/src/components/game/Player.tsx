@@ -2,15 +2,14 @@ import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGame } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { GAME_CONSTANTS } from '@shared/types/game.types';
-import CharacterModel, { PLAYER_COLOR } from './CharacterModel';
+import { CharacterModel, CharacterModelRef, AnimationState } from './characters';
 
-// Lerp helper function for smooth interpolation
 function lerp(start: number, end: number, factor: number): number {
   return start + (end - start) * factor;
 }
 
-// Path point for army following (kept for compatibility but not used in group formation)
 export interface PathPoint {
   x: number;
   y: number;
@@ -18,97 +17,108 @@ export interface PathPoint {
   timestamp: number;
 }
 
-// Global path storage - exported for Army component to use
 export const playerPath: PathPoint[] = [];
 
-// Track length constant
 const TRACK_LENGTH = 800;
-export const GROUND_Y = 0.5; // Player height above ground - LOCKED & EXPORTED
+export const GROUND_Y = 0.5;
+
+export function getAnimationFromSpeed(speedMultiplier: number): AnimationState {
+  if (speedMultiplier <= 0.5) return 'walking';
+  if (speedMultiplier <= 0.75) return 'jogging';
+  if (speedMultiplier <= 1.25) return 'running';
+  return 'sprinting';
+}
 
 export default function Player() {
   const meshRef = useRef<THREE.Group>(null);
-  const bodyRef = useRef<THREE.Group>(null);
+  const characterRef = useRef<CharacterModelRef>(null);
+  const lastAnimState = useRef<AnimationState>('sprinting');
 
-  // Current actual position (for lerp)
   const currentX = useRef(0);
   const targetX = useRef(0);
   const positionZ = useRef(0);
 
   const { status, player, updatePlayerPosition, finishGame, speedMultiplier } = useGame();
+  const { user } = useAuth();
 
-  // Movement constants - tuned for smooth feel
-  const FORWARD_SPEED = 25; // Reduced to 25 m/s (half of 50) for testing
-  const HORIZONTAL_SPEED = 8; // m/s for left/right movement
-  const SMOOTH_FACTOR = 0.15; // Lerp factor for smoothness (higher = snappier)
-  const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH; // 5m
+  const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
-  // Clear position on game reset
+  const FORWARD_SPEED = 25;
+  const HORIZONTAL_SPEED = 8;
+  const SMOOTH_FACTOR = 0.15;
+  const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH;
+
   useEffect(() => {
     if (status === 'loading' || status === 'idle') {
       playerPath.length = 0;
       currentX.current = 0;
       targetX.current = 0;
       positionZ.current = 0;
+      lastAnimState.current = 'idle';
     }
   }, [status]);
 
   useFrame((_, delta) => {
+    console.log('speedMultiplier:', speedMultiplier, 'status:', status);
+
     if (!meshRef.current) return;
 
-    // Only move when playing
-    if (status !== 'playing') {
-      // Still update mesh position but don't move
-      meshRef.current.position.y = GROUND_Y; // ALWAYS lock Y
+    if (status === 'idle' || status === 'loading' || status === 'countdown') {
+      if (lastAnimState.current !== 'idle') {
+        characterRef.current?.setAnimation('idle');
+        lastAnimState.current = 'idle';
+      }
+      meshRef.current.position.y = GROUND_Y;
       return;
     }
 
-    // Check if already finished (stop at finish line)
+    if (status !== 'playing') {
+      meshRef.current.position.y = GROUND_Y;
+      return;
+    }
+
     if (positionZ.current >= TRACK_LENGTH) {
-      // Ensure we trigger finish exactly once
       if (status === 'playing') {
         finishGame();
       }
       return;
     }
 
-    // Clamp delta to prevent large jumps on lag spikes
     const clampedDelta = Math.min(delta, 0.05);
 
-    // Update target X based on horizontal velocity (continuous while held)
     if (player.horizontalVelocity !== 0) {
       targetX.current += player.horizontalVelocity * HORIZONTAL_SPEED * clampedDelta;
     }
 
-    // Clamp target to track bounds
     targetX.current = Math.max(-TRACK_HALF_WIDTH, Math.min(TRACK_HALF_WIDTH, targetX.current));
 
-    // SMOOTH interpolation (lerp) - this is the key to smooth movement!
     currentX.current = lerp(currentX.current, targetX.current, SMOOTH_FACTOR);
 
-    // Move forward constantly (but stop at finish) - apply speed multiplier from gates
     const effectiveSpeed = FORWARD_SPEED * speedMultiplier;
     const newZ = positionZ.current + effectiveSpeed * clampedDelta;
-    positionZ.current = Math.min(newZ, TRACK_LENGTH); // Cap at track length
+    positionZ.current = Math.min(newZ, TRACK_LENGTH);
 
-    // Update mesh position - Y is ALWAYS locked to ground
     meshRef.current.position.x = currentX.current;
     meshRef.current.position.z = positionZ.current;
-    meshRef.current.position.y = GROUND_Y; // LOCKED - no floating!
+    meshRef.current.position.y = GROUND_Y;
 
-    // Update store with position
     updatePlayerPosition(positionZ.current, currentX.current);
 
-    // Add subtle body rotation based on movement direction
-    if (bodyRef.current) {
-      // Roll effect when moving sideways
-      const targetRotation = -player.horizontalVelocity * 0.15;
-      bodyRef.current.rotation.z = lerp(bodyRef.current.rotation.z, targetRotation, 0.1);
+    const animState = getAnimationFromSpeed(speedMultiplier);
+    if (animState !== lastAnimState.current) {
+      characterRef.current?.setAnimation(animState);
+      lastAnimState.current = animState;
     }
   });
 
   return (
     <group ref={meshRef} position={[0, GROUND_Y, 0]}>
-      <CharacterModel ref={bodyRef} color={PLAYER_COLOR} />
-    </group>
+  <CharacterModel
+    ref={characterRef}
+    skinId={currentSkin}
+    animation="sprinting"
+    scale={1000}
+  />
+</group>
   );
 }

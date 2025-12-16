@@ -4,10 +4,17 @@ import { useGame } from '@/context';
 import CoinModel from './CoinModel';
 import { CoinData, COLLECTION_RADIUS } from './coinTypes';
 
+// New tighter, organic formation constants (must match ArmyFollowers.tsx)
 const SOLDIERS_PER_ROW = 3;
-const SPACING_X = 1.2;
-const SPACING_Z = 1.5;
-const BACK_OFFSET = -2.0;
+const SPACING_X = 0.8; // Reduced from 1.2 - much tighter
+const SPACING_Z = 1.0; // Reduced from 1.5 - closer together
+const BACK_OFFSET = -1.5; // Closer to player
+
+// Seeded random for consistent randomization per soldier
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
 
 function getArmyPosition(
   index: number,
@@ -16,12 +23,24 @@ function getArmyPosition(
 ): { x: number; z: number } {
   const row = Math.floor(index / SOLDIERS_PER_ROW);
   const col = index % SOLDIERS_PER_ROW;
-  const xOffset = (col - (SOLDIERS_PER_ROW - 1) / 2) * SPACING_X;
-  const zOffset = BACK_OFFSET - row * SPACING_Z;
+
+  // Base position in tighter grid
+  const baseXOffset = (col - (SOLDIERS_PER_ROW - 1) / 2) * SPACING_X;
+  const baseZOffset = BACK_OFFSET - row * SPACING_Z;
+
+  // Add seeded random offsets for organic feel (must match ArmyFollowers.tsx)
+  const seedX = index * 7 + 13;
+  const seedZ = index * 11 + 17;
+  const randomXOffset = (seededRandom(seedX) - 0.5) * 0.6; // ±0.3 units
+  const randomZOffset = (seededRandom(seedZ) - 0.5) * 0.4; // ±0.2 units
+
+  // Soldiers closer to front are more centered, back rows spread wider
+  const rowSpreadMultiplier = 1 + row * 0.1;
+  const adjustedXOffset = baseXOffset * rowSpreadMultiplier;
 
   return {
-    x: playerX + xOffset,
-    z: playerZ + zOffset,
+    x: playerX + adjustedXOffset + randomXOffset,
+    z: playerZ + baseZOffset + randomZOffset,
   };
 }
 

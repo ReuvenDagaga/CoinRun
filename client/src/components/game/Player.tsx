@@ -29,6 +29,9 @@ export const playerPath: PathPoint[] = [];
 const TRACK_LENGTH = 800;
 export const GROUND_Y = 0.5;
 
+// Boulder collision speed reduction
+const BOULDER_SPEED_MULTIPLIER = 0.2; // 80% speed reduction when touching boulder
+
 export function getAnimationFromSpeed(speedMultiplier: number): AnimationState {
   if (speedMultiplier <= 0.5) return 'walking';
   if (speedMultiplier <= 0.75) return 'jogging';
@@ -54,7 +57,8 @@ export default function Player({ boulders = [] }: PlayerProps) {
 
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
-  const FORWARD_SPEED = 25;
+  // Base speed reduced by 30% (was 25, now 17.5)
+  const FORWARD_SPEED = 17.5;
   const HORIZONTAL_SPEED = 8;
   const SMOOTH_FACTOR = 0.15;
   const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH;
@@ -71,10 +75,10 @@ export default function Player({ boulders = [] }: PlayerProps) {
   }, [status]);
 
   // Apply boulder collision to player position
-  const applyBoulderCollision = (posX: number, posZ: number): { x: number; z: number; blocked: boolean } => {
+  const applyBoulderCollision = (posX: number, posZ: number): { x: number; z: number; touchingBoulder: boolean } => {
     let resultX = posX;
     let resultZ = posZ;
-    let blocked = false;
+    let touchingBoulder = false;
 
     // Filter to nearby boulders
     const nearbyBoulders = boulders.filter(
@@ -88,7 +92,7 @@ export default function Player({ boulders = [] }: PlayerProps) {
       const minDistance = boulder.radius + PLAYER_RADIUS;
 
       if (distance < minDistance && distance > 0.01) {
-        blocked = true;
+        touchingBoulder = true;
         // Push player out of boulder
         const pushFactor = (minDistance - distance) / distance;
         resultX += dx * pushFactor * 1.1;
@@ -99,7 +103,7 @@ export default function Player({ boulders = [] }: PlayerProps) {
       }
     }
 
-    return { x: resultX, z: resultZ, blocked };
+    return { x: resultX, z: resultZ, touchingBoulder };
   };
 
   useFrame((_, delta) => {
@@ -136,18 +140,28 @@ export default function Player({ boulders = [] }: PlayerProps) {
 
     let newX = lerp(currentX.current, targetX.current, SMOOTH_FACTOR);
 
-    const effectiveSpeed = FORWARD_SPEED * speedMultiplier;
+    // Check boulder collision first to determine speed
+    let boulderSpeedMod = 1.0;
+    if (boulders.length > 0) {
+      const collision = applyBoulderCollision(newX, positionZ.current);
+      if (collision.touchingBoulder) {
+        boulderSpeedMod = BOULDER_SPEED_MULTIPLIER; // 80% speed reduction
+      }
+    }
+
+    // Apply speed with boulder modifier
+    const effectiveSpeed = FORWARD_SPEED * speedMultiplier * boulderSpeedMod;
     let newZ = positionZ.current + effectiveSpeed * clampedDelta;
     newZ = Math.min(newZ, TRACK_LENGTH);
 
-    // Apply boulder collision
+    // Apply boulder collision for position
     if (boulders.length > 0) {
       const collision = applyBoulderCollision(newX, newZ);
       newX = collision.x;
       newZ = Math.max(positionZ.current, collision.z); // Don't go backward
 
-      // Update target if blocked to prevent fighting against boulder
-      if (collision.blocked) {
+      // Update target if touching boulder to prevent fighting against boulder
+      if (collision.touchingBoulder) {
         targetX.current = newX;
       }
     }
@@ -164,7 +178,8 @@ export default function Player({ boulders = [] }: PlayerProps) {
 
     updatePlayerPosition(positionZ.current, currentX.current);
 
-    const animState = getAnimationFromSpeed(speedMultiplier);
+    // Animation based on effective speed (including boulder slow)
+    const animState = getAnimationFromSpeed(speedMultiplier * boulderSpeedMod);
     if (animState !== lastAnimState.current) {
       characterRef.current?.setAnimation(animState);
       lastAnimState.current = animState;

@@ -207,10 +207,10 @@ export const REVERSE_CONTROLS_DURATION = 5000; // 5 seconds
 export const SHRINK_DURATION = 5000; // 5 seconds
 
 // =====================
-// Enemy Types
+// Enemy Types (Spinner, Fist, Boulder only)
 // =====================
 
-export type EnemyType = 'spinner' | 'fist' | 'boulder' | 'shooter';
+export type EnemyType = 'spinner' | 'fist' | 'boulder';
 
 // Base enemy data shared by all types
 interface BaseEnemyData {
@@ -240,24 +240,8 @@ export interface BoulderData extends BaseEnemyData {
   rotationY: number; // Random rotation for variety
 }
 
-// Shooter-specific data
-export interface ShooterData extends BaseEnemyData {
-  type: 'shooter';
-  fireRate: number; // Seconds between shots
-  projectileSpeed: number;
-}
-
-// Union type for all enemy data
-export type EnemyData = SpinnerData | FistData | BoulderData | ShooterData;
-
-// Projectile data for shooter enemy
-export interface ProjectileData {
-  id: string;
-  position: { x: number; y: number; z: number };
-  velocity: { x: number; y: number; z: number };
-  sourceEnemyId: string;
-  createdAt: number;
-}
+// Union type for all enemy data (no shooter)
+export type EnemyData = SpinnerData | FistData | BoulderData;
 
 export interface EnemyConfig {
   baseColor: string;
@@ -312,25 +296,6 @@ export const BOULDER_RADIUS_MIN = 0.8;
 export const BOULDER_RADIUS_MAX = 1.2;
 export const BOULDER_PUSH_RADIUS = 1.5; // Radius for pushing soldiers aside
 
-// Shooter configuration
-export const SHOOTER_CONFIG = {
-  bodyColor: '#4A0080', // Purple monster
-  eyeColor: '#FF0000', // Red eyes
-  weaponColor: '#333333', // Dark weapon
-  glowColor: '#FF00FF', // Magenta glow
-};
-export const SHOOTER_HEIGHT = 6.0; // 3x larger for intimidating presence
-export const SHOOTER_WIDTH = 3.0; // 3x larger
-export const SHOOTER_FIRE_RATE = 2.5; // Slightly slower fire rate
-export const SHOOTER_WARNING_TIME = 0.5; // Glow before firing
-export const SHOOTER_BODY_RADIUS = 0.8; // For collision (push only)
-
-// Projectile configuration
-export const PROJECTILE_SPEED = 20; // Units per second (slightly slower for visibility)
-export const PROJECTILE_RANGE = 50; // Max distance
-export const PROJECTILE_RADIUS = 0.8; // Increased 2.5x for visibility
-export const PROJECTILE_KILL_RADIUS = 1.2; // Larger kill radius
-
 // Generation parameters per type
 export const SPINNER_START_DISTANCE = 150;
 export const SPINNER_MIN_SPACING = 60;
@@ -346,11 +311,6 @@ export const BOULDER_START_DISTANCE = 100;
 export const BOULDER_MIN_SPACING = 40;
 export const BOULDER_MAX_SPACING = 70;
 
-export const SHOOTER_START_DISTANCE = 300;
-export const SHOOTER_MIN_SPACING = 200; // Minimum 200m apart
-export const SHOOTER_MAX_SPACING = 250;
-export const SHOOTER_MAX_COUNT = 2; // Maximum 2 per track
-
 // Legacy aliases for backwards compatibility
 export const ENEMY_CONFIG = SPINNER_CONFIG;
 export const ENEMY_POLE_HEIGHT = SPINNER_POLE_HEIGHT;
@@ -362,7 +322,7 @@ export const ENEMY_BASE_RADIUS = SPINNER_BASE_RADIUS;
 export const ENEMY_BASE_HEIGHT = SPINNER_BASE_HEIGHT;
 export const ENEMY_KILL_RADIUS = SPINNER_KILL_RADIUS;
 
-// Generate all enemies along the track
+// Generate all enemies along the track (Spinner, Fist, Boulder only)
 export function generateEnemies(trackLength: number = 800): EnemyData[] {
   const enemies: EnemyData[] = [];
   let enemyIndex = 0;
@@ -426,26 +386,6 @@ export function generateEnemies(trackLength: number = 800): EnemyData[] {
     const spacing = BOULDER_MIN_SPACING + Math.random() * (BOULDER_MAX_SPACING - BOULDER_MIN_SPACING);
     z += spacing;
     enemyIndex++;
-  }
-
-  // Generate shooters (max 2 per track)
-  z = SHOOTER_START_DISTANCE;
-  let shooterCount = 0;
-  while (z < trackLength - 50 && shooterCount < SHOOTER_MAX_COUNT) {
-    const xPosition = (Math.random() - 0.5) * 4; // Narrower range
-
-    enemies.push({
-      id: `shooter-${enemyIndex}`,
-      type: 'shooter',
-      position: { x: xPosition, y: 0, z },
-      fireRate: SHOOTER_FIRE_RATE,
-      projectileSpeed: PROJECTILE_SPEED,
-    });
-
-    const spacing = SHOOTER_MIN_SPACING + Math.random() * (SHOOTER_MAX_SPACING - SHOOTER_MIN_SPACING);
-    z += spacing;
-    enemyIndex++;
-    shooterCount++;
   }
 
   return enemies;

@@ -1,25 +1,17 @@
-import { useRef, memo, useCallback, useState } from 'react';
+import { useRef, memo, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGame } from '@/context';
 import { EnemySpinner } from './EnemySpinner';
 import { EnemyFist, FistPhase } from './EnemyFist';
 import { EnemyBoulder } from './EnemyBoulder';
-import { EnemyShooter } from './EnemyShooter';
-import { Projectile } from './Projectile';
 import {
   EnemyData,
   SpinnerData,
   FistData,
   BoulderData,
-  ShooterData,
-  ProjectileData,
   SPINNER_KILL_RADIUS,
   FIST_KILL_RADIUS,
   FIST_ARM_LENGTH,
-  BOULDER_PUSH_RADIUS,
-  PROJECTILE_KILL_RADIUS,
-  PROJECTILE_RANGE,
-  SHOOTER_HEIGHT,
 } from '../types';
 import { GROUND_Y } from '../../../Player';
 
@@ -266,162 +258,10 @@ interface SingleBoulderProps {
 const SingleBoulder = memo(function SingleBoulder({
   enemy,
 }: SingleBoulderProps) {
-  // Boulder is purely visual/blocking - no collision logic needed here
-  // Physical blocking can be handled by the player movement system if needed
-
+  // Boulder is purely visual/blocking - collision handled in Player.tsx and ArmyFollowers.tsx
   return (
     <group position={[enemy.position.x, enemy.position.y, enemy.position.z]}>
       <EnemyBoulder radius={enemy.radius} rotationY={enemy.rotationY} />
-    </group>
-  );
-});
-
-// =====================
-// Single Projectile with Collision
-// =====================
-interface ProjectileWithCollisionProps {
-  projectile: ProjectileData;
-  playerX: number;
-  playerZ: number;
-  armySize: number;
-  onPlayerKill: (playerPos: { x: number; z: number }, enemyPos: { x: number; z: number }, enemyRotation: number) => void;
-  onSoldiersKill: (deaths: DeathInfo[]) => void;
-  onRemove: (id: string) => void;
-  status: string;
-  hasShield: boolean;
-}
-
-const ProjectileWithCollision = memo(function ProjectileWithCollision({
-  projectile,
-  playerX,
-  playerZ,
-  armySize,
-  onPlayerKill,
-  onSoldiersKill,
-  onRemove,
-  status,
-  hasShield,
-}: ProjectileWithCollisionProps) {
-  const positionRef = useRef({ ...projectile.position });
-  const hasHitRef = useRef(false);
-  const killedSoldiersRef = useRef<Set<number>>(new Set());
-
-  const handlePositionUpdate = useCallback((newPos: { x: number; y: number; z: number }) => {
-    positionRef.current = newPos;
-
-    // Check if projectile went too far (remove it)
-    const dx = newPos.x - projectile.position.x;
-    const dy = newPos.y - projectile.position.y;
-    const dz = newPos.z - projectile.position.z;
-    const distanceTraveled = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-    if (distanceTraveled > PROJECTILE_RANGE) {
-      onRemove(projectile.id);
-      return;
-    }
-
-    // Check collisions only when playing and no shield
-    if (status !== 'playing' || hasShield || hasHitRef.current) return;
-
-    const projX = newPos.x;
-    const projZ = newPos.z;
-
-    const isInKillZone = (posX: number, posZ: number): boolean => {
-      const ddx = posX - projX;
-      const ddz = posZ - projZ;
-      const distance = Math.sqrt(ddx * ddx + ddz * ddz);
-      return distance < PROJECTILE_KILL_RADIUS;
-    };
-
-    // Check soldier collisions
-    const deaths: DeathInfo[] = [];
-
-    for (let i = 0; i < armySize; i++) {
-      if (killedSoldiersRef.current.has(i)) continue;
-
-      const soldierPos = getArmyPosition(i, playerX, playerZ);
-      if (isInKillZone(soldierPos.x, soldierPos.z)) {
-        killedSoldiersRef.current.add(i);
-        deaths.push({
-          soldierIndex: i,
-          position: soldierPos,
-          enemyPosition: { x: projX, z: projZ },
-          enemyRotation: Math.atan2(projectile.velocity.x, projectile.velocity.z),
-        });
-        hasHitRef.current = true;
-        onRemove(projectile.id);
-        break; // Projectile destroyed on hit
-      }
-    }
-
-    if (deaths.length > 0) {
-      onSoldiersKill(deaths);
-      return;
-    }
-
-    // Check player collision
-    if (isInKillZone(playerX, playerZ)) {
-      hasHitRef.current = true;
-      onPlayerKill(
-        { x: playerX, z: playerZ },
-        { x: projX, z: projZ },
-        Math.atan2(projectile.velocity.x, projectile.velocity.z)
-      );
-      onRemove(projectile.id);
-    }
-  }, [projectile, playerX, playerZ, armySize, onPlayerKill, onSoldiersKill, onRemove, status, hasShield]);
-
-  return (
-    <Projectile
-      position={projectile.position}
-      velocity={projectile.velocity}
-      onUpdate={handlePositionUpdate}
-    />
-  );
-});
-
-// =====================
-// Shooter Enemy Component
-// =====================
-interface SingleShooterProps {
-  enemy: ShooterData;
-  onFireProjectile: (projectile: ProjectileData) => void;
-  status: string;
-}
-
-const SingleShooter = memo(function SingleShooter({
-  enemy,
-  onFireProjectile,
-  status,
-}: SingleShooterProps) {
-  const projectileIdRef = useRef(0);
-
-  const handleFire = useCallback(() => {
-    if (status !== 'playing') return;
-
-    // Create projectile moving toward player's lane (negative Z)
-    const projectile: ProjectileData = {
-      id: `proj-${enemy.id}-${projectileIdRef.current++}`,
-      position: {
-        x: enemy.position.x,
-        y: GROUND_Y + SHOOTER_HEIGHT * 0.5,
-        z: enemy.position.z + 0.6, // Start slightly in front
-      },
-      velocity: {
-        x: 0,
-        y: 0,
-        z: -enemy.projectileSpeed, // Fire toward player (negative Z)
-      },
-      sourceEnemyId: enemy.id,
-      createdAt: Date.now(),
-    };
-
-    onFireProjectile(projectile);
-  }, [enemy, onFireProjectile, status]);
-
-  return (
-    <group position={[enemy.position.x, enemy.position.y, enemy.position.z]}>
-      <EnemyShooter fireRate={enemy.fireRate} onFire={handleFire} />
     </group>
   );
 });
@@ -443,7 +283,6 @@ export const EnemiesRenderer = memo(function EnemiesRenderer({
   armySize,
 }: EnemiesRendererProps) {
   const { player, status, shieldEffect } = useGame();
-  const [projectiles, setProjectiles] = useState<ProjectileData[]>([]);
 
   const hasShield = shieldEffect?.active ?? false;
 
@@ -462,29 +301,15 @@ export const EnemiesRenderer = memo(function EnemiesRenderer({
     [onSoldiersKill]
   );
 
-  const handleFireProjectile = useCallback((projectile: ProjectileData) => {
-    setProjectiles(prev => [...prev, projectile]);
-  }, []);
-
-  const handleRemoveProjectile = useCallback((id: string) => {
-    setProjectiles(prev => prev.filter(p => p.id !== id));
-  }, []);
-
   // Filter visible enemies (only render enemies within view distance)
   const visibleEnemies = enemies.filter(
     (enemy) => Math.abs(enemy.position.z - player.position.z) < 100
-  );
-
-  // Filter visible projectiles
-  const visibleProjectiles = projectiles.filter(
-    (proj) => Math.abs(proj.position.z - player.position.z) < 100
   );
 
   // Separate enemies by type
   const spinners = visibleEnemies.filter((e): e is SpinnerData => e.type === 'spinner');
   const fists = visibleEnemies.filter((e): e is FistData => e.type === 'fist');
   const boulders = visibleEnemies.filter((e): e is BoulderData => e.type === 'boulder');
-  const shooters = visibleEnemies.filter((e): e is ShooterData => e.type === 'shooter');
 
   return (
     <group>
@@ -526,32 +351,6 @@ export const EnemiesRenderer = memo(function EnemiesRenderer({
           playerX={player.position.x}
           playerZ={player.position.z}
           status={status}
-        />
-      ))}
-
-      {/* Shooters */}
-      {shooters.map((enemy) => (
-        <SingleShooter
-          key={enemy.id}
-          enemy={enemy}
-          onFireProjectile={handleFireProjectile}
-          status={status}
-        />
-      ))}
-
-      {/* Projectiles */}
-      {visibleProjectiles.map((proj) => (
-        <ProjectileWithCollision
-          key={proj.id}
-          projectile={proj}
-          playerX={player.position.x}
-          playerZ={player.position.z}
-          armySize={armySize}
-          onPlayerKill={handlePlayerKill}
-          onSoldiersKill={handleSoldiersKill}
-          onRemove={handleRemoveProjectile}
-          status={status}
-          hasShield={hasShield}
         />
       ))}
     </group>

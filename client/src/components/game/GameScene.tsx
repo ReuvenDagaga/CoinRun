@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 
-import Player from './Player';
+import Player, { GROUND_Y } from './Player';
 import Track from './Track/Track';
 import Environment from './Track/Environment/Environment';
 import GameCamera from './GameCamera';
@@ -27,10 +27,13 @@ import {
   generateEnemies,
 } from './Track/Environment/types';
 import { EnemiesRenderer } from './Track/Environment/Enemies';
+import type { DeathInfo } from './Track/Environment/Enemies';
+import { DeadSoldiersRenderer, DeadSoldierData } from './DeadSoldier';
 import { CoinsRenderer, CoinData, generateCoins } from './coin';
 import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';
 import { CLIENT_CONSTANTS } from '@/utils/constants';
+import { useAuth } from '@/hooks/useAuth';
 
 // Simple track data for core mechanics
 const TRACK_LENGTH = 800;
@@ -60,11 +63,12 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     activateGiant,
     activateReverseControls,
     activateShrink,
-    killSoldier,
+    damageArmy,
     killPlayer,
   } = useGame();
 
   const { graphicsQuality, isVibrationEnabled } = useUI();
+  const { user } = useAuth();
 
   // Soldier pickups state
   const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);
@@ -78,6 +82,13 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Enemies state
   const [enemies, setEnemies] = useState<EnemyData[]>([]);
+
+  // Dead soldiers state (for ragdoll physics)
+  const [deadSoldiers, setDeadSoldiers] = useState<DeadSoldierData[]>([]);
+  const gameTimeRef = useRef(0);
+
+  // Get current skin for dead soldiers
+  const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
   // Initialize game with simplified track and soldiers
   useEffect(() => {
@@ -129,6 +140,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       const now = performance.now();
       const delta = (now - lastTime) / 1000;
       lastTime = now;
+
+      // Track game time for dead soldier animations
+      gameTimeRef.current += delta;
 
       updateTime(delta);
 
@@ -244,25 +258,87 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
   }, [collectCoin, isVibrationEnabled]);
 
+  // Helper to create a dead soldier with ragdoll physics
+  const createDeadSoldier = useCallback((
+    position: { x: number; z: number },
+    enemyPosition: { x: number; z: number },
+    enemyRotation: number
+  ): DeadSoldierData => {
+    // Calculate push direction from enemy to soldier
+    const dx = position.x - enemyPosition.x;
+    const dz = position.z - enemyPosition.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    const dirX = dist > 0 ? dx / dist : Math.cos(enemyRotation);
+    const dirZ = dist > 0 ? dz / dist : Math.sin(enemyRotation);
+
+    // Add tangential velocity from spinner rotation
+    const tangentX = -dirZ;
+    const tangentZ = dirX;
+
+    // Random push strengths for variety
+    const pushStrength = 8 + Math.random() * 4;
+    const tangentStrength = 3 + Math.random() * 2;
+    const upwardStrength = 5 + Math.random() * 3;
+
+    return {
+      id: `dead-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      position: { x: position.x, y: GROUND_Y + 0.1, z: position.z },
+      velocity: {
+        x: dirX * pushStrength + tangentX * tangentStrength,
+        y: upwardStrength,
+        z: dirZ * pushStrength + tangentZ * tangentStrength,
+      },
+      rotation: { x: 0, y: Math.atan2(dirX, dirZ), z: 0 },
+      rotationSpeed: {
+        x: (Math.random() - 0.5) * 8,
+        y: 0,
+        z: (Math.random() - 0.5) * 6,
+      },
+      timeOfDeath: gameTimeRef.current,
+      skinId: currentSkin,
+    };
+  }, [currentSkin]);
+
   // Handle player being killed by enemy
-  const handlePlayerKill = useCallback(() => {
+  const handlePlayerKill = useCallback((
+    playerPos: { x: number; z: number },
+    enemyPos: { x: number; z: number },
+    enemyRotation: number
+  ) => {
+    // Create dead soldier ragdoll at player position
+    const deadSoldier = createDeadSoldier(playerPos, enemyPos, enemyRotation);
+    setDeadSoldiers(prev => [...prev, deadSoldier]);
+
     killPlayer();
 
     // Strong haptic feedback for player death
     if (isVibrationEnabled) {
       vibrate(100);
     }
-  }, [killPlayer, isVibrationEnabled]);
+  }, [killPlayer, isVibrationEnabled, createDeadSoldier]);
 
-  // Handle soldier being killed by enemy
-  const handleSoldierKill = useCallback((_soldierIndex: number) => {
-    killSoldier();
+  // Handle multiple soldiers being killed by enemy (batch processing)
+  const handleSoldiersKill = useCallback((deaths: DeathInfo[]) => {
+    // Create dead soldier ragdolls for each death
+    const newDeadSoldiers = deaths.map(death =>
+      createDeadSoldier(death.position, death.enemyPosition, death.enemyRotation)
+    );
 
-    // Medium haptic feedback for soldier death
+    setDeadSoldiers(prev => [...prev, ...newDeadSoldiers]);
+
+    // Remove all soldiers from army at once (batch)
+    damageArmy(deaths.length);
+
+    // Medium haptic feedback for soldier deaths (stronger for multiple)
     if (isVibrationEnabled) {
-      vibrate(50);
+      vibrate(50 * Math.min(deaths.length, 3));
     }
-  }, [killSoldier, isVibrationEnabled]);
+  }, [damageArmy, isVibrationEnabled, createDeadSoldier]);
+
+  // Remove dead soldier after animation completes
+  const handleRemoveDeadSoldier = useCallback((id: string) => {
+    setDeadSoldiers(prev => prev.filter(s => s.id !== id));
+  }, []);
 
   // Swipe/keyboard controls
   useSwipeDetector({
@@ -349,8 +425,15 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         <EnemiesRenderer
           enemies={enemies}
           onPlayerKill={handlePlayerKill}
-          onSoldierKill={handleSoldierKill}
+          onSoldiersKill={handleSoldiersKill}
           armySize={armySize}
+        />
+
+        {/* Dead soldiers with ragdoll physics */}
+        <DeadSoldiersRenderer
+          deadSoldiers={deadSoldiers}
+          onRemove={handleRemoveDeadSoldier}
+          currentTime={gameTimeRef.current}
         />
 
         {/* Soldier pickups on track */}

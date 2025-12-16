@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import type { BoulderData } from './Track/Environment/types';
 import { Canvas } from '@react-three/fiber';
 
 import Player, { GROUND_Y } from './Player';
@@ -7,7 +8,7 @@ import Environment from './Track/Environment/Environment';
 import GameCamera from './GameCamera';
 import { FPSDisplay } from './FPSMonitor';
 import { SoldierPickups, generateSoldiers, SoldierPickupData } from './SoldierPickup';
-import { ArmyFollowers } from './ArmyFollowers';
+import { ArmyFollowers, BoulderCollision } from './ArmyFollowers';
 import { GatesRenderer } from './Track/Environment/Gates';
 import {
   SimpleGateType,
@@ -34,9 +35,13 @@ import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';
 import { CLIENT_CONSTANTS } from '@/utils/constants';
 import { useAuth } from '@/hooks/useAuth';
+import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';
 
 // Simple track data for core mechanics
 const TRACK_LENGTH = 800;
+
+// Loading phases
+type LoadingPhase = 'loading' | 'ready' | 'playing';
 
 interface GameSceneProps {
   mode: 'solo' | '1v1';
@@ -70,6 +75,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   const { graphicsQuality, isVibrationEnabled } = useUI();
   const { user } = useAuth();
 
+  // Loading phase state
+  const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('loading');
+
   // Soldier pickups state
   const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);
 
@@ -87,11 +95,14 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   const [deadSoldiers, setDeadSoldiers] = useState<DeadSoldierData[]>([]);
   const gameTimeRef = useRef(0);
 
+  // Object pool for dead soldiers
+  const deadSoldierPoolRef = useRef(new DeadSoldierPool(50));
+
   // Get current skin for dead soldiers
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
-  // Initialize game with simplified track and soldiers
-  useEffect(() => {
+  // Handle preloaded data from GameLoader
+  const handleLoadComplete = useCallback((data: PreloadedData) => {
     const seed = trackSeed || `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
     // Create minimal track data
@@ -110,24 +121,28 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       speed: 0
     });
 
-    // Generate soldiers on the track
-    setSoldiers(generateSoldiers(TRACK_LENGTH));
-
-    // Generate gates on the track and reset triggered set
+    // Use preloaded data
+    setSoldiers(data.soldiers);
     triggeredGateIds.current.clear();
-    setGates(generateGates(TRACK_LENGTH));
+    setGates(data.gates);
+    setCoins(data.coins);
+    setEnemies(data.enemies);
 
-    // Generate coins on the track
-    setCoins(generateCoins(TRACK_LENGTH));
+    // Transition to ready phase
+    setLoadingPhase('ready');
+  }, [mode, trackSeed, initGame]);
 
-    // Generate enemies on the track (start after 150m, increasing density)
-    setEnemies(generateEnemies(TRACK_LENGTH));
-
-    // Start countdown after brief delay
-    setTimeout(() => {
-      startCountdown();
-    }, 500);
-  }, [mode, trackSeed, initGame, startCountdown]);
+  // Start countdown when ready
+  useEffect(() => {
+    if (loadingPhase === 'ready') {
+      // Brief delay to ensure everything is rendered
+      const timer = setTimeout(() => {
+        setLoadingPhase('playing');
+        startCountdown();
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [loadingPhase, startCountdown]);
 
   // Game loop - update time only (finish is handled in Player component)
   useEffect(() => {
@@ -280,7 +295,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     const tangentStrength = 3 + Math.random() * 2;
     const upwardStrength = 5 + Math.random() * 3;
 
-    return {
+    // Use pool to acquire dead soldier object
+    return deadSoldierPoolRef.current.acquire({
       id: `dead-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       position: { x: position.x, y: GROUND_Y + 0.1, z: position.z },
       velocity: {
@@ -296,7 +312,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       },
       timeOfDeath: gameTimeRef.current,
       skinId: currentSkin,
-    };
+    });
   }, [currentSkin]);
 
   // Handle player being killed by enemy
@@ -337,7 +353,13 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Remove dead soldier after animation completes
   const handleRemoveDeadSoldier = useCallback((id: string) => {
-    setDeadSoldiers(prev => prev.filter(s => s.id !== id));
+    setDeadSoldiers(prev => {
+      const removed = prev.find(s => s.id === id);
+      if (removed) {
+        deadSoldierPoolRef.current.release(removed);
+      }
+      return prev.filter(s => s.id !== id);
+    });
   }, []);
 
   // Swipe/keyboard controls
@@ -388,6 +410,33 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Calculate army size (player starts with 1)
   const armySize = player.armyCount - 1; // Subtract 1 because player is the "leader"
+
+  // Extract boulder collision data from enemies
+  const boulderCollisions: BoulderCollision[] = useMemo(() => {
+    return enemies
+      .filter((e): e is BoulderData => e.type === 'boulder')
+      .map((boulder) => ({
+        x: boulder.position.x,
+        z: boulder.position.z,
+        radius: boulder.radius + 0.5, // Add padding for collision
+      }));
+  }, [enemies]);
+
+  // Show loading screen during loading phase
+  if (loadingPhase === 'loading') {
+    return (
+      <div className="w-full h-full touch-none relative">
+        <GameLoader
+          onLoadComplete={handleLoadComplete}
+          generateEnemies={generateEnemies}
+          generateGates={generateGates}
+          generateCoins={generateCoins}
+          generateSoldiers={generateSoldiers}
+          trackLength={TRACK_LENGTH}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full touch-none relative">
@@ -443,10 +492,10 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         />
 
         {/* Army following player (snake formation) */}
-        <ArmyFollowers armySize={armySize} />
+        <ArmyFollowers armySize={armySize} boulders={boulderCollisions} />
 
         {/* Player with smooth movement */}
-        <Player />
+        <Player boulders={boulderCollisions} />
       </Canvas>
     </div>
   );

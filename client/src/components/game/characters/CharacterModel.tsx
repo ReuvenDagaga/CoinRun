@@ -35,33 +35,57 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
     const mixerRef = useRef<THREE.AnimationMixer | null>(null);
     const actionsRef = useRef<Record<string, THREE.AnimationAction>>({});
     const [clonedScene, setClonedScene] = useState<THREE.Object3D | null>(null);
+    const loggedOnce = useRef(false);
 
-    const { scene, animations } = useGLTF(MODEL_PATH);
+    const gltf = useGLTF(MODEL_PATH);
 
-    // One-time scene analysis and clone
+    // One-time detailed scene analysis
     useEffect(() => {
-      // Analyze original scene
-      let meshCount = 0;
-      let skinnedMeshCount = 0;
-      let totalVertices = 0;
-      const meshNames: string[] = [];
+      if (loggedOnce.current) return;
+      loggedOnce.current = true;
 
-      scene.traverse((node) => {
-        if (node instanceof THREE.SkinnedMesh) {
-          skinnedMeshCount++;
-          meshNames.push(`${node.name}(skinned)`);
-          totalVertices += node.geometry?.attributes?.position?.count || 0;
-        } else if (node instanceof THREE.Mesh) {
-          meshCount++;
-          meshNames.push(node.name);
-          totalVertices += node.geometry?.attributes?.position?.count || 0;
+      console.log('%c[CharacterModel] FULL GLTF ANALYSIS', 'color: yellow; font-weight: bold; font-size: 14px');
+      console.log('GLTF keys:', Object.keys(gltf));
+      console.log('GLTF.scene:', gltf.scene);
+      console.log('GLTF.scene.type:', gltf.scene?.type);
+      console.log('GLTF.scene.children:', gltf.scene?.children);
+      console.log('GLTF.nodes:', gltf.nodes);
+      console.log('GLTF.materials:', gltf.materials);
+
+      // Deep traverse and log everything
+      console.log('%c[CharacterModel] Scene Tree:', 'color: cyan');
+      const logTree = (obj: THREE.Object3D, depth = 0) => {
+        const indent = '  '.repeat(depth);
+        const info = [
+          obj.type,
+          obj.name ? `"${obj.name}"` : '(unnamed)',
+          `visible=${obj.visible}`,
+        ];
+        if ((obj as any).isMesh) info.push('isMesh=true');
+        if ((obj as any).isSkinnedMesh) info.push('isSkinnedMesh=true');
+        if ((obj as any).geometry) {
+          const geo = (obj as any).geometry;
+          info.push(`verts=${geo.attributes?.position?.count || 0}`);
         }
-      });
+        if ((obj as any).material) {
+          const mat = (obj as any).material;
+          info.push(`mat=${mat.type || mat.constructor.name}`);
+        }
+        console.log(`${indent}${info.join(' | ')}`);
+        obj.children.forEach(child => logTree(child, depth + 1));
+      };
+      logTree(gltf.scene);
 
-      console.log(`%c[CharacterModel] Scene Analysis`, 'color: #00ff00; font-weight: bold');
-      console.log(`  Meshes: ${meshCount}, SkinnedMeshes: ${skinnedMeshCount}, Vertices: ${totalVertices}`);
-      console.log(`  Animations: ${animations.map(a => a.name).join(', ')}`);
-      console.log(`  Props: scale=${scale}, animation=${animation}`);
+      console.log('%c[CharacterModel] Animations:', 'color: cyan');
+      gltf.animations.forEach((clip, i) => {
+        console.log(`  ${i}: "${clip.name}" (${clip.duration.toFixed(2)}s, ${clip.tracks.length} tracks)`);
+      });
+    }, [gltf]);
+
+    // Clone scene and set up animations
+    useEffect(() => {
+      const scene = gltf.scene;
+      const animations = gltf.animations;
 
       // Clone scene
       const cloneLookup = new Map<THREE.Object3D, THREE.Object3D>();
@@ -75,34 +99,28 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
       };
       parallelTraverse(scene, clone);
 
-      // Fix skinned meshes and collect debug info
-      let skeletonIssues = 0;
-      clone.traverse((node) => {
-        if (node instanceof THREE.SkinnedMesh) {
+      // Fix skinned meshes
+      clone.traverse((node: any) => {
+        if (node.isSkinnedMesh) {
           const sourceMesh = scene.getObjectByName(node.name) as THREE.SkinnedMesh;
           if (sourceMesh?.skeleton) {
             const clonedBones = sourceMesh.skeleton.bones.map(
               (bone) => cloneLookup.get(bone) as THREE.Bone
             );
-            if (clonedBones.some(b => !b)) skeletonIssues++;
             node.skeleton = new THREE.Skeleton(
               clonedBones,
-              sourceMesh.skeleton.boneInverses.map((m) => m.clone())
+              sourceMesh.skeleton.boneInverses.map((m: THREE.Matrix4) => m.clone())
             );
             node.bind(node.skeleton, node.bindMatrix);
           }
         }
-        if (node instanceof THREE.Mesh) {
+        if (node.isMesh) {
           node.castShadow = true;
           node.receiveShadow = true;
           node.frustumCulled = false;
         }
         node.visible = true;
       });
-
-      if (skeletonIssues > 0) {
-        console.log(`%c[CharacterModel] WARNING: ${skeletonIssues} skeleton issues!`, 'color: red');
-      }
 
       // Setup mixer
       const mixer = new THREE.AnimationMixer(clone);
@@ -117,20 +135,16 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
       const initialAnim = ANIMATION_MAP[animation];
       if (actions[initialAnim]) {
         actions[initialAnim].play();
-        console.log(`%c[CharacterModel] Playing: ${initialAnim}`, 'color: #00ff00');
-      } else {
-        console.log(`%c[CharacterModel] ERROR: Animation "${initialAnim}" not found!`, 'color: red');
       }
 
       setClonedScene(clone);
-      console.log(`%c[CharacterModel] Clone ready ✓`, 'color: #00ff00; font-weight: bold');
 
       return () => {
         mixer.stopAllAction();
         mixerRef.current = null;
         actionsRef.current = {};
       };
-    }, [scene, animations]);
+    }, [gltf]);
 
     // Animation changes
     useEffect(() => {
@@ -160,32 +174,8 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
       group: groupRef.current,
     }));
 
-    // Frame update with periodic status
-    const frameCount = useRef(0);
-    const lastLogTime = useRef(0);
-    useFrame((state, delta) => {
+    useFrame((_, delta) => {
       mixerRef.current?.update(delta);
-      frameCount.current++;
-
-      const now = performance.now();
-      if (now - lastLogTime.current > 5000 && groupRef.current && clonedScene) {
-        lastLogTime.current = now;
-
-        const worldPos = new THREE.Vector3();
-        groupRef.current.getWorldPosition(worldPos);
-
-        const box = new THREE.Box3().setFromObject(clonedScene);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-
-        console.log(`%c[CharacterModel] Status @${(now/1000).toFixed(0)}s`, 'color: cyan', {
-          worldPos: `(${worldPos.x.toFixed(1)}, ${worldPos.y.toFixed(1)}, ${worldPos.z.toFixed(1)})`,
-          size: `${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`,
-          scale: groupRef.current.scale.x,
-          visible: groupRef.current.visible,
-          childrenInGroup: groupRef.current.children.length,
-        });
-      }
     });
 
     if (!clonedScene) return null;

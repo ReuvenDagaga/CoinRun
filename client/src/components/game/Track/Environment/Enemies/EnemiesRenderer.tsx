@@ -41,43 +41,52 @@ function getArmyPosition(
   };
 }
 
+// Death info for creating ragdoll effects
+export interface DeathInfo {
+  soldierIndex: number;
+  position: { x: number; z: number };
+  enemyPosition: { x: number; z: number };
+  enemyRotation: number;
+}
+
 interface SingleEnemyProps {
   enemy: EnemyData;
   playerX: number;
   playerZ: number;
   armySize: number;
-  onPlayerKill: () => void;
-  onSoldierKill: (soldierIndex: number) => void;
+  onPlayerKill: (playerPos: { x: number; z: number }, enemyPos: { x: number; z: number }, enemyRotation: number) => void;
+  onSoldiersKill: (deaths: DeathInfo[]) => void;
   status: string;
   hasShield: boolean;
 }
 
-// Single enemy with collision detection
+// Single enemy with collision detection - collects ALL hits in one frame
 const SingleEnemy = memo(function SingleEnemy({
   enemy,
   playerX,
   playerZ,
   armySize,
   onPlayerKill,
-  onSoldierKill,
+  onSoldiersKill,
   status,
   hasShield,
 }: SingleEnemyProps) {
-  const hasKilledRef = useRef<Set<string>>(new Set());
-  const killCooldownRef = useRef(0);
+  // Track which entities have been killed by this enemy (persistent)
+  const killedSoldiersRef = useRef<Set<number>>(new Set());
+  const playerKilledRef = useRef(false);
+  // Track current rotation of the spinner for push direction
+  const currentRotationRef = useRef(0);
 
   useFrame((_, delta) => {
     if (status !== 'playing') return;
 
-    // Cooldown to prevent multiple kills per frame
-    if (killCooldownRef.current > 0) {
-      killCooldownRef.current -= delta;
-      return;
-    }
+    // Update rotation tracking (must match EnemySpinner rotation)
+    currentRotationRef.current += enemy.rotationSpeed * Math.PI * 2 * delta;
 
     const enemyX = enemy.position.x;
     const enemyZ = enemy.position.z;
     const killRadius = ENEMY_KILL_RADIUS;
+    const rotation = currentRotationRef.current;
 
     // Helper to check if position is within kill radius
     const isInKillZone = (posX: number, posZ: number): boolean => {
@@ -87,30 +96,40 @@ const SingleEnemy = memo(function SingleEnemy({
       return distance < killRadius;
     };
 
-    // Check player collision first (if not shielded)
-    if (!hasShield && !hasKilledRef.current.has('player')) {
-      if (isInKillZone(playerX, playerZ)) {
-        hasKilledRef.current.add('player');
-        killCooldownRef.current = 0.1; // 100ms cooldown
-        onPlayerKill();
-        return;
+    if (hasShield) return;
+
+    // Collect ALL soldier deaths in this frame (no early return!)
+    const deaths: DeathInfo[] = [];
+
+    for (let i = 0; i < armySize; i++) {
+      // Skip if already killed by this enemy
+      if (killedSoldiersRef.current.has(i)) continue;
+
+      const soldierPos = getArmyPosition(i, playerX, playerZ);
+      if (isInKillZone(soldierPos.x, soldierPos.z)) {
+        killedSoldiersRef.current.add(i);
+        deaths.push({
+          soldierIndex: i,
+          position: soldierPos,
+          enemyPosition: { x: enemyX, z: enemyZ },
+          enemyRotation: rotation,
+        });
       }
     }
 
-    // Check collision with army soldiers (from back to front to kill rear soldiers first)
-    if (!hasShield) {
-      for (let i = armySize - 1; i >= 0; i--) {
-        const soldierKey = `soldier-${i}`;
-        if (hasKilledRef.current.has(soldierKey)) continue;
+    // Process ALL soldier deaths at once
+    if (deaths.length > 0) {
+      onSoldiersKill(deaths);
+    }
 
-        const soldierPos = getArmyPosition(i, playerX, playerZ);
-        if (isInKillZone(soldierPos.x, soldierPos.z)) {
-          hasKilledRef.current.add(soldierKey);
-          killCooldownRef.current = 0.05; // 50ms cooldown for soldiers
-          onSoldierKill(i);
-          return; // Only kill one soldier per frame
-        }
-      }
+    // Check player collision (separate from soldiers, always check)
+    if (!playerKilledRef.current && isInKillZone(playerX, playerZ)) {
+      playerKilledRef.current = true;
+      onPlayerKill(
+        { x: playerX, z: playerZ },
+        { x: enemyX, z: enemyZ },
+        rotation
+      );
     }
   });
 
@@ -123,15 +142,15 @@ const SingleEnemy = memo(function SingleEnemy({
 
 interface EnemiesRendererProps {
   enemies: EnemyData[];
-  onPlayerKill: () => void;
-  onSoldierKill: (soldierIndex: number) => void;
+  onPlayerKill: (playerPos: { x: number; z: number }, enemyPos: { x: number; z: number }, enemyRotation: number) => void;
+  onSoldiersKill: (deaths: DeathInfo[]) => void;
   armySize: number;
 }
 
 export const EnemiesRenderer = memo(function EnemiesRenderer({
   enemies,
   onPlayerKill,
-  onSoldierKill,
+  onSoldiersKill,
   armySize,
 }: EnemiesRendererProps) {
   const { player, status, shieldEffect } = useGame();
@@ -140,13 +159,19 @@ export const EnemiesRenderer = memo(function EnemiesRenderer({
   const hasShield = shieldEffect?.active ?? false;
 
   // Stable callbacks
-  const handlePlayerKill = useCallback(() => {
-    onPlayerKill();
-  }, [onPlayerKill]);
+  const handlePlayerKill = useCallback(
+    (playerPos: { x: number; z: number }, enemyPos: { x: number; z: number }, rotation: number) => {
+      onPlayerKill(playerPos, enemyPos, rotation);
+    },
+    [onPlayerKill]
+  );
 
-  const handleSoldierKill = useCallback((index: number) => {
-    onSoldierKill(index);
-  }, [onSoldierKill]);
+  const handleSoldiersKill = useCallback(
+    (deaths: DeathInfo[]) => {
+      onSoldiersKill(deaths);
+    },
+    [onSoldiersKill]
+  );
 
   // Filter visible enemies (only render enemies within view distance)
   const visibleEnemies = enemies.filter(
@@ -163,7 +188,7 @@ export const EnemiesRenderer = memo(function EnemiesRenderer({
           playerZ={player.position.z}
           armySize={armySize}
           onPlayerKill={handlePlayerKill}
-          onSoldierKill={handleSoldierKill}
+          onSoldiersKill={handleSoldiersKill}
           status={status}
           hasShield={hasShield}
         />

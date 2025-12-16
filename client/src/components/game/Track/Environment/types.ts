@@ -236,17 +236,20 @@ export const ENEMY_CONFIG: EnemyConfig = {
 export const ENEMY_POLE_HEIGHT = 3.5; // Total height of pole
 export const ENEMY_POLE_RADIUS = 0.15; // Radius of central pole
 export const ENEMY_SPIKE_LENGTH = 2.0; // Length of spike arms
+export const ENEMY_SPIKE_TIP_LENGTH = 0.3; // Length of spike tip cone
 export const ENEMY_SPIKE_RADIUS = 0.08; // Thickness of spikes
 export const ENEMY_BASE_RADIUS = 0.5; // Base platform radius
 export const ENEMY_BASE_HEIGHT = 0.3; // Base platform height
-export const ENEMY_KILL_RADIUS = 2.2; // Collision detection radius
+// Kill radius = spike length + tip length + small buffer for hitbox
+export const ENEMY_KILL_RADIUS = ENEMY_SPIKE_LENGTH + ENEMY_SPIKE_TIP_LENGTH + 0.2; // ~2.5 units
 
 // Enemy generation parameters
 export const ENEMY_START_DISTANCE = 150; // Enemies start appearing after this distance
 export const ENEMY_MIN_SPACING = 60; // Minimum distance between enemies
 export const ENEMY_MAX_SPACING = 100; // Maximum distance between enemies
-export const ENEMY_ROTATION_SPEED_MIN = 2.0; // Min rotations per second
-export const ENEMY_ROTATION_SPEED_MAX = 3.0; // Max rotations per second
+// Slower rotation: 0.5-0.75 RPS (one full rotation every 1.3-2 seconds)
+export const ENEMY_ROTATION_SPEED_MIN = 0.5; // Min rotations per second
+export const ENEMY_ROTATION_SPEED_MAX = 0.75; // Max rotations per second
 
 // Generate enemies along the track
 export function generateEnemies(trackLength: number = 800): EnemyData[] {

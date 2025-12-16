@@ -1,6 +1,6 @@
-import { useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
+import { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 export type AnimationState = 'idle' | 'walking' | 'jogging' | 'running' | 'sprinting';
@@ -28,82 +28,96 @@ const MODEL_PATH = '/models/base_character.glb';
 
 useGLTF.preload(MODEL_PATH);
 
-// Helper to deep clone a scene with proper skeleton support
-function cloneWithSkeleton(source: THREE.Object3D): THREE.Object3D {
-  const cloneLookup = new Map<THREE.Object3D, THREE.Object3D>();
-  const clone = source.clone(true);
-
-  // Build a mapping of original to cloned objects
-  const parallelTraverse = (
-    a: THREE.Object3D,
-    b: THREE.Object3D,
-    callback: (a: THREE.Object3D, b: THREE.Object3D) => void
-  ) => {
-    callback(a, b);
-    for (let i = 0; i < a.children.length; i++) {
-      parallelTraverse(a.children[i], b.children[i], callback);
-    }
-  };
-
-  parallelTraverse(source, clone, (sourceNode, clonedNode) => {
-    cloneLookup.set(sourceNode, clonedNode);
-  });
-
-  // Fix skinned meshes to use cloned bones
-  clone.traverse((node) => {
-    if (node instanceof THREE.SkinnedMesh) {
-      const skinnedMesh = node;
-      const sourceMesh = source.getObjectByName(node.name) as THREE.SkinnedMesh;
-
-      if (sourceMesh && sourceMesh.skeleton) {
-        const clonedBones = sourceMesh.skeleton.bones.map((bone) => {
-          return cloneLookup.get(bone) as THREE.Bone;
-        });
-
-        skinnedMesh.skeleton = new THREE.Skeleton(clonedBones, sourceMesh.skeleton.boneInverses);
-        skinnedMesh.bind(skinnedMesh.skeleton, skinnedMesh.bindMatrix);
-      }
-    }
-  });
-
-  return clone;
-}
-
 const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
   ({ animation = 'running', scale = 100 }, ref) => {
     const groupRef = useRef<THREE.Group>(null);
     const currentAnimation = useRef<AnimationState>(animation);
+    const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+    const actionsRef = useRef<Record<string, THREE.AnimationAction>>({});
+    const [clonedScene, setClonedScene] = useState<THREE.Object3D | null>(null);
 
     const { scene, animations } = useGLTF(MODEL_PATH);
 
-    // Clone the scene for this instance with proper skeleton support
-    const clonedScene = useMemo(() => {
-      const clone = cloneWithSkeleton(scene);
-      clone.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
+    // Clone scene and set up animations on mount
+    useEffect(() => {
+      // Deep clone with skeleton support
+      const cloneLookup = new Map<THREE.Object3D, THREE.Object3D>();
+      const clone = scene.clone(true);
+
+      // Build mapping
+      const parallelTraverse = (a: THREE.Object3D, b: THREE.Object3D) => {
+        cloneLookup.set(a, b);
+        for (let i = 0; i < a.children.length; i++) {
+          parallelTraverse(a.children[i], b.children[i]);
+        }
+      };
+      parallelTraverse(scene, clone);
+
+      // Fix skinned meshes
+      clone.traverse((node) => {
+        if (node instanceof THREE.SkinnedMesh) {
+          const sourceMesh = scene.getObjectByName(node.name) as THREE.SkinnedMesh;
+          if (sourceMesh?.skeleton) {
+            const clonedBones = sourceMesh.skeleton.bones.map(
+              (bone) => cloneLookup.get(bone) as THREE.Bone
+            );
+            node.skeleton = new THREE.Skeleton(
+              clonedBones,
+              sourceMesh.skeleton.boneInverses.map((m) => m.clone())
+            );
+            node.bind(node.skeleton, node.bindMatrix);
+          }
+        }
+        if (node instanceof THREE.Mesh) {
+          node.castShadow = true;
+          node.receiveShadow = true;
         }
       });
-      return clone;
-    }, [scene]);
 
-    // Set up animations targeting the cloned scene
-    const { actions, mixer } = useAnimations(animations, clonedScene);
+      // Create mixer for the cloned scene
+      const mixer = new THREE.AnimationMixer(clone);
+      mixerRef.current = mixer;
 
-    // Handle initial animation
+      // Create actions
+      const actions: Record<string, THREE.AnimationAction> = {};
+      animations.forEach((clip) => {
+        actions[clip.name] = mixer.clipAction(clip);
+      });
+      actionsRef.current = actions;
+
+      // Play initial animation
+      const initialAnim = ANIMATION_MAP[animation];
+      if (actions[initialAnim]) {
+        actions[initialAnim].play();
+      }
+
+      setClonedScene(clone);
+
+      return () => {
+        mixer.stopAllAction();
+        mixerRef.current = null;
+        actionsRef.current = {};
+      };
+    }, [scene, animations]);
+
+    // Handle animation prop changes
     useEffect(() => {
+      if (!clonedScene) return;
+
+      const actions = actionsRef.current;
       const animationName = ANIMATION_MAP[animation];
       const action = actions[animationName];
 
-      if (action) {
-        action.reset().play();
+      if (action && currentAnimation.current !== animation) {
+        Object.values(actions).forEach((a) => a?.fadeOut(0.2));
+        action.reset().fadeIn(0.2).play();
         currentAnimation.current = animation;
       }
-    }, [actions, animation]);
+    }, [animation, clonedScene]);
 
     useImperativeHandle(ref, () => ({
       setAnimation: (state: AnimationState) => {
+        const actions = actionsRef.current;
         const animationName = ANIMATION_MAP[state];
         const action = actions[animationName];
 
@@ -117,8 +131,10 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
     }));
 
     useFrame((_, delta) => {
-      mixer?.update(delta);
+      mixerRef.current?.update(delta);
     });
+
+    if (!clonedScene) return null;
 
     return (
       <group ref={groupRef} scale={scale}>

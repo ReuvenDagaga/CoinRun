@@ -442,7 +442,17 @@ export function GameProvider({ children }: GameProviderProps) {
         armyCount: newArmyCount,
       };
     });
-  }, []);
+
+    // Check if game over should be triggered
+    setPlayer(current => {
+      if (current.armyCount <= 0) {
+        setTimeout(() => {
+          gameOver();
+        }, 0);
+      }
+      return current;
+    });
+  }, [gameOver]);
 
   // Kill a single soldier from the army
   const killSoldier = useCallback(() => {
@@ -460,14 +470,16 @@ export function GameProvider({ children }: GameProviderProps) {
     setPlayer(prev => {
       if (prev.armyCount > 1) {
         // There are soldiers in the army, so one becomes the new player
-        // armyCount stays the same (player dies, soldier becomes player)
         return {
           ...prev,
           armyCount: prev.armyCount - 1,
         };
       } else {
-        // No soldiers left, trigger game over
-        return prev;
+        // Last entity (the player) - set to 0 for game over
+        return {
+          ...prev,
+          armyCount: 0,
+        };
       }
     });
 

@@ -210,11 +210,53 @@ export const SHRINK_DURATION = 5000; // 5 seconds
 // Enemy Types
 // =====================
 
-export interface EnemyData {
+export type EnemyType = 'spinner' | 'fist' | 'boulder' | 'shooter';
+
+// Base enemy data shared by all types
+interface BaseEnemyData {
+  id: string;
+  type: EnemyType;
+  position: { x: number; y: number; z: number };
+}
+
+// Spinner-specific data
+export interface SpinnerData extends BaseEnemyData {
+  type: 'spinner';
+  rotationSpeed: number;
+  spikeRadius: number;
+}
+
+// Fist-specific data
+export interface FistData extends BaseEnemyData {
+  type: 'fist';
+  side: 'left' | 'right';
+  punchCycleDuration: number; // Total cycle time in seconds
+}
+
+// Boulder-specific data
+export interface BoulderData extends BaseEnemyData {
+  type: 'boulder';
+  radius: number;
+  rotationY: number; // Random rotation for variety
+}
+
+// Shooter-specific data
+export interface ShooterData extends BaseEnemyData {
+  type: 'shooter';
+  fireRate: number; // Seconds between shots
+  projectileSpeed: number;
+}
+
+// Union type for all enemy data
+export type EnemyData = SpinnerData | FistData | BoulderData | ShooterData;
+
+// Projectile data for shooter enemy
+export interface ProjectileData {
   id: string;
   position: { x: number; y: number; z: number };
-  rotationSpeed: number; // Rotations per second
-  spikeRadius: number; // Kill radius for collision detection
+  velocity: { x: number; y: number; z: number };
+  sourceEnemyId: string;
+  createdAt: number;
 }
 
 export interface EnemyConfig {
@@ -224,62 +266,181 @@ export interface EnemyConfig {
   metalColor: string;
 }
 
-// Enemy visual configuration
-export const ENEMY_CONFIG: EnemyConfig = {
+// Spinner visual configuration
+export const SPINNER_CONFIG: EnemyConfig = {
   baseColor: '#5D4037', // Dark wood brown
   poleColor: '#8B4513', // Saddle brown (wooden pole)
   spikeColor: '#4A4A4A', // Dark metal gray
   metalColor: '#2F2F2F', // Dark metal for bands
 };
 
-// Enemy dimensions
-export const ENEMY_POLE_HEIGHT = 3.5; // Total height of pole
-export const ENEMY_POLE_RADIUS = 0.15; // Radius of central pole
-export const ENEMY_SPIKE_LENGTH = 2.0; // Length of spike arms
-export const ENEMY_SPIKE_TIP_LENGTH = 0.3; // Length of spike tip cone
-export const ENEMY_SPIKE_RADIUS = 0.08; // Thickness of spikes
-export const ENEMY_BASE_RADIUS = 0.5; // Base platform radius
-export const ENEMY_BASE_HEIGHT = 0.3; // Base platform height
-// Kill radius = spike length + tip length + small buffer for hitbox
-export const ENEMY_KILL_RADIUS = ENEMY_SPIKE_LENGTH + ENEMY_SPIKE_TIP_LENGTH + 0.2; // ~2.5 units
+// Spinner dimensions
+export const SPINNER_POLE_HEIGHT = 3.5;
+export const SPINNER_POLE_RADIUS = 0.15;
+export const SPINNER_SPIKE_LENGTH = 2.0;
+export const SPINNER_SPIKE_TIP_LENGTH = 0.3;
+export const SPINNER_SPIKE_RADIUS = 0.08;
+export const SPINNER_BASE_RADIUS = 0.5;
+export const SPINNER_BASE_HEIGHT = 0.3;
+export const SPINNER_KILL_RADIUS = SPINNER_SPIKE_LENGTH + SPINNER_SPIKE_TIP_LENGTH + 0.2;
 
-// Enemy generation parameters
-export const ENEMY_START_DISTANCE = 150; // Enemies start appearing after this distance
-export const ENEMY_MIN_SPACING = 60; // Minimum distance between enemies
-export const ENEMY_MAX_SPACING = 100; // Maximum distance between enemies
-// Slower rotation: 0.5-0.75 RPS (one full rotation every 1.3-2 seconds)
-export const ENEMY_ROTATION_SPEED_MIN = 0.5; // Min rotations per second
-export const ENEMY_ROTATION_SPEED_MAX = 0.75; // Max rotations per second
+// Fist configuration
+export const FIST_CONFIG = {
+  gloveColor: '#CC2222', // Red boxing glove
+  wristColor: '#FFD700', // Gold wrist band
+  armColor: '#666666', // Gray metal arm
+  postColor: '#444444', // Dark gray post
+};
+export const FIST_SIZE = 1.0; // Radius of the fist
+export const FIST_ARM_LENGTH = 8.0; // Length of extendable arm
+export const FIST_KILL_RADIUS = 1.2;
+// Timing (in seconds)
+export const FIST_WINDUP_TIME = 0.3;
+export const FIST_PUNCH_TIME = 0.2;
+export const FIST_HOLD_TIME = 0.5;
+export const FIST_RETRACT_TIME = 1.0;
+export const FIST_COOLDOWN_TIME = 2.5;
+export const FIST_CYCLE_DURATION = FIST_WINDUP_TIME + FIST_PUNCH_TIME + FIST_HOLD_TIME + FIST_RETRACT_TIME + FIST_COOLDOWN_TIME;
 
-// Generate enemies along the track
+// Boulder configuration
+export const BOULDER_CONFIG = {
+  primaryColor: '#7A7A7A', // Gray stone
+  secondaryColor: '#5A5A5A', // Darker gray
+  accentColor: '#8B7355', // Brown accent
+};
+export const BOULDER_RADIUS_MIN = 0.8;
+export const BOULDER_RADIUS_MAX = 1.2;
+export const BOULDER_PUSH_RADIUS = 1.5; // Radius for pushing soldiers aside
+
+// Shooter configuration
+export const SHOOTER_CONFIG = {
+  bodyColor: '#4A0080', // Purple monster
+  eyeColor: '#FF0000', // Red eyes
+  weaponColor: '#333333', // Dark weapon
+  glowColor: '#FF00FF', // Magenta glow
+};
+export const SHOOTER_HEIGHT = 2.0;
+export const SHOOTER_WIDTH = 1.0;
+export const SHOOTER_FIRE_RATE = 1.8; // Seconds between shots
+export const SHOOTER_WARNING_TIME = 0.5; // Glow before firing
+export const SHOOTER_BODY_RADIUS = 0.8; // For collision (push only)
+
+// Projectile configuration
+export const PROJECTILE_SPEED = 25; // Units per second
+export const PROJECTILE_RANGE = 50; // Max distance
+export const PROJECTILE_RADIUS = 0.3;
+export const PROJECTILE_KILL_RADIUS = 0.6;
+
+// Generation parameters per type
+export const SPINNER_START_DISTANCE = 150;
+export const SPINNER_MIN_SPACING = 60;
+export const SPINNER_MAX_SPACING = 100;
+export const SPINNER_ROTATION_SPEED_MIN = 0.5;
+export const SPINNER_ROTATION_SPEED_MAX = 0.75;
+
+export const FIST_START_DISTANCE = 200;
+export const FIST_MIN_SPACING = 80;
+export const FIST_MAX_SPACING = 120;
+
+export const BOULDER_START_DISTANCE = 100;
+export const BOULDER_MIN_SPACING = 40;
+export const BOULDER_MAX_SPACING = 70;
+
+export const SHOOTER_START_DISTANCE = 250;
+export const SHOOTER_MIN_SPACING = 100;
+export const SHOOTER_MAX_SPACING = 150;
+
+// Legacy aliases for backwards compatibility
+export const ENEMY_CONFIG = SPINNER_CONFIG;
+export const ENEMY_POLE_HEIGHT = SPINNER_POLE_HEIGHT;
+export const ENEMY_POLE_RADIUS = SPINNER_POLE_RADIUS;
+export const ENEMY_SPIKE_LENGTH = SPINNER_SPIKE_LENGTH;
+export const ENEMY_SPIKE_TIP_LENGTH = SPINNER_SPIKE_TIP_LENGTH;
+export const ENEMY_SPIKE_RADIUS = SPINNER_SPIKE_RADIUS;
+export const ENEMY_BASE_RADIUS = SPINNER_BASE_RADIUS;
+export const ENEMY_BASE_HEIGHT = SPINNER_BASE_HEIGHT;
+export const ENEMY_KILL_RADIUS = SPINNER_KILL_RADIUS;
+
+// Generate all enemies along the track
 export function generateEnemies(trackLength: number = 800): EnemyData[] {
   const enemies: EnemyData[] = [];
-
-  // Start after ENEMY_START_DISTANCE to give player time to build army
-  let z = ENEMY_START_DISTANCE;
   let enemyIndex = 0;
 
+  // Generate spinners
+  let z = SPINNER_START_DISTANCE;
   while (z < trackLength - 50) {
-    // Random X position within track bounds (-3 to +3)
     const xPosition = (Math.random() - 0.5) * 6;
-
-    // Random rotation speed
-    const rotationSpeed = ENEMY_ROTATION_SPEED_MIN +
-      Math.random() * (ENEMY_ROTATION_SPEED_MAX - ENEMY_ROTATION_SPEED_MIN);
+    const rotationSpeed = SPINNER_ROTATION_SPEED_MIN +
+      Math.random() * (SPINNER_ROTATION_SPEED_MAX - SPINNER_ROTATION_SPEED_MIN);
 
     enemies.push({
-      id: `enemy-${enemyIndex}`,
+      id: `spinner-${enemyIndex}`,
+      type: 'spinner',
       position: { x: xPosition, y: 0, z },
       rotationSpeed,
-      spikeRadius: ENEMY_KILL_RADIUS,
+      spikeRadius: SPINNER_KILL_RADIUS,
     });
 
-    // Increase density as track progresses (more enemies near end)
     const progressRatio = z / trackLength;
-    const spacingMultiplier = 1 - (progressRatio * 0.3); // Reduce spacing by up to 30%
-    const spacing = ENEMY_MIN_SPACING +
-      Math.random() * (ENEMY_MAX_SPACING - ENEMY_MIN_SPACING) * spacingMultiplier;
+    const spacingMultiplier = 1 - (progressRatio * 0.3);
+    const spacing = SPINNER_MIN_SPACING +
+      Math.random() * (SPINNER_MAX_SPACING - SPINNER_MIN_SPACING) * spacingMultiplier;
+    z += spacing;
+    enemyIndex++;
+  }
 
+  // Generate fists
+  z = FIST_START_DISTANCE;
+  while (z < trackLength - 50) {
+    const side: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right';
+    const xPosition = side === 'left' ? -5 : 5;
+
+    enemies.push({
+      id: `fist-${enemyIndex}`,
+      type: 'fist',
+      position: { x: xPosition, y: 0, z },
+      side,
+      punchCycleDuration: FIST_CYCLE_DURATION,
+    });
+
+    const spacing = FIST_MIN_SPACING + Math.random() * (FIST_MAX_SPACING - FIST_MIN_SPACING);
+    z += spacing;
+    enemyIndex++;
+  }
+
+  // Generate boulders
+  z = BOULDER_START_DISTANCE;
+  while (z < trackLength - 50) {
+    const xPosition = (Math.random() - 0.5) * 6;
+    const radius = BOULDER_RADIUS_MIN + Math.random() * (BOULDER_RADIUS_MAX - BOULDER_RADIUS_MIN);
+
+    enemies.push({
+      id: `boulder-${enemyIndex}`,
+      type: 'boulder',
+      position: { x: xPosition, y: 0, z },
+      radius,
+      rotationY: Math.random() * Math.PI * 2,
+    });
+
+    const spacing = BOULDER_MIN_SPACING + Math.random() * (BOULDER_MAX_SPACING - BOULDER_MIN_SPACING);
+    z += spacing;
+    enemyIndex++;
+  }
+
+  // Generate shooters
+  z = SHOOTER_START_DISTANCE;
+  while (z < trackLength - 50) {
+    const xPosition = (Math.random() - 0.5) * 4; // Narrower range
+
+    enemies.push({
+      id: `shooter-${enemyIndex}`,
+      type: 'shooter',
+      position: { x: xPosition, y: 0, z },
+      fireRate: SHOOTER_FIRE_RATE,
+      projectileSpeed: PROJECTILE_SPEED,
+    });
+
+    const spacing = SHOOTER_MIN_SPACING + Math.random() * (SHOOTER_MAX_SPACING - SHOOTER_MIN_SPACING);
     z += spacing;
     enemyIndex++;
   }

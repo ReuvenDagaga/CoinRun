@@ -28,18 +28,6 @@ const MODEL_PATH = '/models/base_character.glb';
 
 useGLTF.preload(MODEL_PATH);
 
-// Debug logger
-const DEBUG = true;
-const log = (msg: string, data?: any) => {
-  if (DEBUG) {
-    if (data !== undefined) {
-      console.log(`[CharacterModel] ${msg}`, data);
-    } else {
-      console.log(`[CharacterModel] ${msg}`);
-    }
-  }
-};
-
 const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
   ({ animation = 'running', scale = 100 }, ref) => {
     const groupRef = useRef<THREE.Group>(null);
@@ -50,60 +38,35 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
 
     const { scene, animations } = useGLTF(MODEL_PATH);
 
-    // Log on mount
+    // One-time scene analysis and clone
     useEffect(() => {
-      log('Component mounted');
-      log('Scale prop:', scale);
-      log('Animation prop:', animation);
-      return () => log('Component unmounted');
-    }, []);
+      // Analyze original scene
+      let meshCount = 0;
+      let skinnedMeshCount = 0;
+      let totalVertices = 0;
+      const meshNames: string[] = [];
 
-    // Log scene info
-    useEffect(() => {
-      log('=== SCENE LOADED ===');
-      log('Scene type:', scene.type);
-      log('Scene name:', scene.name);
-      log('Scene children count:', scene.children.length);
-      log('Scene visible:', scene.visible);
-
-      // Log scene hierarchy
-      const logHierarchy = (obj: THREE.Object3D, indent = 0) => {
-        const prefix = '  '.repeat(indent);
-        log(`${prefix}- ${obj.type}: "${obj.name}" visible=${obj.visible}`);
-        if (obj instanceof THREE.Mesh) {
-          log(`${prefix}  Geometry vertices: ${obj.geometry?.attributes?.position?.count || 'N/A'}`);
-          log(`${prefix}  Material:`, obj.material);
+      scene.traverse((node) => {
+        if (node instanceof THREE.SkinnedMesh) {
+          skinnedMeshCount++;
+          meshNames.push(`${node.name}(skinned)`);
+          totalVertices += node.geometry?.attributes?.position?.count || 0;
+        } else if (node instanceof THREE.Mesh) {
+          meshCount++;
+          meshNames.push(node.name);
+          totalVertices += node.geometry?.attributes?.position?.count || 0;
         }
-        if (obj instanceof THREE.SkinnedMesh) {
-          log(`${prefix}  [SkinnedMesh] Has skeleton: ${!!obj.skeleton}`);
-          if (obj.skeleton) {
-            log(`${prefix}  Bones count: ${obj.skeleton.bones.length}`);
-          }
-        }
-        obj.children.forEach(child => logHierarchy(child, indent + 1));
-      };
-
-      log('Scene hierarchy:');
-      logHierarchy(scene);
-
-      log('Animations count:', animations.length);
-      animations.forEach((clip, i) => {
-        log(`Animation ${i}: "${clip.name}" duration=${clip.duration}s tracks=${clip.tracks.length}`);
       });
-    }, [scene, animations]);
 
-    // Clone scene and set up animations on mount
-    useEffect(() => {
-      log('=== CLONING SCENE ===');
+      console.log(`%c[CharacterModel] Scene Analysis`, 'color: #00ff00; font-weight: bold');
+      console.log(`  Meshes: ${meshCount}, SkinnedMeshes: ${skinnedMeshCount}, Vertices: ${totalVertices}`);
+      console.log(`  Animations: ${animations.map(a => a.name).join(', ')}`);
+      console.log(`  Props: scale=${scale}, animation=${animation}`);
 
-      // Deep clone with skeleton support
+      // Clone scene
       const cloneLookup = new Map<THREE.Object3D, THREE.Object3D>();
       const clone = scene.clone(true);
 
-      log('Clone created, type:', clone.type);
-      log('Clone children count:', clone.children.length);
-
-      // Build mapping
       const parallelTraverse = (a: THREE.Object3D, b: THREE.Object3D) => {
         cloneLookup.set(a, b);
         for (let i = 0; i < a.children.length; i++) {
@@ -112,116 +75,71 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
       };
       parallelTraverse(scene, clone);
 
-      log('Clone lookup map size:', cloneLookup.size);
-
-      // Fix skinned meshes
-      let skinnedMeshCount = 0;
+      // Fix skinned meshes and collect debug info
+      let skeletonIssues = 0;
       clone.traverse((node) => {
         if (node instanceof THREE.SkinnedMesh) {
-          skinnedMeshCount++;
-          log(`Processing SkinnedMesh: "${node.name}"`);
           const sourceMesh = scene.getObjectByName(node.name) as THREE.SkinnedMesh;
           if (sourceMesh?.skeleton) {
-            log(`  Source skeleton bones: ${sourceMesh.skeleton.bones.length}`);
             const clonedBones = sourceMesh.skeleton.bones.map(
               (bone) => cloneLookup.get(bone) as THREE.Bone
             );
-            const validBones = clonedBones.filter(b => b !== undefined);
-            log(`  Cloned bones (valid): ${validBones.length}/${clonedBones.length}`);
-
+            if (clonedBones.some(b => !b)) skeletonIssues++;
             node.skeleton = new THREE.Skeleton(
               clonedBones,
               sourceMesh.skeleton.boneInverses.map((m) => m.clone())
             );
             node.bind(node.skeleton, node.bindMatrix);
-            log(`  Skeleton bound successfully`);
-          } else {
-            log(`  WARNING: No source skeleton found!`);
           }
         }
         if (node instanceof THREE.Mesh) {
           node.castShadow = true;
           node.receiveShadow = true;
-
-          // Log mesh details
-          log(`Mesh "${node.name}": visible=${node.visible}, frustumCulled=${node.frustumCulled}`);
-
-          // Check bounding box
-          node.geometry.computeBoundingBox();
-          const bbox = node.geometry.boundingBox;
-          if (bbox) {
-            log(`  BBox: min(${bbox.min.x.toFixed(2)}, ${bbox.min.y.toFixed(2)}, ${bbox.min.z.toFixed(2)}) max(${bbox.max.x.toFixed(2)}, ${bbox.max.y.toFixed(2)}, ${bbox.max.z.toFixed(2)})`);
-          }
+          node.frustumCulled = false;
         }
+        node.visible = true;
       });
 
-      log(`Total SkinnedMeshes processed: ${skinnedMeshCount}`);
+      if (skeletonIssues > 0) {
+        console.log(`%c[CharacterModel] WARNING: ${skeletonIssues} skeleton issues!`, 'color: red');
+      }
 
-      // Create mixer for the cloned scene
+      // Setup mixer
       const mixer = new THREE.AnimationMixer(clone);
       mixerRef.current = mixer;
-      log('AnimationMixer created');
 
-      // Create actions
       const actions: Record<string, THREE.AnimationAction> = {};
       animations.forEach((clip) => {
         actions[clip.name] = mixer.clipAction(clip);
-        log(`Action created for: "${clip.name}"`);
       });
       actionsRef.current = actions;
 
-      // Play initial animation
       const initialAnim = ANIMATION_MAP[animation];
-      log(`Playing initial animation: "${initialAnim}"`);
       if (actions[initialAnim]) {
         actions[initialAnim].play();
-        log('Animation started');
+        console.log(`%c[CharacterModel] Playing: ${initialAnim}`, 'color: #00ff00');
       } else {
-        log(`WARNING: Animation "${initialAnim}" not found!`);
-        log('Available animations:', Object.keys(actions));
+        console.log(`%c[CharacterModel] ERROR: Animation "${initialAnim}" not found!`, 'color: red');
       }
 
       setClonedScene(clone);
-      log('Cloned scene set to state');
+      console.log(`%c[CharacterModel] Clone ready ✓`, 'color: #00ff00; font-weight: bold');
 
       return () => {
-        log('Cleaning up mixer');
         mixer.stopAllAction();
         mixerRef.current = null;
         actionsRef.current = {};
       };
     }, [scene, animations]);
 
-    // Log when clonedScene changes
-    useEffect(() => {
-      if (clonedScene) {
-        log('=== CLONED SCENE READY FOR RENDER ===');
-        log('ClonedScene visible:', clonedScene.visible);
-        log('ClonedScene position:', clonedScene.position);
-        log('ClonedScene scale:', clonedScene.scale);
-
-        // Force visibility
-        clonedScene.visible = true;
-        clonedScene.traverse((child) => {
-          child.visible = true;
-          if (child instanceof THREE.Mesh) {
-            child.frustumCulled = false; // Disable frustum culling
-          }
-        });
-        log('Forced all children to visible=true, frustumCulled=false');
-      }
-    }, [clonedScene]);
-
-    // Handle animation prop changes
+    // Animation changes
     useEffect(() => {
       if (!clonedScene) return;
-
       const actions = actionsRef.current;
       const animationName = ANIMATION_MAP[animation];
       const action = actions[animationName];
 
       if (action && currentAnimation.current !== animation) {
-        log(`Changing animation: ${currentAnimation.current} -> ${animation} (${animationName})`);
         Object.values(actions).forEach((a) => a?.fadeOut(0.2));
         action.reset().fadeIn(0.2).play();
         currentAnimation.current = animation;
@@ -233,9 +151,7 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
         const actions = actionsRef.current;
         const animationName = ANIMATION_MAP[state];
         const action = actions[animationName];
-
         if (action && currentAnimation.current !== state) {
-          log(`setAnimation called: ${currentAnimation.current} -> ${state}`);
           Object.values(actions).forEach((a) => a?.fadeOut(0.2));
           action.reset().fadeIn(0.2).play();
           currentAnimation.current = state;
@@ -244,47 +160,35 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
       group: groupRef.current,
     }));
 
-    // Log every frame (throttled)
+    // Frame update with periodic status
     const frameCount = useRef(0);
+    const lastLogTime = useRef(0);
     useFrame((state, delta) => {
       mixerRef.current?.update(delta);
-
       frameCount.current++;
-      if (frameCount.current % 300 === 1) { // Log every 300 frames (~5 seconds at 60fps)
-        if (groupRef.current) {
-          const worldPos = new THREE.Vector3();
-          groupRef.current.getWorldPosition(worldPos);
-          log(`Frame ${frameCount.current}: WorldPos(${worldPos.x.toFixed(2)}, ${worldPos.y.toFixed(2)}, ${worldPos.z.toFixed(2)})`);
-          log(`  Group scale: ${groupRef.current.scale.x}, visible: ${groupRef.current.visible}`);
-          log(`  Children count: ${groupRef.current.children.length}`);
 
-          // Check if in camera frustum
-          const camera = state.camera;
-          const frustum = new THREE.Frustum();
-          frustum.setFromProjectionMatrix(
-            new THREE.Matrix4().multiplyMatrices(
-              camera.projectionMatrix,
-              camera.matrixWorldInverse
-            )
-          );
+      const now = performance.now();
+      if (now - lastLogTime.current > 5000 && groupRef.current && clonedScene) {
+        lastLogTime.current = now;
 
-          if (clonedScene) {
-            const sphere = new THREE.Sphere();
-            new THREE.Box3().setFromObject(clonedScene).getBoundingSphere(sphere);
-            sphere.applyMatrix4(groupRef.current.matrixWorld);
-            const inFrustum = frustum.intersectsSphere(sphere);
-            log(`  In camera frustum: ${inFrustum}, sphere radius: ${sphere.radius.toFixed(2)}`);
-          }
-        }
+        const worldPos = new THREE.Vector3();
+        groupRef.current.getWorldPosition(worldPos);
+
+        const box = new THREE.Box3().setFromObject(clonedScene);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+
+        console.log(`%c[CharacterModel] Status @${(now/1000).toFixed(0)}s`, 'color: cyan', {
+          worldPos: `(${worldPos.x.toFixed(1)}, ${worldPos.y.toFixed(1)}, ${worldPos.z.toFixed(1)})`,
+          size: `${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`,
+          scale: groupRef.current.scale.x,
+          visible: groupRef.current.visible,
+          childrenInGroup: groupRef.current.children.length,
+        });
       }
     });
 
-    if (!clonedScene) {
-      log('Render: clonedScene is null, returning null');
-      return null;
-    }
-
-    log('Render: Rendering group with scale', scale);
+    if (!clonedScene) return null;
 
     return (
       <group ref={groupRef} scale={scale}>

@@ -55,58 +55,88 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
   const isTriggered = gate.isTriggered || isTriggeredRef.current;
   const triggeredOpacity = 0.25;
 
-  const pillarMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: isTriggered ? '#333333' : config.color,
-        emissive: isTriggered ? '#111111' : config.color,
-        emissiveIntensity: isTriggered ? 0.1 : config.emissiveIntensity * 0.5,
+  // Pre-create both normal and triggered materials at mount time to avoid GC stutter
+  const materials = useMemo(() => {
+    const normal = {
+      pillar: new THREE.MeshStandardMaterial({
+        color: config.color,
+        emissive: config.color,
+        emissiveIntensity: config.emissiveIntensity * 0.5,
         metalness: 0.7,
         roughness: 0.2,
-        transparent: isTriggered,
-        opacity: isTriggered ? triggeredOpacity : 1,
+        transparent: false,
+        opacity: 1,
       }),
-    [config.color, config.emissiveIntensity, isTriggered]
-  );
-
-  const pillarCapMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: isTriggered ? '#222222' : '#1a1a1a',
+      pillarCap: new THREE.MeshStandardMaterial({
+        color: '#1a1a1a',
         metalness: 0.9,
         roughness: 0.1,
-        transparent: isTriggered,
-        opacity: isTriggered ? triggeredOpacity : 1,
+        transparent: false,
+        opacity: 1,
       }),
-    [isTriggered]
-  );
-
-  const portalMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: isTriggered ? '#222222' : config.color,
-        emissive: isTriggered ? '#111111' : config.color,
-        emissiveIntensity: isTriggered ? 0.05 : config.emissiveIntensity * 0.3,
+      portal: new THREE.MeshStandardMaterial({
+        color: config.color,
+        emissive: config.color,
+        emissiveIntensity: config.emissiveIntensity * 0.3,
         transparent: true,
-        opacity: isTriggered ? 0.1 : 0.4,
+        opacity: 0.4,
         side: THREE.DoubleSide,
       }),
-    [config.color, config.emissiveIntensity, isTriggered]
-  );
-
-  const ringMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: isTriggered ? '#444444' : config.color,
-        emissive: isTriggered ? '#222222' : config.color,
-        emissiveIntensity: isTriggered ? 0.1 : config.emissiveIntensity,
+      ring: new THREE.MeshStandardMaterial({
+        color: config.color,
+        emissive: config.color,
+        emissiveIntensity: config.emissiveIntensity,
         metalness: 0.8,
         roughness: 0.2,
-        transparent: isTriggered,
-        opacity: isTriggered ? triggeredOpacity : 1,
+        transparent: false,
+        opacity: 1,
       }),
-    [config.color, config.emissiveIntensity, isTriggered]
-  );
+    };
+
+    const triggered = {
+      pillar: new THREE.MeshStandardMaterial({
+        color: '#333333',
+        emissive: '#111111',
+        emissiveIntensity: 0.1,
+        metalness: 0.7,
+        roughness: 0.2,
+        transparent: true,
+        opacity: triggeredOpacity,
+      }),
+      pillarCap: new THREE.MeshStandardMaterial({
+        color: '#222222',
+        metalness: 0.9,
+        roughness: 0.1,
+        transparent: true,
+        opacity: triggeredOpacity,
+      }),
+      portal: new THREE.MeshStandardMaterial({
+        color: '#222222',
+        emissive: '#111111',
+        emissiveIntensity: 0.05,
+        transparent: true,
+        opacity: 0.1,
+        side: THREE.DoubleSide,
+      }),
+      ring: new THREE.MeshStandardMaterial({
+        color: '#444444',
+        emissive: '#222222',
+        emissiveIntensity: 0.1,
+        metalness: 0.8,
+        roughness: 0.2,
+        transparent: true,
+        opacity: triggeredOpacity,
+      }),
+    };
+
+    return { normal, triggered };
+  }, [config.color, config.emissiveIntensity]);
+
+  // Select the appropriate material set based on triggered state
+  const pillarMaterial = isTriggered ? materials.triggered.pillar : materials.normal.pillar;
+  const pillarCapMaterial = isTriggered ? materials.triggered.pillarCap : materials.normal.pillarCap;
+  const portalMaterial = isTriggered ? materials.triggered.portal : materials.normal.portal;
+  const ringMaterial = isTriggered ? materials.triggered.ring : materials.normal.ring;
 
   useFrame((state) => {
     if (!groupRef.current || isTriggeredRef.current || status !== 'playing') return;
@@ -140,16 +170,13 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
     if (!isTriggered) {
       const time = state.clock.elapsedTime;
 
-      if (portalRef.current) {
-        const pulse = 0.35 + Math.sin(time * 2.5) * 0.15;
-        (portalRef.current.material as THREE.MeshStandardMaterial).opacity = pulse;
-      }
+      // Animate portal opacity on the normal material directly
+      const pulse = 0.35 + Math.sin(time * 2.5) * 0.15;
+      materials.normal.portal.opacity = pulse;
 
-      if (leftPillarRef.current && rightPillarRef.current) {
-        const glow = config.emissiveIntensity * 0.5 + Math.sin(time * 3) * 0.2;
-        (leftPillarRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = glow;
-        (rightPillarRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = glow;
-      }
+      // Animate pillar glow on the normal material directly
+      const glow = config.emissiveIntensity * 0.5 + Math.sin(time * 3) * 0.2;
+      materials.normal.pillar.emissiveIntensity = glow;
     }
   });
 

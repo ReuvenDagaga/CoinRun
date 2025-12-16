@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 
 import Player from './Player';
-import Track, { Environment } from './Track';
+import Track from './Track/Track';
+import Environment from './Track/Environment/Environment';
 import GameCamera from './GameCamera';
 import { FPSDisplay } from './FPSMonitor';
 import { SoldierPickups, generateSoldiers, SoldierPickupData } from './SoldierPickup';
 import { ArmyFollowers } from './ArmyFollowers';
-import { GatesRenderer } from './Gates';
+import { GatesRenderer } from './Track/Environment/Gates';
 import {
   SimpleGateType,
   GateData,
@@ -15,7 +16,7 @@ import {
   SPEED_EFFECT_DURATION,
   SPEED_BOOST_MULTIPLIER,
   SPEED_SLOW_MULTIPLIER,
-} from './gateTypes';
+} from './Track/Environment/types';
 import { CoinsRenderer, CoinData, generateCoins } from './coin';
 import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';

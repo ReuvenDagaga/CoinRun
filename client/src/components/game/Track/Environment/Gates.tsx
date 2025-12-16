@@ -40,19 +40,22 @@ interface GateProps {
   gate: GateData;
   onTrigger: (gateId: string, gateType: SimpleGateType) => void;
   armySize: number;
+  playerX: number;
+  playerZ: number;
+  status: string;
 }
 
-const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateProps) {
+const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize, playerX, playerZ, status }: GateProps) {
   const groupRef = useRef<THREE.Group>(null);
   const portalRef = useRef<THREE.Mesh>(null);
   const leftPillarRef = useRef<THREE.Mesh>(null);
   const rightPillarRef = useRef<THREE.Mesh>(null);
   const isTriggeredRef = useRef(false);
 
-  const { player, status } = useGame();
   const config = GATE_CONFIGS[gate.type];
 
-  const isTriggered = gate.isTriggered || isTriggeredRef.current;
+  // Use only local ref for triggered state - no external dependency
+  const isTriggered = isTriggeredRef.current;
   const triggeredOpacity = 0.25;
 
   // Pre-create both normal and triggered materials at mount time to avoid GC stutter
@@ -143,8 +146,6 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
 
     const gateX = gate.position.x;
     const gateZ = gate.position.z;
-    const playerX = player.position.x;
-    const playerZ = player.position.z;
 
     const checkCollision = (posX: number, posZ: number): boolean => {
       const distX = Math.abs(posX - gateX);
@@ -167,7 +168,7 @@ const SingleGate = memo(function SingleGate({ gate, onTrigger, armySize }: GateP
       }
     }
 
-    if (!isTriggered) {
+    if (!isTriggeredRef.current) {
       const time = state.clock.elapsedTime;
 
       // Animate portal opacity on the normal material directly
@@ -338,6 +339,8 @@ export const GatesRenderer = memo(function GatesRenderer({
   onGateTrigger,
   armySize,
 }: GatesProps) {
+  const { player, status } = useGame();
+
   return (
     <group>
       {gates.map((gate) => (
@@ -346,6 +349,9 @@ export const GatesRenderer = memo(function GatesRenderer({
           gate={gate}
           onTrigger={onGateTrigger}
           armySize={armySize}
+          playerX={player.position.x}
+          playerZ={player.position.z}
+          status={status}
         />
       ))}
     </group>

@@ -45,6 +45,8 @@ interface GameContextValue {
   doublePointsEffect: TimedEffect | null;
   magnetEffect: TimedEffect | null;
   giantEffect: TimedEffect | null;
+  reverseControlsEffect: TimedEffect | null;
+  shrinkEffect: TimedEffect | null;
 
   // For backward compatibility
   activePowerUps: Array<{ type: string; remainingTime: number }>;
@@ -74,6 +76,8 @@ interface GameContextValue {
   activateDoublePoints: (duration: number) => void;
   activateMagnet: (duration: number) => void;
   activateGiant: (duration: number) => void;
+  activateReverseControls: (duration: number) => void;
+  activateShrink: (duration: number) => void;
 
   // Legacy actions (kept for compatibility)
   collectCoin: (value: number) => void;
@@ -121,6 +125,8 @@ export function GameProvider({ children }: GameProviderProps) {
   const [doublePointsEffect, setDoublePointsEffect] = useState<TimedEffect | null>(null);
   const [magnetEffect, setMagnetEffect] = useState<TimedEffect | null>(null);
   const [giantEffect, setGiantEffect] = useState<TimedEffect | null>(null);
+  const [reverseControlsEffect, setReverseControlsEffect] = useState<TimedEffect | null>(null);
+  const [shrinkEffect, setShrinkEffect] = useState<TimedEffect | null>(null);
   const [activePowerUps] = useState<Array<{ type: string; remainingTime: number }>>([]);
   const [opponent] = useState(null);
   const [opponentProgress] = useState(0);
@@ -144,6 +150,8 @@ export function GameProvider({ children }: GameProviderProps) {
     setDoublePointsEffect(null);
     setMagnetEffect(null);
     setGiantEffect(null);
+    setReverseControlsEffect(null);
+    setShrinkEffect(null);
   }, []);
 
   const handleSwipe = useCallback((direction: SwipeDirection) => {
@@ -287,10 +295,26 @@ export function GameProvider({ children }: GameProviderProps) {
           }
         }
 
+        // Check if reverse controls effect has expired
+        if (reverseControlsEffect) {
+          const effectElapsed = (newElapsedTime - reverseControlsEffect.startTime) * 1000;
+          if (effectElapsed >= reverseControlsEffect.remainingTime) {
+            setReverseControlsEffect(null);
+          }
+        }
+
+        // Check if shrink effect has expired
+        if (shrinkEffect) {
+          const effectElapsed = (newElapsedTime - shrinkEffect.startTime) * 1000;
+          if (effectElapsed >= shrinkEffect.remainingTime) {
+            setShrinkEffect(null);
+          }
+        }
+
         return newElapsedTime;
       });
     }
-  }, [status, activeSpeedEffect, shieldEffect, doublePointsEffect, magnetEffect, giantEffect]);
+  }, [status, activeSpeedEffect, shieldEffect, doublePointsEffect, magnetEffect, giantEffect, reverseControlsEffect, shrinkEffect]);
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -306,6 +330,8 @@ export function GameProvider({ children }: GameProviderProps) {
     setDoublePointsEffect(null);
     setMagnetEffect(null);
     setGiantEffect(null);
+    setReverseControlsEffect(null);
+    setShrinkEffect(null);
   }, []);
 
   const handleSetSpeedMultiplier = useCallback((multiplier: number, effectType: 'boost' | 'slow', duration: number) => {
@@ -348,6 +374,22 @@ export function GameProvider({ children }: GameProviderProps) {
 
   const activateGiant = useCallback((duration: number) => {
     setGiantEffect({
+      active: true,
+      remainingTime: duration,
+      startTime: elapsedTime,
+    });
+  }, [elapsedTime]);
+
+  const activateReverseControls = useCallback((duration: number) => {
+    setReverseControlsEffect({
+      active: true,
+      remainingTime: duration,
+      startTime: elapsedTime,
+    });
+  }, [elapsedTime]);
+
+  const activateShrink = useCallback((duration: number) => {
+    setShrinkEffect({
       active: true,
       remainingTime: duration,
       startTime: elapsedTime,
@@ -413,6 +455,8 @@ export function GameProvider({ children }: GameProviderProps) {
       doublePointsEffect,
       magnetEffect,
       giantEffect,
+      reverseControlsEffect,
+      shrinkEffect,
       activePowerUps,
       opponent,
       opponentProgress,
@@ -436,6 +480,8 @@ export function GameProvider({ children }: GameProviderProps) {
       activateDoublePoints,
       activateMagnet,
       activateGiant,
+      activateReverseControls,
+      activateShrink,
       collectCoin,
       collectGate,
       damageArmy,
@@ -461,6 +507,8 @@ export function GameProvider({ children }: GameProviderProps) {
       doublePointsEffect,
       magnetEffect,
       giantEffect,
+      reverseControlsEffect,
+      shrinkEffect,
       activePowerUps,
       opponent,
       opponentProgress,
@@ -484,6 +532,8 @@ export function GameProvider({ children }: GameProviderProps) {
       activateDoublePoints,
       activateMagnet,
       activateGiant,
+      activateReverseControls,
+      activateShrink,
       collectCoin,
       collectGate,
       damageArmy,

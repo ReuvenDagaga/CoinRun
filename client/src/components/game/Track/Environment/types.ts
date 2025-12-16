@@ -12,6 +12,13 @@ export enum SimpleGateType {
   DOUBLE_POINTS = 'double_points',
   MAGNET = 'magnet',
   GIANT = 'giant',
+  // Additional negative gates
+  SUPER_SLOW = 'super_slow',
+  SUBTRACT_SOLDIERS_5 = 'subtract_soldiers_5',
+  SUBTRACT_SOLDIERS_10 = 'subtract_soldiers_10',
+  DIVIDE_SOLDIERS_3 = 'divide_soldiers_3',
+  REVERSE_CONTROLS = 'reverse_controls',
+  SHRINK = 'shrink',
 }
 
 export interface GateData {
@@ -90,6 +97,43 @@ export const GATE_CONFIGS: Record<SimpleGateType, GateConfig> = {
     emissiveIntensity: 1.7,
     isPositive: true,
   },
+  // Additional negative gates
+  [SimpleGateType.SUPER_SLOW]: {
+    color: '#1a1a80', // Dark Blue
+    label: 'FREEZE',
+    emissiveIntensity: 1.0,
+    isPositive: false,
+  },
+  [SimpleGateType.SUBTRACT_SOLDIERS_5]: {
+    color: '#CC0000', // Dark Red
+    label: '-5',
+    emissiveIntensity: 1.3,
+    isPositive: false,
+  },
+  [SimpleGateType.SUBTRACT_SOLDIERS_10]: {
+    color: '#990000', // Darker Red
+    label: '-10',
+    emissiveIntensity: 1.4,
+    isPositive: false,
+  },
+  [SimpleGateType.DIVIDE_SOLDIERS_3]: {
+    color: '#CC5500', // Dark Orange
+    label: '÷3',
+    emissiveIntensity: 1.2,
+    isPositive: false,
+  },
+  [SimpleGateType.REVERSE_CONTROLS]: {
+    color: '#660066', // Purple
+    label: 'REVERSE',
+    emissiveIntensity: 1.3,
+    isPositive: false,
+  },
+  [SimpleGateType.SHRINK]: {
+    color: '#666666', // Gray
+    label: 'SHRINK',
+    emissiveIntensity: 0.8,
+    isPositive: false,
+  },
 };
 
 // Gate dimensions
@@ -112,6 +156,13 @@ export function generateGates(trackLength: number = 800): GateData[] {
     SimpleGateType.DOUBLE_POINTS,
     SimpleGateType.MAGNET,
     SimpleGateType.GIANT,
+    // Additional negative gates
+    SimpleGateType.SUPER_SLOW,
+    SimpleGateType.SUBTRACT_SOLDIERS_5,
+    SimpleGateType.SUBTRACT_SOLDIERS_10,
+    SimpleGateType.DIVIDE_SOLDIERS_3,
+    SimpleGateType.REVERSE_CONTROLS,
+    SimpleGateType.SHRINK,
   ];
 
   // Start at 100m (give player time to collect some soldiers)
@@ -147,7 +198,10 @@ export function generateGates(trackLength: number = 800): GateData[] {
 export const SPEED_EFFECT_DURATION = 5000; // 5 seconds
 export const SPEED_BOOST_MULTIPLIER = 1.5; // +50% speed
 export const SPEED_SLOW_MULTIPLIER = 0.5; // -50% speed
+export const SUPER_SLOW_MULTIPLIER = 0.2; // -80% speed
 export const SHIELD_DURATION = 5000; // 5 seconds
 export const DOUBLE_POINTS_DURATION = 10000; // 10 seconds
 export const MAGNET_DURATION = 8000; // 8 seconds
 export const GIANT_DURATION = 5000; // 5 seconds
+export const REVERSE_CONTROLS_DURATION = 5000; // 5 seconds
+export const SHRINK_DURATION = 5000; // 5 seconds

@@ -32,7 +32,7 @@ export function getAnimationFromSpeed(speedMultiplier: number): AnimationState {
 export default function Player() {
   const meshRef = useRef<THREE.Group>(null);
   const characterRef = useRef<CharacterModelRef>(null);
-  const lastAnimState = useRef<AnimationState>('sprinting');
+  const lastAnimState = useRef<AnimationState>('idle');
 
   const currentX = useRef(0);
   const targetX = useRef(0);
@@ -111,12 +111,12 @@ export default function Player() {
 
   return (
     <group ref={meshRef} position={[0, GROUND_Y, 0]}>
-  <CharacterModel
-    ref={characterRef}
-    skinId={currentSkin}
-    animation="sprinting"
-    scale={1000}
-  />
-</group>
+      <CharacterModel
+        ref={characterRef}
+        skinId={currentSkin}
+        animation="idle"
+        scale={1.5}
+      />
+    </group>
   );
 }

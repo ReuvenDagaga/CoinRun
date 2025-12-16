@@ -59,8 +59,6 @@ export default function Player() {
   }, [status]);
 
   useFrame((_, delta) => {
-    console.log('speedMultiplier:', speedMultiplier, 'status:', status);
-
     if (!meshRef.current) return;
 
     if (status === 'idle' || status === 'loading' || status === 'countdown') {

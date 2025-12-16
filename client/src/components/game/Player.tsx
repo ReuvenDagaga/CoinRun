@@ -17,6 +17,13 @@ export interface PathPoint {
   timestamp: number;
 }
 
+// Boulder collision data
+export interface BoulderCollision {
+  x: number;
+  z: number;
+  radius: number;
+}
+
 export const playerPath: PathPoint[] = [];
 
 const TRACK_LENGTH = 800;
@@ -29,7 +36,11 @@ export function getAnimationFromSpeed(speedMultiplier: number): AnimationState {
   return 'sprinting';
 }
 
-export default function Player() {
+interface PlayerProps {
+  boulders?: BoulderCollision[];
+}
+
+export default function Player({ boulders = [] }: PlayerProps) {
   const meshRef = useRef<THREE.Group>(null);
   const characterRef = useRef<CharacterModelRef>(null);
   const lastAnimState = useRef<AnimationState>('idle');
@@ -47,6 +58,7 @@ export default function Player() {
   const HORIZONTAL_SPEED = 8;
   const SMOOTH_FACTOR = 0.15;
   const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH;
+  const PLAYER_RADIUS = 0.4;
 
   useEffect(() => {
     if (status === 'loading' || status === 'idle') {
@@ -57,6 +69,38 @@ export default function Player() {
       lastAnimState.current = 'idle';
     }
   }, [status]);
+
+  // Apply boulder collision to player position
+  const applyBoulderCollision = (posX: number, posZ: number): { x: number; z: number; blocked: boolean } => {
+    let resultX = posX;
+    let resultZ = posZ;
+    let blocked = false;
+
+    // Filter to nearby boulders
+    const nearbyBoulders = boulders.filter(
+      (b) => Math.abs(b.z - posZ) < 10
+    );
+
+    for (const boulder of nearbyBoulders) {
+      const dx = resultX - boulder.x;
+      const dz = resultZ - boulder.z;
+      const distance = Math.sqrt(dx * dx + dz * dz);
+      const minDistance = boulder.radius + PLAYER_RADIUS;
+
+      if (distance < minDistance && distance > 0.01) {
+        blocked = true;
+        // Push player out of boulder
+        const pushFactor = (minDistance - distance) / distance;
+        resultX += dx * pushFactor * 1.1;
+        // Don't push backward in Z, player should go around
+        if (dz > 0) {
+          resultZ += dz * pushFactor * 0.5;
+        }
+      }
+    }
+
+    return { x: resultX, z: resultZ, blocked };
+  };
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
@@ -90,11 +134,29 @@ export default function Player() {
 
     targetX.current = Math.max(-TRACK_HALF_WIDTH, Math.min(TRACK_HALF_WIDTH, targetX.current));
 
-    currentX.current = lerp(currentX.current, targetX.current, SMOOTH_FACTOR);
+    let newX = lerp(currentX.current, targetX.current, SMOOTH_FACTOR);
 
     const effectiveSpeed = FORWARD_SPEED * speedMultiplier;
-    const newZ = positionZ.current + effectiveSpeed * clampedDelta;
-    positionZ.current = Math.min(newZ, TRACK_LENGTH);
+    let newZ = positionZ.current + effectiveSpeed * clampedDelta;
+    newZ = Math.min(newZ, TRACK_LENGTH);
+
+    // Apply boulder collision
+    if (boulders.length > 0) {
+      const collision = applyBoulderCollision(newX, newZ);
+      newX = collision.x;
+      newZ = Math.max(positionZ.current, collision.z); // Don't go backward
+
+      // Update target if blocked to prevent fighting against boulder
+      if (collision.blocked) {
+        targetX.current = newX;
+      }
+    }
+
+    // Clamp X to track bounds after collision
+    newX = Math.max(-TRACK_HALF_WIDTH, Math.min(TRACK_HALF_WIDTH, newX));
+
+    currentX.current = newX;
+    positionZ.current = newZ;
 
     meshRef.current.position.x = currentX.current;
     meshRef.current.position.z = positionZ.current;

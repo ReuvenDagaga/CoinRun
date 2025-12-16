@@ -319,17 +319,17 @@ export const SHOOTER_CONFIG = {
   weaponColor: '#333333', // Dark weapon
   glowColor: '#FF00FF', // Magenta glow
 };
-export const SHOOTER_HEIGHT = 2.0;
-export const SHOOTER_WIDTH = 1.0;
-export const SHOOTER_FIRE_RATE = 1.8; // Seconds between shots
+export const SHOOTER_HEIGHT = 6.0; // 3x larger for intimidating presence
+export const SHOOTER_WIDTH = 3.0; // 3x larger
+export const SHOOTER_FIRE_RATE = 2.5; // Slightly slower fire rate
 export const SHOOTER_WARNING_TIME = 0.5; // Glow before firing
 export const SHOOTER_BODY_RADIUS = 0.8; // For collision (push only)
 
 // Projectile configuration
-export const PROJECTILE_SPEED = 25; // Units per second
+export const PROJECTILE_SPEED = 20; // Units per second (slightly slower for visibility)
 export const PROJECTILE_RANGE = 50; // Max distance
-export const PROJECTILE_RADIUS = 0.3;
-export const PROJECTILE_KILL_RADIUS = 0.6;
+export const PROJECTILE_RADIUS = 0.8; // Increased 2.5x for visibility
+export const PROJECTILE_KILL_RADIUS = 1.2; // Larger kill radius
 
 // Generation parameters per type
 export const SPINNER_START_DISTANCE = 150;
@@ -346,9 +346,10 @@ export const BOULDER_START_DISTANCE = 100;
 export const BOULDER_MIN_SPACING = 40;
 export const BOULDER_MAX_SPACING = 70;
 
-export const SHOOTER_START_DISTANCE = 250;
-export const SHOOTER_MIN_SPACING = 100;
-export const SHOOTER_MAX_SPACING = 150;
+export const SHOOTER_START_DISTANCE = 300;
+export const SHOOTER_MIN_SPACING = 200; // Minimum 200m apart
+export const SHOOTER_MAX_SPACING = 250;
+export const SHOOTER_MAX_COUNT = 2; // Maximum 2 per track
 
 // Legacy aliases for backwards compatibility
 export const ENEMY_CONFIG = SPINNER_CONFIG;
@@ -427,9 +428,10 @@ export function generateEnemies(trackLength: number = 800): EnemyData[] {
     enemyIndex++;
   }
 
-  // Generate shooters
+  // Generate shooters (max 2 per track)
   z = SHOOTER_START_DISTANCE;
-  while (z < trackLength - 50) {
+  let shooterCount = 0;
+  while (z < trackLength - 50 && shooterCount < SHOOTER_MAX_COUNT) {
     const xPosition = (Math.random() - 0.5) * 4; // Narrower range
 
     enemies.push({
@@ -443,6 +445,7 @@ export function generateEnemies(trackLength: number = 800): EnemyData[] {
     const spacing = SHOOTER_MIN_SPACING + Math.random() * (SHOOTER_MAX_SPACING - SHOOTER_MIN_SPACING);
     z += spacing;
     enemyIndex++;
+    shooterCount++;
   }
 
   return enemies;

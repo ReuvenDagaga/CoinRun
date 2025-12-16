@@ -25,6 +25,13 @@ function seededRandom(seed: number): number {
   return x - Math.floor(x);
 }
 
+// Boulder collision data
+interface BoulderCollision {
+  x: number;
+  z: number;
+  radius: number;
+}
+
 function getFormationPosition(
   index: number,
   playerX: number,
@@ -58,12 +65,40 @@ function getFormationPosition(
   };
 }
 
+// Apply boulder collision avoidance to a position
+function applyBoulderCollision(
+  posX: number,
+  posZ: number,
+  boulders: BoulderCollision[],
+  soldierRadius: number = 0.3
+): { x: number; z: number } {
+  let resultX = posX;
+  let resultZ = posZ;
+
+  for (const boulder of boulders) {
+    const dx = resultX - boulder.x;
+    const dz = resultZ - boulder.z;
+    const distance = Math.sqrt(dx * dx + dz * dz);
+    const minDistance = boulder.radius + soldierRadius;
+
+    if (distance < minDistance && distance > 0.01) {
+      // Push soldier out of boulder
+      const pushFactor = (minDistance - distance) / distance;
+      resultX += dx * pushFactor * 1.2; // 1.2 for extra push
+      resultZ += dz * pushFactor * 1.2;
+    }
+  }
+
+  return { x: resultX, z: resultZ };
+}
+
 interface ArmySoldierProps {
   index: number;
   playerX: number;
   playerZ: number;
   skinId: string;
   speedMultiplier: number;
+  boulders: BoulderCollision[];
 }
 
 const ArmySoldier = memo(function ArmySoldier({
@@ -72,6 +107,7 @@ const ArmySoldier = memo(function ArmySoldier({
   playerZ,
   skinId,
   speedMultiplier,
+  boulders,
 }: ArmySoldierProps) {
   const groupRef = useRef<THREE.Group>(null);
   const characterRef = useRef<CharacterModelRef>(null);
@@ -95,8 +131,18 @@ const ArmySoldier = memo(function ArmySoldier({
 
     // Smoother lerp factor for natural following
     const smoothFactor = 0.15;
-    currentPos.current.x = lerp(currentPos.current.x, target.x, smoothFactor);
-    currentPos.current.z = lerp(currentPos.current.z, target.z, smoothFactor);
+    let newX = lerp(currentPos.current.x, target.x, smoothFactor);
+    let newZ = lerp(currentPos.current.z, target.z, smoothFactor);
+
+    // Apply boulder collision
+    if (boulders.length > 0) {
+      const collisionResult = applyBoulderCollision(newX, newZ, boulders);
+      newX = collisionResult.x;
+      newZ = collisionResult.z;
+    }
+
+    currentPos.current.x = newX;
+    currentPos.current.z = newZ;
     currentPos.current.y = GROUND_Y;
 
     // Add subtle side-to-side wobble unique to each soldier
@@ -130,10 +176,12 @@ const ArmySoldier = memo(function ArmySoldier({
 
 interface ArmyFollowersProps {
   armySize: number;
+  boulders?: BoulderCollision[];
 }
 
 export const ArmyFollowers = memo(function ArmyFollowers({
   armySize,
+  boulders = [],
 }: ArmyFollowersProps) {
   const { player, status, speedMultiplier } = useGame();
   const { user } = useAuth();
@@ -162,6 +210,11 @@ export const ArmyFollowers = memo(function ArmyFollowers({
     }
   });
 
+  // Filter boulders near player for collision detection
+  const nearbyBoulders = boulders.filter(
+    (b) => Math.abs(b.z - player.position.z) < 20
+  );
+
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
   if (displayedArmySize <= 0) return null;
@@ -177,10 +230,13 @@ export const ArmyFollowers = memo(function ArmyFollowers({
           playerZ={player.position.z}
           skinId={currentSkin}
           speedMultiplier={speedMultiplier}
+          boulders={nearbyBoulders}
         />
       ))}
     </group>
   );
 });
 
+// Export boulder collision type for use in other components
+export type { BoulderCollision };
 export default ArmyFollowers;

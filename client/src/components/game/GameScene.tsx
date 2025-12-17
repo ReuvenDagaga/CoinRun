@@ -323,6 +323,14 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     hitEvents.forEach(hit => {
       createDamagePopup(hit.position, hit.damage);
     });
+
+    // Debug: log bullet count occasionally
+    setBullets(prev => {
+      if (prev.length > 0 && Math.random() < 0.1) {
+        console.log('[updateBullets] Current bullet count:', prev.length);
+      }
+      return prev;
+    });
   }, [player.position.z, gates, enemies, createDamagePopup]);
 
   // Game loop - update time only (finish is handled in Player component)
@@ -515,13 +523,16 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Handle bullet fired by soldier
   const handleBulletFire = useCallback((bullet: BulletData) => {
+    console.log('[GameScene] handleBulletFire called:', bullet.id, 'position:', bullet.position);
     setBullets(prev => {
       // Limit max bullets for performance
       if (prev.length >= MAX_ACTIVE_BULLETS) {
         // Remove oldest bullets to make room
         const newBullets = prev.slice(-MAX_ACTIVE_BULLETS + 1);
+        console.log('[GameScene] Bullets state updated, count:', newBullets.length + 1);
         return [...newBullets, bullet];
       }
+      console.log('[GameScene] Bullets state updated, count:', prev.length + 1);
       return [...prev, bullet];
     });
   }, []);

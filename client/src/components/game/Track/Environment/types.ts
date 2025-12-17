@@ -19,6 +19,8 @@ export enum SimpleGateType {
   DIVIDE_SOLDIERS_3 = 'divide_soldiers_3',
   REVERSE_CONTROLS = 'reverse_controls',
   SHRINK = 'shrink',
+  // Weapon power gate
+  WEAPON_POWER = 'weapon_power',
 }
 
 export interface GateData {
@@ -134,6 +136,13 @@ export const GATE_CONFIGS: Record<SimpleGateType, GateConfig> = {
     emissiveIntensity: 0.8,
     isPositive: false,
   },
+  // Weapon power gate
+  [SimpleGateType.WEAPON_POWER]: {
+    color: '#FF6600', // Electric Orange
+    label: 'POWER UP',
+    emissiveIntensity: 2.0,
+    isPositive: true,
+  },
 };
 
 // Gate dimensions
@@ -163,6 +172,8 @@ export function generateGates(trackLength: number = 800): GateData[] {
     SimpleGateType.DIVIDE_SOLDIERS_3,
     SimpleGateType.REVERSE_CONTROLS,
     SimpleGateType.SHRINK,
+    // Weapon power gate
+    SimpleGateType.WEAPON_POWER,
   ];
 
   // Start at 100m (give player time to collect some soldiers)
@@ -205,6 +216,8 @@ export const MAGNET_DURATION = 8000; // 8 seconds
 export const GIANT_DURATION = 5000; // 5 seconds
 export const REVERSE_CONTROLS_DURATION = 5000; // 5 seconds
 export const SHRINK_DURATION = 5000; // 5 seconds
+export const WEAPON_POWER_DURATION = 10000; // 10 seconds
+export const WEAPON_POWER_BASE_BOOST = 2; // Base boost level (+2 tiers)
 
 // =====================
 // Enemy Types (Spinner, Fist, Boulder only)

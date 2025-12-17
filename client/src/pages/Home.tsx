@@ -3,7 +3,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import TextWithShadow from '@/components/TextWithShadow';
-import Character3DScene from '@/components/3d/Character3D';
+import CharacterSelector from '@/components/3d/CharacterSelector';
+
+// Background image path - can be customized
+const HOME_BACKGROUND_IMAGE = '/ui/home-bg.png';
 
 interface UpgradeType {
   key: string;
@@ -65,8 +68,19 @@ export default function Home() {
   };
 
   return (
-    <div className="absolute inset-0 flex flex-col mt-20">
-      <div className="flex-shrink-0 pt-2 px-4 text-center">
+    <div
+      className="absolute inset-0 flex flex-col mt-20"
+      style={{
+        backgroundImage: `url(${HOME_BACKGROUND_IMAGE})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Semi-transparent overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none" />
+
+      <div className="relative z-10 flex-shrink-0 pt-2 px-4 text-center">
         <TextWithShadow className="text-xs sm:text-sm text-white/80 font-semibold">
           Power Level
         </TextWithShadow>
@@ -75,11 +89,11 @@ export default function Home() {
         </TextWithShadow>
       </div>
 
-      <div className="flex-1 min-h-[150px]">
-        <Character3DScene />
+      <div className="relative z-10 flex-1 min-h-[150px]">
+        <CharacterSelector />
       </div>
 
-      <div className="flex-shrink-0 px-2 sm:px-4 pb-28 sm:pb-32 space-y-2">
+      <div className="relative z-10 flex-shrink-0 px-2 sm:px-4 pb-28 sm:pb-32 space-y-2">
         <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
           {upgrades.map((upgrade) => {
             const level = user.upgrades[upgrade.key as keyof typeof user.upgrades] || 0;

@@ -4,6 +4,19 @@ import type {
   TrackData,
   GameResult,
   SwipeDirection,
+  EndGameState,
+  EndGamePhase,
+  StairData,
+  GameRewardsBreakdown,
+  Vector3,
+} from '@shared/types/game.types';
+import {
+  STAIR_CONSTANTS,
+  getIncomeMultiplier,
+  getStairCoinMultiplier,
+  getStairDiamonds,
+  calculateMaxStair,
+  getPlayerSpeedFromUpgrades,
 } from '@shared/types/game.types';
 
 export interface SpeedEffect {
@@ -20,7 +33,7 @@ export interface TimedEffect {
 
 interface GameContextValue {
   // Game status
-  status: 'idle' | 'loading' | 'countdown' | 'playing' | 'paused' | 'finished' | 'gameover';
+  status: 'idle' | 'loading' | 'countdown' | 'playing' | 'paused' | 'finished' | 'gameover' | 'endgame';
   gameMode: 'solo' | '1v1';
 
   // Player state
@@ -35,6 +48,15 @@ interface GameContextValue {
 
   // Results
   result: GameResult | null;
+
+  // End game state (stairs system)
+  endGameState: EndGameState | null;
+  rewardsBreakdown: GameRewardsBreakdown | null;
+
+  // User upgrades for speed calculation
+  userSpeedLevel: number;
+  calculatedPlayerSpeed: number;
+  userIncomeLevel: number;
 
   // Speed multiplier from gates
   speedMultiplier: number;
@@ -54,7 +76,7 @@ interface GameContextValue {
   opponentProgress: number;
 
   // Actions
-  initGame: (mode: 'solo' | '1v1', track: TrackData, upgrades: { capacity: number; addWarrior: number; speed: number }) => void;
+  initGame: (mode: 'solo' | '1v1', track: TrackData, upgrades: { capacity: number; addWarrior: number; speed: number; income?: number }) => void;
   handleSwipe: (direction: SwipeDirection) => void;
   stopHorizontalMovement: () => void;
   updatePlayerPosition: (z: number, x?: number) => void;
@@ -66,6 +88,13 @@ interface GameContextValue {
   gameOver: () => void;
   updateTime: (delta: number) => void;
   reset: () => void;
+
+  // End game actions
+  startEndGame: () => void;
+  updateEndGamePhase: (phase: EndGamePhase) => void;
+  climbStair: (stairIndex: number) => void;
+  completeEndGame: () => void;
+  updateEndGameCamera: (position: Vector3, target: Vector3, progress: number) => void;
 
   // Gate effect actions
   setSpeedMultiplier: (multiplier: number, effectType: 'boost' | 'slow', duration: number) => void;
@@ -113,6 +142,37 @@ interface GameProviderProps {
   children: ReactNode;
 }
 
+// Helper to create initial stairs data
+function createInitialStairs(): StairData[] {
+  return Array.from({ length: STAIR_CONSTANTS.TOTAL_STAIRS }, (_, index) => ({
+    index,
+    position: {
+      x: 0,
+      y: index * STAIR_CONSTANTS.STAIR_HEIGHT,
+      z: STAIR_CONSTANTS.STAIRS_START_Z + index * (STAIR_CONSTANTS.STAIR_DEPTH + STAIR_CONSTANTS.STAIR_GAP),
+    },
+    soldiersRequired: STAIR_CONSTANTS.STAIR_COSTS[index],
+    soldiersOnStair: 0,
+    isReached: false,
+    isPassed: false,
+  }));
+}
+
+// Initial end game state
+const initialEndGameState: EndGameState = {
+  phase: 'approaching',
+  currentStair: -1,
+  finalStair: 0,
+  stairs: createInitialStairs(),
+  soldiersRemaining: 0,
+  cameraTarget: { x: 0, y: 0, z: 0 },
+  cameraPosition: { x: 0, y: 5, z: -10 },
+  cameraTransitionProgress: 0,
+  confettiIntensity: 0,
+  diamondsEarned: 0,
+  coinMultiplier: 1.0,
+};
+
 export function GameProvider({ children }: GameProviderProps) {
   const [status, setStatus] = useState<GameContextValue['status']>('idle');
   const [gameMode, setGameMode] = useState<'solo' | '1v1'>('solo');
@@ -133,7 +193,20 @@ export function GameProvider({ children }: GameProviderProps) {
   const [opponent] = useState(null);
   const [opponentProgress] = useState(0);
 
-  const initGame = useCallback((mode: 'solo' | '1v1', trackData: TrackData, _upgrades: { capacity: number; addWarrior: number; speed: number }) => {
+  // End game state
+  const [endGameState, setEndGameState] = useState<EndGameState | null>(null);
+  const [rewardsBreakdown, setRewardsBreakdown] = useState<GameRewardsBreakdown | null>(null);
+
+  // User upgrade levels for speed and income
+  const [userSpeedLevel, setUserSpeedLevel] = useState(0);
+  const [userIncomeLevel, setUserIncomeLevel] = useState(0);
+
+  // Calculate player speed from upgrades
+  const calculatedPlayerSpeed = useMemo(() => {
+    return getPlayerSpeedFromUpgrades(userSpeedLevel);
+  }, [userSpeedLevel]);
+
+  const initGame = useCallback((mode: 'solo' | '1v1', trackData: TrackData, upgrades: { capacity: number; addWarrior: number; speed: number; income?: number }) => {
     setStatus('loading');
     setGameMode(mode);
     setTrack(trackData);
@@ -154,6 +227,14 @@ export function GameProvider({ children }: GameProviderProps) {
     setGiantEffect(null);
     setReverseControlsEffect(null);
     setShrinkEffect(null);
+
+    // Store user upgrade levels for speed and income calculations
+    setUserSpeedLevel(upgrades.speed || 0);
+    setUserIncomeLevel(upgrades.income || 0);
+
+    // Reset end game state
+    setEndGameState(null);
+    setRewardsBreakdown(null);
   }, []);
 
   const handleSwipe = useCallback((direction: SwipeDirection) => {
@@ -213,24 +294,45 @@ export function GameProvider({ children }: GameProviderProps) {
   }, [status]);
 
   const finishGame = useCallback(() => {
-    const gameResult: GameResult = {
-      finalScore: Math.floor(player.distanceTraveled * 10) + (player.armyCount * 100) + (player.coinsCollected * 5),
-      coinsCollected: player.coinsCollected,
-      maxArmy: player.armyCount,
-      distanceTraveled: player.distanceTraveled,
-      timeTaken: elapsedTime,
-      didFinish: true,
-      enemiesKilled: 0,
-      perfectGates: 0
-    };
-    setStatus('finished');
-    setResult(gameResult);
-  }, [player, elapsedTime]);
+    // Transition to end game phase for stairs
+    setStatus('endgame');
+
+    // Initialize end game state
+    const initialStairs = createInitialStairs();
+    setEndGameState({
+      phase: 'entering',
+      currentStair: -1,
+      finalStair: 0,
+      stairs: initialStairs,
+      soldiersRemaining: player.armyCount,
+      cameraTarget: { x: 0, y: 0, z: player.distanceTraveled },
+      cameraPosition: { x: 0, y: 5, z: player.distanceTraveled - 10 },
+      cameraTransitionProgress: 0,
+      confettiIntensity: 0.3,
+      diamondsEarned: 0,
+      coinMultiplier: 1.0,
+    });
+  }, [player.armyCount, player.distanceTraveled]);
 
   const gameOver = useCallback(() => {
+    // Calculate rewards for game over (no stair bonus)
+    const incomeMultiplier = getIncomeMultiplier(userIncomeLevel);
+    const coinsAfterIncome = Math.floor(player.coinsCollected * incomeMultiplier);
+
+    const rewards: GameRewardsBreakdown = {
+      coinsCollected: player.coinsCollected,
+      incomeMultiplier,
+      stairMultiplier: 1.0,
+      coinsAfterIncome,
+      finalCoins: coinsAfterIncome,
+      diamondsEarned: 0,
+      stairsReached: 0,
+      isVictory: false,
+    };
+
     const gameResult: GameResult = {
       finalScore: Math.floor(player.distanceTraveled * 10),
-      coinsCollected: 0,
+      coinsCollected: rewards.finalCoins,
       maxArmy: 0,
       distanceTraveled: player.distanceTraveled,
       timeTaken: elapsedTime,
@@ -238,9 +340,11 @@ export function GameProvider({ children }: GameProviderProps) {
       enemiesKilled: 0,
       perfectGates: 0
     };
+
+    setRewardsBreakdown(rewards);
     setStatus('gameover');
     setResult(gameResult);
-  }, [player, elapsedTime]);
+  }, [player, elapsedTime, userIncomeLevel]);
 
   const updateTime = useCallback((delta: number) => {
     if (status === 'countdown') {
@@ -334,6 +438,126 @@ export function GameProvider({ children }: GameProviderProps) {
     setGiantEffect(null);
     setReverseControlsEffect(null);
     setShrinkEffect(null);
+    setEndGameState(null);
+    setRewardsBreakdown(null);
+    setUserSpeedLevel(0);
+    setUserIncomeLevel(0);
+  }, []);
+
+  // End game action: Start the end game sequence
+  const startEndGame = useCallback(() => {
+    if (status !== 'endgame' || !endGameState) return;
+
+    setEndGameState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        phase: 'climbing',
+      };
+    });
+  }, [status, endGameState]);
+
+  // End game action: Update the phase
+  const updateEndGamePhase = useCallback((phase: EndGamePhase) => {
+    setEndGameState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        phase,
+      };
+    });
+  }, []);
+
+  // End game action: Climb a stair
+  const climbStair = useCallback((stairIndex: number) => {
+    setEndGameState(prev => {
+      if (!prev) return prev;
+
+      const stairCost = STAIR_CONSTANTS.STAIR_COSTS[stairIndex];
+      if (prev.soldiersRemaining < stairCost) {
+        // Not enough soldiers - this shouldn't happen if called correctly
+        return prev;
+      }
+
+      const newStairs = prev.stairs.map((stair, idx) => {
+        if (idx === stairIndex) {
+          return {
+            ...stair,
+            isReached: true,
+            isPassed: true,
+            soldiersOnStair: stairCost,
+          };
+        }
+        return stair;
+      });
+
+      const newSoldiersRemaining = prev.soldiersRemaining - stairCost;
+      const newFinalStair = stairIndex + 1;
+      const newDiamonds = getStairDiamonds(newFinalStair);
+      const newCoinMultiplier = getStairCoinMultiplier(newFinalStair);
+
+      return {
+        ...prev,
+        currentStair: stairIndex,
+        finalStair: newFinalStair,
+        stairs: newStairs,
+        soldiersRemaining: newSoldiersRemaining,
+        confettiIntensity: Math.min(1, 0.3 + (newFinalStair * 0.07)),
+        diamondsEarned: newDiamonds,
+        coinMultiplier: newCoinMultiplier,
+      };
+    });
+  }, []);
+
+  // End game action: Complete the end game and calculate rewards
+  const completeEndGame = useCallback(() => {
+    if (!endGameState) return;
+
+    // Calculate final rewards
+    const incomeMultiplier = getIncomeMultiplier(userIncomeLevel);
+    const stairMultiplier = endGameState.coinMultiplier;
+    const coinsAfterIncome = Math.floor(player.coinsCollected * incomeMultiplier);
+    const finalCoins = Math.floor(coinsAfterIncome * stairMultiplier);
+
+    const rewards: GameRewardsBreakdown = {
+      coinsCollected: player.coinsCollected,
+      incomeMultiplier,
+      stairMultiplier,
+      coinsAfterIncome,
+      finalCoins,
+      diamondsEarned: endGameState.diamondsEarned,
+      stairsReached: endGameState.finalStair,
+      isVictory: true,
+    };
+
+    const gameResult: GameResult = {
+      finalScore: Math.floor(player.distanceTraveled * 10) + (endGameState.finalStair * 100) + (player.coinsCollected * 5),
+      coinsCollected: finalCoins,
+      maxArmy: player.armyCount,
+      distanceTraveled: player.distanceTraveled,
+      timeTaken: elapsedTime,
+      didFinish: true,
+      enemiesKilled: 0,
+      perfectGates: 0
+    };
+
+    setRewardsBreakdown(rewards);
+    setResult(gameResult);
+    setEndGameState(prev => prev ? { ...prev, phase: 'rewards' } : prev);
+    setStatus('finished');
+  }, [endGameState, player, elapsedTime, userIncomeLevel]);
+
+  // End game action: Update camera position for animations
+  const updateEndGameCamera = useCallback((position: Vector3, target: Vector3, progress: number) => {
+    setEndGameState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        cameraPosition: position,
+        cameraTarget: target,
+        cameraTransitionProgress: progress,
+      };
+    });
   }, []);
 
   const handleSetSpeedMultiplier = useCallback((multiplier: number, effectType: 'boost' | 'slow', duration: number) => {
@@ -512,6 +736,11 @@ export function GameProvider({ children }: GameProviderProps) {
       elapsedTime,
       countdown,
       result,
+      endGameState,
+      rewardsBreakdown,
+      userSpeedLevel,
+      calculatedPlayerSpeed,
+      userIncomeLevel,
       speedMultiplier,
       activeSpeedEffect,
       shieldEffect,
@@ -535,6 +764,11 @@ export function GameProvider({ children }: GameProviderProps) {
       gameOver,
       updateTime,
       reset,
+      startEndGame,
+      updateEndGamePhase,
+      climbStair,
+      completeEndGame,
+      updateEndGameCamera,
       setSpeedMultiplier: handleSetSpeedMultiplier,
       clearSpeedEffect,
       multiplyArmy,
@@ -566,6 +800,11 @@ export function GameProvider({ children }: GameProviderProps) {
       elapsedTime,
       countdown,
       result,
+      endGameState,
+      rewardsBreakdown,
+      userSpeedLevel,
+      calculatedPlayerSpeed,
+      userIncomeLevel,
       speedMultiplier,
       activeSpeedEffect,
       shieldEffect,
@@ -589,6 +828,11 @@ export function GameProvider({ children }: GameProviderProps) {
       gameOver,
       updateTime,
       reset,
+      startEndGame,
+      updateEndGamePhase,
+      climbStair,
+      completeEndGame,
+      updateEndGameCamera,
       handleSetSpeedMultiplier,
       clearSpeedEffect,
       multiplyArmy,

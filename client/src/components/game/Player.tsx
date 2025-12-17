@@ -52,13 +52,14 @@ export default function Player({ boulders = [] }: PlayerProps) {
   const targetX = useRef(0);
   const positionZ = useRef(0);
 
-  const { status, player, updatePlayerPosition, finishGame, speedMultiplier } = useGame();
+  const { status, player, updatePlayerPosition, finishGame, speedMultiplier, calculatedPlayerSpeed } = useGame();
   const { user } = useAuth();
 
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
-  // Base speed reduced by 30% again (was 17.5, now 12.25)
-  const FORWARD_SPEED = 12.25;
+  // Base speed now comes from upgrades (BASE_SPEED + speed_level * SPEED_PER_LEVEL)
+  // Fallback to 8 (base speed) if not calculated yet
+  const FORWARD_SPEED = calculatedPlayerSpeed || 8;
   const HORIZONTAL_SPEED = 8;
   const SMOOTH_FACTOR = 0.15;
   const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH;

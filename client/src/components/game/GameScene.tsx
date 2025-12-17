@@ -181,6 +181,98 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
   }, [loadingPhase, startCountdown]);
 
+  // Update bullets and check collisions - MUST be defined before game loop useEffect
+  const updateBullets = useCallback((delta: number) => {
+    const now = Date.now();
+
+    setBullets(prev => {
+      const updatedBullets: BulletData[] = [];
+
+      for (const bullet of prev) {
+        // Update position
+        const newBullet = {
+          ...bullet,
+          position: {
+            x: bullet.position.x + bullet.velocity.x * delta,
+            y: bullet.position.y + bullet.velocity.y * delta,
+            z: bullet.position.z + bullet.velocity.z * delta,
+          },
+        };
+
+        // Check lifetime
+        if (now - bullet.createdAt > BULLET_LIFETIME) {
+          continue;
+        }
+
+        // Check if bullet is behind player
+        if (newBullet.position.z < player.position.z - 20) {
+          continue;
+        }
+
+        // Check if bullet is way too far ahead
+        if (newBullet.position.z > player.position.z + 200) {
+          continue;
+        }
+
+        // Check collision with gates (improve them)
+        let hitGate = false;
+        for (const gate of gates) {
+          if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
+
+          const distX = Math.abs(newBullet.position.x - gate.position.x);
+          const distZ = Math.abs(newBullet.position.z - gate.position.z);
+
+          if (distX < GATE_WIDTH / 2 && distZ < 1.5 && Math.abs(newBullet.position.y - 1) < 3) {
+            // Hit gate - enhance it
+            const currentEnhancement = gateEnhancementsRef.current.get(gate.id) || 0;
+            gateEnhancementsRef.current.set(gate.id, currentEnhancement + 1);
+            hitGate = true;
+            break;
+          }
+        }
+
+        if (hitGate) {
+          continue;
+        }
+
+        // Check collision with boulders (damage them)
+        let hitBoulder = false;
+        for (const enemy of enemies) {
+          if (enemy.type !== 'boulder') continue;
+
+          const dx = newBullet.position.x - enemy.position.x;
+          const dz = newBullet.position.z - enemy.position.z;
+          const dist = Math.sqrt(dx * dx + dz * dz);
+
+          if (dist < (enemy as BoulderData).radius + 0.3) {
+            // Hit boulder
+            const currentHealth = boulderHealthRef.current.get(enemy.id);
+            if (currentHealth === undefined) {
+              boulderHealthRef.current.set(enemy.id, 10 - 1); // 10 hits to destroy, minus this hit
+            } else if (currentHealth > 1) {
+              boulderHealthRef.current.set(enemy.id, currentHealth - 1);
+            } else {
+              // Boulder destroyed - remove it
+              setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== enemy.id));
+              boulderHealthRef.current.delete(enemy.id);
+            }
+            hitBoulder = true;
+            break;
+          }
+        }
+
+        if (hitBoulder) {
+          continue;
+        }
+
+        // Bullet didn't hit anything, keep it
+        updatedBullets.push(newBullet);
+      }
+
+      return updatedBullets;
+    });
+  }, [player.position.z, gates, enemies]);
+
   // Game loop - update time only (finish is handled in Player component)
   useEffect(() => {
     if (status !== 'playing' && status !== 'countdown') return;
@@ -369,99 +461,6 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   const handleBulletFire = useCallback((bullet: BulletData) => {
     setBullets(prev => [...prev, bullet]);
   }, []);
-
-  // Update bullets and check collisions
-  const updateBullets = useCallback((delta: number) => {
-    const now = Date.now();
-
-    setBullets(prev => {
-      const bulletsToRemove = new Set<string>();
-      const updatedBullets: BulletData[] = [];
-
-      for (const bullet of prev) {
-        // Update position
-        const newBullet = {
-          ...bullet,
-          position: {
-            x: bullet.position.x + bullet.velocity.x * delta,
-            y: bullet.position.y + bullet.velocity.y * delta,
-            z: bullet.position.z + bullet.velocity.z * delta,
-          },
-        };
-
-        // Check lifetime
-        if (now - bullet.createdAt > BULLET_LIFETIME) {
-          continue;
-        }
-
-        // Check if bullet is behind player
-        if (newBullet.position.z < player.position.z - 20) {
-          continue;
-        }
-
-        // Check if bullet is way too far ahead
-        if (newBullet.position.z > player.position.z + 200) {
-          continue;
-        }
-
-        // Check collision with gates (improve them)
-        let hitGate = false;
-        for (const gate of gates) {
-          if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
-
-          const distX = Math.abs(newBullet.position.x - gate.position.x);
-          const distZ = Math.abs(newBullet.position.z - gate.position.z);
-
-          if (distX < GATE_WIDTH / 2 && distZ < 1.5 && Math.abs(newBullet.position.y - 1) < 3) {
-            // Hit gate - enhance it
-            const currentEnhancement = gateEnhancementsRef.current.get(gate.id) || 0;
-            gateEnhancementsRef.current.set(gate.id, currentEnhancement + 1);
-            hitGate = true;
-            break;
-          }
-        }
-
-        if (hitGate) {
-          continue;
-        }
-
-        // Check collision with boulders (damage them)
-        let hitBoulder = false;
-        for (const enemy of enemies) {
-          if (enemy.type !== 'boulder') continue;
-
-          const dx = newBullet.position.x - enemy.position.x;
-          const dz = newBullet.position.z - enemy.position.z;
-          const dist = Math.sqrt(dx * dx + dz * dz);
-
-          if (dist < (enemy as BoulderData).radius + 0.3) {
-            // Hit boulder
-            const currentHealth = boulderHealthRef.current.get(enemy.id);
-            if (currentHealth === undefined) {
-              boulderHealthRef.current.set(enemy.id, 10 - 1); // 10 hits to destroy, minus this hit
-            } else if (currentHealth > 1) {
-              boulderHealthRef.current.set(enemy.id, currentHealth - 1);
-            } else {
-              // Boulder destroyed - remove it
-              setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== enemy.id));
-              boulderHealthRef.current.delete(enemy.id);
-            }
-            hitBoulder = true;
-            break;
-          }
-        }
-
-        if (hitBoulder) {
-          continue;
-        }
-
-        // Bullet didn't hit anything, keep it
-        updatedBullets.push(newBullet);
-      }
-
-      return updatedBullets;
-    });
-  }, [player.position.z, gates, enemies]);
 
   // Helper to create a dead soldier with ragdoll physics
   const createDeadSoldier = useCallback((

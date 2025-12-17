@@ -6,6 +6,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { CharacterModel, CharacterModelRef } from './characters';
 import { GROUND_Y, getAnimationFromSpeed } from './Player';
 import { STAIR_CONSTANTS } from '@shared/types/game.types';
+import { TRACK_LENGTH } from './Track/config';
+
+// Calculate stairs start position based on actual track length
+const STAIRS_START_Z = TRACK_LENGTH + 10;
 
 // Maximum soldiers to add per frame to prevent freeze
 const MAX_SOLDIERS_PER_FRAME = 5;
@@ -108,7 +112,8 @@ function getSoldierStairAssignment(soldierIndex: number): { stair: number; posit
 
 // Calculate position on a stair for a soldier
 function getStairPosition(stair: number, positionOnStair: number, totalOnStair: number): { x: number; y: number; z: number } {
-  const stairZ = STAIR_CONSTANTS.STAIRS_START_Z + stair * (STAIR_CONSTANTS.STAIR_DEPTH + STAIR_CONSTANTS.STAIR_GAP);
+  // Use local STAIRS_START_Z which is based on actual TRACK_LENGTH
+  const stairZ = STAIRS_START_Z + stair * (STAIR_CONSTANTS.STAIR_DEPTH + STAIR_CONSTANTS.STAIR_GAP);
   const stairY = stair * STAIR_CONSTANTS.STAIR_HEIGHT + STAIR_CONSTANTS.STAIR_HEIGHT / 2;
 
   // Spread soldiers across the stair width

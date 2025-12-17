@@ -7,6 +7,9 @@ import { TRACK_LENGTH } from '../Track/config';
 import { CharacterModel, CharacterModelRef } from '../characters';
 import { useAuth } from '@/hooks/useAuth';
 
+// Calculate stairs start position based on actual track length
+const STAIRS_START_Z = TRACK_LENGTH + 10;
+
 // Animation timing constants
 const CLIMB_DURATION = 0.8; // seconds per stair
 const PAUSE_DURATION = 0.3; // pause between stairs
@@ -115,7 +118,7 @@ export default function StairClimbController({ onComplete }: StairClimbControlle
     if (!playerRef.current) return;
 
     const anim = animationState.current;
-    const targetZ = STAIR_CONSTANTS.STAIRS_START_Z;
+    const targetZ = STAIRS_START_Z;
     const currentZ = playerRef.current.position.z;
 
     if (currentZ < targetZ) {
@@ -159,7 +162,7 @@ export default function StairClimbController({ onComplete }: StairClimbControlle
             z: playerRef.current.position.z,
           };
 
-          const stairPos = STAIR_CONSTANTS.STAIRS_START_Z +
+          const stairPos = STAIRS_START_Z +
             nextStair * (STAIR_CONSTANTS.STAIR_DEPTH + STAIR_CONSTANTS.STAIR_GAP);
           anim.targetPosition = {
             x: 0,

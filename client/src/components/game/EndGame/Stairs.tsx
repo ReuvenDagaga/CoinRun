@@ -3,7 +3,10 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGame } from '@/context';
 import { STAIR_CONSTANTS } from '@shared/types/game.types';
-import { TRACK_WIDTH } from '../Track/config';
+import { TRACK_WIDTH, TRACK_LENGTH } from '../Track/config';
+
+// Calculate stairs start position based on actual track length
+const STAIRS_START_Z = TRACK_LENGTH + 10; // 10m after track end
 
 // Stair colors - celebratory gradient
 const STAIR_COLORS = [
@@ -49,7 +52,8 @@ export default function Stairs({ showSoldiers = true }: StairsProps) {
 
   const stairs = useMemo(() => {
     return Array.from({ length: STAIR_CONSTANTS.TOTAL_STAIRS }, (_, index) => {
-      const z = STAIR_CONSTANTS.STAIRS_START_Z + index * (STAIR_CONSTANTS.STAIR_DEPTH + STAIR_CONSTANTS.STAIR_GAP);
+      // Use local STAIRS_START_Z which is based on actual TRACK_LENGTH
+      const z = STAIRS_START_Z + index * (STAIR_CONSTANTS.STAIR_DEPTH + STAIR_CONSTANTS.STAIR_GAP);
       const y = index * STAIR_CONSTANTS.STAIR_HEIGHT;
       const color = STAIR_COLORS[index];
 

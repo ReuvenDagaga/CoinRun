@@ -403,3 +403,146 @@ export function getBulletDamage(bulletPowerLevel: number): number {
 export function getMagnetRadius(magnetRadiusLevel: number): number {
   return 2 * Math.pow(1.04, magnetRadiusLevel);
 }
+
+// ==========================================
+// END GAME / STAIRS SYSTEM TYPES
+// ==========================================
+
+// Stair configuration constants
+export const STAIR_CONSTANTS = {
+  TOTAL_STAIRS: 10,
+  BASE_SPEED: 8,
+  SPEED_PER_LEVEL: 1.5,
+
+  // Soldiers required to pass each stair (cumulative cost)
+  STAIR_COSTS: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512] as const,
+
+  // Rewards per stair
+  DIAMONDS_PER_STAIR: 1,
+
+  // Coin multiplier: 1.0 + (stairIndex + 1) * 0.1
+  // Stair 1 = 1.1x, Stair 10 = 2.0x
+  COIN_MULTIPLIER_BASE: 1.0,
+  COIN_MULTIPLIER_PER_STAIR: 0.1,
+
+  // Stair dimensions
+  STAIR_WIDTH: 10,
+  STAIR_DEPTH: 3,
+  STAIR_HEIGHT: 1.5,
+  STAIR_GAP: 2,
+
+  // Position after finish gate
+  STAIRS_START_Z: 2010,
+} as const;
+
+// End game phase states
+export type EndGamePhase =
+  | 'approaching'     // Player approaching finish gate
+  | 'entering'        // Player passing through finish gate
+  | 'climbing'        // Player climbing stairs
+  | 'finished'        // Player reached final stair position
+  | 'rewards';        // Showing rewards screen
+
+// Individual stair data
+export interface StairData {
+  index: number;           // 0-9
+  position: Vector3;       // World position of stair
+  soldiersRequired: number; // Cost to pass this stair
+  soldiersOnStair: number; // Soldiers left on this stair
+  isReached: boolean;      // Whether player has reached this stair
+  isPassed: boolean;       // Whether player has passed this stair
+}
+
+// End game state
+export interface EndGameState {
+  phase: EndGamePhase;
+  currentStair: number;           // Current stair index (-1 if not started)
+  finalStair: number;             // Highest stair reached
+  stairs: StairData[];            // All stair data
+  soldiersRemaining: number;      // Soldiers still with player
+
+  // Camera state
+  cameraTarget: Vector3;
+  cameraPosition: Vector3;
+  cameraTransitionProgress: number;
+
+  // Confetti state
+  confettiIntensity: number;      // 0-1, increases with stairs
+
+  // Rewards
+  diamondsEarned: number;
+  coinMultiplier: number;
+}
+
+// Rewards breakdown for end screen
+export interface GameRewardsBreakdown {
+  // Base coins from gameplay
+  coinsCollected: number;
+
+  // Income upgrade multiplier
+  incomeMultiplier: number;
+
+  // Stair bonus multiplier
+  stairMultiplier: number;
+
+  // Final calculations
+  coinsAfterIncome: number;       // coinsCollected * incomeMultiplier
+  finalCoins: number;             // coinsAfterIncome * stairMultiplier
+
+  // Diamonds from stairs
+  diamondsEarned: number;
+  stairsReached: number;
+
+  // Whether this is a victory (reached finish gate)
+  isVictory: boolean;
+}
+
+// Extended game result with end game data
+export interface ExtendedGameResult extends GameResult {
+  endGameState?: EndGameState;
+  rewards?: GameRewardsBreakdown;
+}
+
+// Calculate stair coin multiplier
+export function getStairCoinMultiplier(stairsReached: number): number {
+  return STAIR_CONSTANTS.COIN_MULTIPLIER_BASE +
+         (stairsReached * STAIR_CONSTANTS.COIN_MULTIPLIER_PER_STAIR);
+}
+
+// Calculate diamonds earned from stairs
+export function getStairDiamonds(stairsReached: number): number {
+  return stairsReached * STAIR_CONSTANTS.DIAMONDS_PER_STAIR;
+}
+
+// Calculate final coins with all multipliers
+export function calculateFinalCoins(
+  coinsCollected: number,
+  incomeLevel: number,
+  stairsReached: number
+): number {
+  const incomeMultiplier = getIncomeMultiplier(incomeLevel);
+  const stairMultiplier = getStairCoinMultiplier(stairsReached);
+  return Math.floor(coinsCollected * incomeMultiplier * stairMultiplier);
+}
+
+// Calculate which stair the player can reach with given soldiers
+export function calculateMaxStair(totalSoldiers: number): number {
+  let remainingSoldiers = totalSoldiers;
+  let maxStair = 0;
+
+  for (let i = 0; i < STAIR_CONSTANTS.TOTAL_STAIRS; i++) {
+    if (remainingSoldiers >= STAIR_CONSTANTS.STAIR_COSTS[i]) {
+      remainingSoldiers -= STAIR_CONSTANTS.STAIR_COSTS[i];
+      maxStair = i + 1;
+    } else {
+      break;
+    }
+  }
+
+  return maxStair;
+}
+
+// Calculate player speed from upgrades
+export function getPlayerSpeedFromUpgrades(speedLevel: number): number {
+  return STAIR_CONSTANTS.BASE_SPEED + (speedLevel * STAIR_CONSTANTS.SPEED_PER_LEVEL);
+}

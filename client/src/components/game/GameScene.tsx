@@ -36,6 +36,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';
 import { generateTrackLayout } from './TrackLayoutManager';
 
+// End game components
+import { FinishGate, Stairs, StairClimbController, EndGameCamera, Confetti } from './EndGame';
+
 // Track length increased to 2000 meters
 const TRACK_LENGTH = 2000;
 
@@ -69,6 +72,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     activateShrink,
     damageArmy,
     killPlayer,
+    endGameState,
   } = useGame();
 
   const { graphicsQuality, isVibrationEnabled } = useUI();
@@ -114,11 +118,15 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       totalLength: TRACK_LENGTH,
     };
 
-    initGame(mode, simpleTrack as any, {
-      capacity: 0,
-      addWarrior: 0,
-      speed: 0
-    });
+    // Get user upgrade levels (default to 0 if not available)
+    const upgrades = {
+      capacity: user?.upgrades?.capacity || 0,
+      addWarrior: user?.upgrades?.addWarrior || 0,
+      speed: user?.upgrades?.speed || 0,
+      income: user?.upgrades?.income || 0,
+    };
+
+    initGame(mode, simpleTrack as any, upgrades);
 
     // Use preloaded data
     setSoldiers(data.soldiers);
@@ -129,7 +137,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
     // Transition to ready phase
     setLoadingPhase('ready');
-  }, [mode, trackSeed, initGame]);
+  }, [mode, trackSeed, initGame, user]);
 
   // Start countdown when ready
   useEffect(() => {
@@ -450,14 +458,24 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         frameloop="always"
         performance={{ min: 0.5 }}
       >
-        {/* Camera - follows player smoothly */}
-        <GameCamera target={player.position} />
+        {/* Camera - use EndGameCamera during endgame, otherwise GameCamera */}
+        {status === 'endgame' ? (
+          <EndGameCamera enabled={true} />
+        ) : (
+          <GameCamera target={player.position} />
+        )}
 
         {/* Environment - sky, ground, lighting */}
         <Environment />
 
         {/* Track with random textures and finish line */}
         <Track />
+
+        {/* Finish Gate - large decorative gate at end of track */}
+        <FinishGate />
+
+        {/* Stairs - visible at end of track (after finish gate) */}
+        <Stairs showSoldiers={status === 'endgame'} />
 
         {/* Coins on track */}
         <CoinsRenderer coins={coins} onCoinCollect={handleCoinCollect} armySize={armySize} />
@@ -486,11 +504,25 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           onCollect={handleSoldierCollect}
         />
 
-        {/* Army following player (snake formation) */}
-        <ArmyFollowers armySize={armySize} boulders={boulderCollisions} />
+        {/* Army following player (snake formation) - hide during endgame */}
+        {status !== 'endgame' && (
+          <ArmyFollowers armySize={armySize} boulders={boulderCollisions} />
+        )}
 
-        {/* Player with smooth movement */}
-        <Player boulders={boulderCollisions} />
+        {/* Player with smooth movement - hide during endgame */}
+        {status !== 'endgame' && (
+          <Player boulders={boulderCollisions} />
+        )}
+
+        {/* Stair Climb Controller - handles player climbing during endgame */}
+        {status === 'endgame' && (
+          <StairClimbController />
+        )}
+
+        {/* Confetti effect during endgame */}
+        {status === 'endgame' && (
+          <Confetti enabled={true} />
+        )}
       </Canvas>
     </div>
   );

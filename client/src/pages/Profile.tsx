@@ -160,9 +160,12 @@ function DailyRewardsSection({ user }: { user: any }) {
                     {reward.coins}
                   </TextWithShadow>
                   {reward.gems && (
-                    <TextWithShadow as="span" className="text-purple-400 text-[8px] font-bold">
-                      +{reward.gems}💎
-                    </TextWithShadow>
+                    <div className="flex items-center gap-0.5">
+                      <TextWithShadow as="span" className="text-purple-400 text-[8px] font-bold">
+                        +{reward.gems}
+                      </TextWithShadow>
+                      <img src="/ui/Gem.png" alt="Gems" className="w-3 h-3" />
+                    </div>
                   )}
                 </div>
                 {reward.claimed && (

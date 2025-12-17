@@ -13,49 +13,49 @@ const UPGRADE_INFO: Record<keyof UserUpgrades, {
 }> = {
   capacity: {
     name: 'Capacity',
-    icon: '📦',
+    icon: '/ui/upgrades/capacity.png',
     description: 'Max army size',
     effectText: (level) => `Max: ${30 + level}`
   },
   addWarrior: {
     name: 'Add Warrior',
-    icon: '➕',
+    icon: '/ui/upgrades/warrior.png',
     description: 'Starting soldiers',
     effectText: (level) => `Start: ${1 + level}`
   },
   warriorUpgrade: {
     name: 'Warrior Power',
-    icon: '⚔️',
+    icon: '/ui/upgrades/power.png',
     description: 'Combat damage',
     effectText: (level) => `×${Math.pow(1.1, level).toFixed(2)}`
   },
   income: {
     name: 'Income',
-    icon: '💰',
+    icon: '/ui/Coin.png',
     description: 'Coin multiplier',
     effectText: (level) => `×${Math.pow(1.1, level).toFixed(2)}`
   },
   speed: {
     name: 'Speed',
-    icon: '👟',
+    icon: '/ui/upgrades/speed.png',
     description: 'Run faster',
     effectText: (level) => `×${Math.pow(1.03, level).toFixed(2)}`
   },
   jump: {
     name: 'Jump',
-    icon: '🦘',
+    icon: '/ui/upgrades/jump.png',
     description: 'Jump higher',
     effectText: (level) => `×${Math.pow(1.05, level).toFixed(2)}`
   },
   bulletPower: {
     name: 'Bullet Power',
-    icon: '🔫',
+    icon: '/ui/upgrades/bullet.png',
     description: 'Ranged damage',
     effectText: (level) => `×${Math.pow(1.08, level).toFixed(2)}`
   },
   magnetRadius: {
     name: 'Magnet',
-    icon: '🧲',
+    icon: '/ui/upgrades/magnet.png',
     description: 'Coin attraction',
     effectText: (level) => `${(2 * Math.pow(1.04, level)).toFixed(1)}m`
   }
@@ -85,7 +85,7 @@ export default function UpgradeCard({ type }: UpgradeCardProps) {
       className={`card card-hover p-3 ${!canAfford && !isMaxed ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start gap-3">
-        <div className="text-2xl">{info.icon}</div>
+        <img src={info.icon} alt={info.name} className="w-8 h-8 object-contain" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <h3 className="text-white font-semibold text-sm truncate">{info.name}</h3>
@@ -110,18 +110,19 @@ export default function UpgradeCard({ type }: UpgradeCardProps) {
       <div className="mt-2">
         {isMaxed ? (
           <div className="text-center text-xs text-green-400 font-semibold py-1">
-            MAXED ✓
+            MAXED
           </div>
         ) : (
           <button
             disabled={!canAfford}
-            className={`w-full py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`w-full py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 ${
               canAfford
                 ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
                 : 'bg-gray-700 text-gray-500'
             }`}
           >
-            💰 {cost.toLocaleString()}
+            <img src="/ui/Coin.png" alt="Cost" className="w-4 h-4" />
+            {cost.toLocaleString()}
           </button>
         )}
       </div>
@@ -152,11 +153,16 @@ export function UpgradeCardCompact({ type }: UpgradeCardProps) {
           : 'bg-gray-800 opacity-50'
       }`}
     >
-      <span className="text-lg">{info.icon}</span>
+      <img src={info.icon} alt={info.name} className="w-6 h-6 object-contain" />
       <div className="text-left">
         <div className="text-xs text-white">Lv{currentLevel}</div>
-        <div className="text-xs text-yellow-400">
-          {isMaxed ? 'MAX' : `💰${cost}`}
+        <div className="text-xs text-yellow-400 flex items-center gap-1">
+          {isMaxed ? 'MAX' : (
+            <>
+              <img src="/ui/Coin.png" alt="Cost" className="w-3 h-3" />
+              {cost}
+            </>
+          )}
         </div>
       </div>
     </button>

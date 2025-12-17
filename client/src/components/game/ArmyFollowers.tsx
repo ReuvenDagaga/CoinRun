@@ -5,6 +5,7 @@ import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 import { CharacterModel, CharacterModelRef } from './characters';
 import { GROUND_Y, getAnimationFromSpeed } from './Player';
+import { STAIR_CONSTANTS } from '@shared/types/game.types';
 
 // Maximum soldiers to add per frame to prevent freeze
 const MAX_SOLDIERS_PER_FRAME = 5;
@@ -92,6 +93,36 @@ function applyBoulderCollision(
   return { x: resultX, z: resultZ };
 }
 
+// Calculate which stair a soldier goes to based on index
+function getSoldierStairAssignment(soldierIndex: number): { stair: number; positionOnStair: number } | null {
+  let cumulativeCost = 0;
+  for (let stair = 0; stair < STAIR_CONSTANTS.TOTAL_STAIRS; stair++) {
+    const stairCost = STAIR_CONSTANTS.STAIR_COSTS[stair];
+    if (soldierIndex < cumulativeCost + stairCost) {
+      return { stair, positionOnStair: soldierIndex - cumulativeCost };
+    }
+    cumulativeCost += stairCost;
+  }
+  return null;
+}
+
+// Calculate position on a stair for a soldier
+function getStairPosition(stair: number, positionOnStair: number, totalOnStair: number): { x: number; y: number; z: number } {
+  const stairZ = STAIR_CONSTANTS.STAIRS_START_Z + stair * (STAIR_CONSTANTS.STAIR_DEPTH + STAIR_CONSTANTS.STAIR_GAP);
+  const stairY = stair * STAIR_CONSTANTS.STAIR_HEIGHT + STAIR_CONSTANTS.STAIR_HEIGHT / 2;
+
+  // Spread soldiers across the stair width
+  const spacing = Math.min(STAIR_CONSTANTS.STAIR_WIDTH / (totalOnStair + 1), 1.5);
+  const startX = -(totalOnStair - 1) * spacing / 2;
+  const x = startX + positionOnStair * spacing;
+
+  return {
+    x,
+    y: stairY + 0.3,
+    z: stairZ + STAIR_CONSTANTS.STAIR_DEPTH / 2
+  };
+}
+
 interface ArmySoldierProps {
   index: number;
   playerX: number;
@@ -99,6 +130,9 @@ interface ArmySoldierProps {
   skinId: string;
   speedMultiplier: number;
   boulders: BoulderCollision[];
+  isEndGame: boolean;
+  currentClimbedStair: number;
+  soldiersRemaining: number;
 }
 
 const ArmySoldier = memo(function ArmySoldier({
@@ -108,6 +142,9 @@ const ArmySoldier = memo(function ArmySoldier({
   skinId,
   speedMultiplier,
   boulders,
+  isEndGame,
+  currentClimbedStair,
+  soldiersRemaining,
 }: ArmySoldierProps) {
   const groupRef = useRef<THREE.Group>(null);
   const characterRef = useRef<CharacterModelRef>(null);
@@ -124,50 +161,90 @@ const ArmySoldier = memo(function ArmySoldier({
     z: playerZ + BACK_OFFSET - Math.floor(index / SOLDIERS_PER_ROW) * SPACING_Z,
   });
 
+  // Track if this soldier has been "consumed" by a stair
+  const stairAssignment = getSoldierStairAssignment(index);
+  const isConsumedByStair = stairAssignment && stairAssignment.stair < currentClimbedStair;
+  const isOnCurrentStair = stairAssignment && stairAssignment.stair === currentClimbedStair;
+
   useFrame((state) => {
     if (!groupRef.current) return;
 
-    const target = getFormationPosition(index, playerX, playerZ);
+    let targetX: number;
+    let targetY: number;
+    let targetZ: number;
+    let smoothFactor = 0.15;
 
-    // Smoother lerp factor for natural following
-    const smoothFactor = 0.15;
-    let newX = lerp(currentPos.current.x, target.x, smoothFactor);
-    let newZ = lerp(currentPos.current.z, target.z, smoothFactor);
+    if (isEndGame && isConsumedByStair && stairAssignment) {
+      // Soldier has been consumed - move to stair position
+      const stairCost = STAIR_CONSTANTS.STAIR_COSTS[stairAssignment.stair];
+      const stairPos = getStairPosition(stairAssignment.stair, stairAssignment.positionOnStair, stairCost);
+      targetX = stairPos.x;
+      targetY = stairPos.y;
+      targetZ = stairPos.z;
+      smoothFactor = 0.08; // Slower transition for stair movement
 
-    // Apply boulder collision
-    if (boulders.length > 0) {
-      const collisionResult = applyBoulderCollision(newX, newZ, boulders);
-      newX = collisionResult.x;
-      newZ = collisionResult.z;
+      // Set to idle when on stair
+      if (lastAnimState.current !== 'idle') {
+        characterRef.current?.setAnimation('idle');
+        lastAnimState.current = 'idle';
+      }
+    } else if (isEndGame) {
+      // Still following during endgame but before being consumed
+      const target = getFormationPosition(index, playerX, playerZ);
+      targetX = target.x;
+      targetY = GROUND_Y;
+      targetZ = target.z;
+
+      // Apply boulder collision
+      if (boulders.length > 0) {
+        const collisionResult = applyBoulderCollision(targetX, targetZ, boulders);
+        targetX = collisionResult.x;
+        targetZ = collisionResult.z;
+      }
+    } else {
+      // Normal following during gameplay
+      const target = getFormationPosition(index, playerX, playerZ);
+      targetX = target.x;
+      targetY = GROUND_Y;
+      targetZ = target.z;
+
+      // Apply boulder collision
+      if (boulders.length > 0) {
+        const collisionResult = applyBoulderCollision(targetX, targetZ, boulders);
+        targetX = collisionResult.x;
+        targetZ = collisionResult.z;
+      }
+
+      // Add subtle side-to-side wobble unique to each soldier
+      const time = state.clock.elapsedTime;
+      const wobble = Math.sin(time * wobbleFrequency * Math.PI * 2 + animPhaseOffset) * wobbleAmplitude;
+      targetX += wobble;
+
+      const animState = getAnimationFromSpeed(speedMultiplier);
+      if (animState !== lastAnimState.current) {
+        characterRef.current?.setAnimation(animState);
+        lastAnimState.current = animState;
+      }
     }
 
-    currentPos.current.x = newX;
-    currentPos.current.z = newZ;
-    currentPos.current.y = GROUND_Y;
-
-    // Add subtle side-to-side wobble unique to each soldier
-    const time = state.clock.elapsedTime;
-    const wobble = Math.sin(time * wobbleFrequency * Math.PI * 2 + animPhaseOffset) * wobbleAmplitude;
+    // Smoothly interpolate position
+    currentPos.current.x = lerp(currentPos.current.x, targetX, smoothFactor);
+    currentPos.current.y = lerp(currentPos.current.y, targetY, smoothFactor);
+    currentPos.current.z = lerp(currentPos.current.z, targetZ, smoothFactor);
 
     groupRef.current.position.set(
-      currentPos.current.x + wobble,
+      currentPos.current.x,
       currentPos.current.y,
       currentPos.current.z
     );
-
-    const animState = getAnimationFromSpeed(speedMultiplier);
-    if (animState !== lastAnimState.current) {
-      characterRef.current?.setAnimation(animState);
-      lastAnimState.current = animState;
-    }
   });
 
   return (
-    <group ref={groupRef} position={[currentPos.current.x, GROUND_Y, currentPos.current.z]}>
+    <group ref={groupRef} position={[currentPos.current.x, currentPos.current.y, currentPos.current.z]}>
       <CharacterModel
         ref={characterRef}
         skinId={skinId}
-        animation={getAnimationFromSpeed(speedMultiplier)}
+        animation={isConsumedByStair ? 'idle' : getAnimationFromSpeed(speedMultiplier)}
         scale={1}
       />
     </group>
@@ -183,7 +260,7 @@ export const ArmyFollowers = memo(function ArmyFollowers({
   armySize,
   boulders = [],
 }: ArmyFollowersProps) {
-  const { player, status, speedMultiplier } = useGame();
+  const { player, status, speedMultiplier, endGameState } = useGame();
   const { user } = useAuth();
 
   // Gradually animate to target army size to prevent frame freeze
@@ -216,9 +293,13 @@ export const ArmyFollowers = memo(function ArmyFollowers({
   );
 
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
+  const isEndGame = status === 'endgame';
+  const currentClimbedStair = endGameState?.currentStair || 0;
+  const soldiersRemaining = endGameState?.soldiersRemaining || armySize;
 
   if (displayedArmySize <= 0) return null;
-  if (status !== 'playing' && status !== 'countdown' && status !== 'finished') return null;
+  // Now also render during 'endgame' status to show soldiers on stairs
+  if (status !== 'playing' && status !== 'countdown' && status !== 'finished' && status !== 'endgame') return null;
 
   return (
     <group>
@@ -231,6 +312,9 @@ export const ArmyFollowers = memo(function ArmyFollowers({
           skinId={currentSkin}
           speedMultiplier={speedMultiplier}
           boulders={nearbyBoulders}
+          isEndGame={isEndGame}
+          currentClimbedStair={currentClimbedStair}
+          soldiersRemaining={soldiersRemaining}
         />
       ))}
     </group>

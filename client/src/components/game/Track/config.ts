@@ -1,5 +1,5 @@
-export const TRACK_LENGTH = 800;
-export const SEGMENT_COUNT = 16;
+export const TRACK_LENGTH = 2000;
+export const SEGMENT_COUNT = 40;
 export const SEGMENT_LENGTH = TRACK_LENGTH / SEGMENT_COUNT;
 export const TRACK_WIDTH = 10;
 

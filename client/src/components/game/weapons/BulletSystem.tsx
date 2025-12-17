@@ -66,11 +66,11 @@ export const DamagePopups = memo(function DamagePopups({ popups }: DamagePopupsP
   );
 });
 
-// Simple visible bullet component - DEBUG: VERY Large and bright
+// Simple visible bullet component - golden glowing bullets
 const SimpleBullet = memo(function SimpleBullet({ bullet }: { bullet: BulletData }) {
   const meshRef = useRef<THREE.Mesh>(null);
 
-  // Update position every frame - direct position setting for reliability
+  // Update position every frame
   useFrame(() => {
     if (meshRef.current) {
       meshRef.current.position.x = bullet.position.x;
@@ -79,19 +79,13 @@ const SimpleBullet = memo(function SimpleBullet({ bullet }: { bullet: BulletData
     }
   });
 
-  // Log when bullet mounts
-  useEffect(() => {
-    console.log(`[SimpleBullet] Created at`, bullet.position);
-    return () => console.log(`[SimpleBullet] Destroyed`);
-  }, []);
-
   return (
     <mesh ref={meshRef} position={[bullet.position.x, bullet.position.y, bullet.position.z]}>
-      {/* VERY Large sphere for visibility - DEBUG */}
-      <sphereGeometry args={[0.5, 16, 12]} />
-      <meshBasicMaterial
-        color="#FF0000"
-        toneMapped={false}
+      <sphereGeometry args={[0.12, 8, 6]} />
+      <meshStandardMaterial
+        color="#FFD700"
+        emissive="#FFA500"
+        emissiveIntensity={2}
       />
     </mesh>
   );
@@ -103,24 +97,10 @@ interface BulletSystemProps {
 
 // Simple bullet system - renders each bullet individually
 export const BulletSystem = memo(function BulletSystem({ bullets }: BulletSystemProps) {
-  // Debug log - more verbose
-  useEffect(() => {
-    if (bullets.length > 0) {
-      console.log(`[BulletSystem] Rendering ${bullets.length} bullets`);
-      console.log(`[BulletSystem] First bullet position:`, bullets[0].position);
-      console.log(`[BulletSystem] First bullet velocity:`, bullets[0].velocity);
-    }
-  }, [bullets]);
+  if (bullets.length === 0) return null;
 
   return (
     <group name="bullet-system">
-      {/* DEBUG: Static test bullet at fixed position - should always be visible near player start */}
-      <mesh position={[0, 1.5, 10]}>
-        <sphereGeometry args={[0.5, 16, 12]} />
-        <meshBasicMaterial color="#00FF00" toneMapped={false} />
-      </mesh>
-
-      {/* Actual bullets */}
       {bullets.map((bullet) => (
         <SimpleBullet key={bullet.id} bullet={bullet} />
       ))}

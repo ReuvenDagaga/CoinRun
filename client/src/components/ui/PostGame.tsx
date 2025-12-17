@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState, useRef } from 'react';
+import { useGameTransition } from './GameTransitionGuard';
 
 // Screen background image paths (will be provided as assets)
 const VICTORY_BG_PATH = '/assets/victory-bg.png';
@@ -9,8 +10,10 @@ const GAME_OVER_BG_PATH = '/assets/game-over-bg.png';
 
 export default function PostGame() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { status, result, gameMode, reset, rewardsBreakdown, endGameState } = useGame();
   const { updateStats, addGems } = useAuth();
+  const { restartGameTransition } = useGameTransition();
 
   const [isVisible, setIsVisible] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -63,10 +66,18 @@ export default function PostGame() {
 
   if (!result) return null;
 
-  const handlePlayAgain = () => {
+  const handlePlayAgain = async () => {
     hasUpdatedStats.current = false;
+    // Show loading transition before navigating
+    await restartGameTransition();
     reset();
-    window.location.reload();
+    // Get current game path and reload cleanly
+    const currentPath = location.pathname;
+    navigate('/', { replace: true });
+    // Small delay then navigate back to game
+    setTimeout(() => {
+      navigate(currentPath, { replace: true });
+    }, 50);
   };
 
   const handleQuit = () => {

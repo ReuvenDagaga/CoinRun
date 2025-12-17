@@ -243,23 +243,36 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         }
 
         // Check collision with gates (improve them)
+        // Gates span half the track (GATE_WIDTH=5), positioned at x=±2.5
+        // A bullet hits if it's within the gate's horizontal span AND at the gate's z
         let hitGate = false;
         for (const gate of gates) {
           if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
 
-          const distX = Math.abs(newBullet.position.x - gate.position.x);
           const distZ = Math.abs(newBullet.position.z - gate.position.z);
 
-          if (distX < GATE_WIDTH / 2 && distZ < 1.5 && Math.abs(newBullet.position.y - 1) < 3) {
-            // Hit gate - enhance it
-            hitGate = true;
-            gateHits.push({ gateId: gate.id });
-            // Create damage popup - soldier value is stored in sourceIndex
-            hitEvents.push({
-              position: { ...newBullet.position },
-              damage: bullet.sourceIndex, // Soldier value = bullet damage
-            });
-            break;
+          // Check if bullet passed through gate's z plane
+          if (distZ < 2.0) {
+            // Gate spans from center ± GATE_WIDTH/2
+            const gateLeft = gate.position.x - GATE_WIDTH / 2;
+            const gateRight = gate.position.x + GATE_WIDTH / 2;
+
+            // Bullet hits if within gate's horizontal span (with small margin)
+            if (newBullet.position.x >= gateLeft - 0.5 && newBullet.position.x <= gateRight + 0.5) {
+              // Hit gate - enhance it
+              hitGate = true;
+              gateHits.push({ gateId: gate.id });
+              // Create damage popup at gate position for visibility
+              hitEvents.push({
+                position: {
+                  x: gate.position.x,
+                  y: 2, // Show at gate height
+                  z: gate.position.z
+                },
+                damage: bullet.sourceIndex, // Soldier value = bullet damage
+              });
+              break;
+            }
           }
         }
 
@@ -322,14 +335,6 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     // Create damage popups for all hits
     hitEvents.forEach(hit => {
       createDamagePopup(hit.position, hit.damage);
-    });
-
-    // Debug: log bullet count occasionally
-    setBullets(prev => {
-      if (prev.length > 0 && Math.random() < 0.1) {
-        console.log('[updateBullets] Current bullet count:', prev.length);
-      }
-      return prev;
     });
   }, [player.position.z, gates, enemies, createDamagePopup]);
 
@@ -523,16 +528,13 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Handle bullet fired by soldier
   const handleBulletFire = useCallback((bullet: BulletData) => {
-    console.log('[GameScene] handleBulletFire called:', bullet.id, 'position:', bullet.position);
     setBullets(prev => {
       // Limit max bullets for performance
       if (prev.length >= MAX_ACTIVE_BULLETS) {
         // Remove oldest bullets to make room
         const newBullets = prev.slice(-MAX_ACTIVE_BULLETS + 1);
-        console.log('[GameScene] Bullets state updated, count:', newBullets.length + 1);
         return [...newBullets, bullet];
       }
-      console.log('[GameScene] Bullets state updated, count:', prev.length + 1);
       return [...prev, bullet];
     });
   }, []);

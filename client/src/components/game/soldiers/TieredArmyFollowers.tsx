@@ -274,6 +274,9 @@ export const TieredArmyFollowers = memo(function TieredArmyFollowers({
       const config = WEAPON_CONFIGS[weaponTier];
       const bulletSpeed = playerSpeed * speedMultiplier * config.bulletSpeed;
 
+      // Spread bullets horizontally to cover the track width and hit gates
+      const spreadX = (Math.random() - 0.5) * 12; // Spread across track width (-6 to +6)
+
       const bullet: BulletData = {
         id: `bullet-${bulletIdCounter.current++}`,
         position: {
@@ -282,7 +285,7 @@ export const TieredArmyFollowers = memo(function TieredArmyFollowers({
           z: position.z,
         },
         velocity: {
-          x: (Math.random() - 0.5) * 2, // Slight spread
+          x: spreadX, // Fan out to hit gates on both sides
           y: 0,
           z: bulletSpeed,
         },

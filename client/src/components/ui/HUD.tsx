@@ -1,4 +1,6 @@
 import { useGame } from '@/context';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useGameTransition } from './GameTransitionGuard';
 
 // Track length constant
 const TRACK_LENGTH = 800;
@@ -114,7 +116,20 @@ export default function HUD() {
 
 // Victory screen shown when player finishes
 export function VictoryScreen() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { status, result, reset } = useGame();
+  const { restartGameTransition } = useGameTransition();
+
+  const handlePlayAgain = async () => {
+    await restartGameTransition();
+    reset();
+    const currentPath = location.pathname;
+    navigate('/', { replace: true });
+    setTimeout(() => {
+      navigate(currentPath, { replace: true });
+    }, 50);
+  };
 
   if (status !== 'finished') return null;
 
@@ -169,10 +184,7 @@ export function VictoryScreen() {
         </div>
 
         <button
-          onClick={() => {
-            reset();
-            window.location.reload();
-          }}
+          onClick={handlePlayAgain}
           className="w-full bg-white text-green-700 font-bold py-3 px-6 rounded-xl hover:bg-green-100 transition-colors pointer-events-auto"
         >
           PLAY AGAIN
@@ -200,7 +212,13 @@ export function PauseButton() {
 
 // Pause overlay
 export function PauseOverlay() {
+  const navigate = useNavigate();
   const { status, resumeGame, reset } = useGame();
+
+  const handleQuit = () => {
+    reset();
+    navigate('/');
+  };
 
   if (status !== 'paused') return null;
 
@@ -218,10 +236,7 @@ export function PauseOverlay() {
           </button>
 
           <button
-            onClick={() => {
-              reset();
-              window.location.href = '/';
-            }}
+            onClick={handleQuit}
             className="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-red-500 transition-colors pointer-events-auto"
           >
             QUIT

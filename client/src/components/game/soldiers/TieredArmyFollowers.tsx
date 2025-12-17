@@ -189,27 +189,22 @@ const TieredSoldierUnit = memo(function TieredSoldierUnit({
       currentPos.current.z
     );
 
-    // Shooting logic - higher tier soldiers shoot more frequently
+    // Shooting logic - simple: fire every 1 second
     if (!isEndGame && onFire) {
       const now = Date.now();
-      const config = WEAPON_CONFIGS[weaponTier];
-      const baseInterval = 1000 / config.fireRate;
-      const adjustedInterval = baseInterval / fireRateMultiplier;
+      const fireInterval = 1000; // 1 bullet per second, simple and clear
 
-      // Stagger based on soldier id
-      const staggerOffset = (soldier.id * 100) % adjustedInterval;
+      if (now - lastFireTime.current >= fireInterval) {
+        // Fire one bullet from this soldier
+        onFire(soldier.value, {
+          x: currentPos.current.x,
+          y: currentPos.current.y + 0.6, // At weapon height
+          z: currentPos.current.z + 0.3, // Slightly forward
+        });
+        lastFireTime.current = now;
 
-      if (now - lastFireTime.current >= adjustedInterval) {
-        // Fire multiple bullets proportional to soldier value
-        const bulletsToFire = Math.min(soldier.level, 3); // Max 3 bullets at once
-        for (let b = 0; b < bulletsToFire; b++) {
-          onFire(soldier.value, {
-            x: currentPos.current.x + (b - 1) * 0.15, // Spread bullets
-            y: currentPos.current.y,
-            z: currentPos.current.z,
-          });
-        }
-        lastFireTime.current = now - staggerOffset;
+        // Debug log
+        console.log(`Soldier ${soldier.id} fired! Value: ${soldier.value}`);
       }
     }
   });

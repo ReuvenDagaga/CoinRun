@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import TextWithShadow from '@/components/TextWithShadow';
 import CharacterSelector from '@/components/3d/CharacterSelector';
+import { useGameTransition } from '@/components/ui/GameTransitionGuard';
 
 // Background image path - can be customized
 const HOME_BACKGROUND_IMAGE = '/ui/home-bg.png';
@@ -56,11 +57,16 @@ export default function Home() {
   const navigate = useNavigate();
   const { user, powerLevel, purchaseUpgrade, getUpgradeCost, canAffordUpgrade } = useAuth();
   const [selectedMode, setSelectedMode] = useState<'solo' | '1v1'>('solo');
+  const { startGameTransition, completeTransition } = useGameTransition();
 
   if (!user) return null;
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    // Show loading screen during transition
+    await startGameTransition();
     navigate(`/game/${selectedMode}`);
+    // Complete transition after navigation
+    setTimeout(completeTransition, 500);
   };
 
   const handleUpgrade = async (type: string) => {

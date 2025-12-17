@@ -100,57 +100,54 @@ export default function PostGame() {
 
       {/* Main content - NO SCROLL, flex layout to fit content */}
       <div
-        className={`relative w-full max-w-md max-h-[70vh] flex flex-col overflow-hidden transform transition-all duration-700 ${
+        className={`relative w-full max-w-md flex flex-col overflow-hidden transform transition-all duration-700 ${
           isVisible ? 'scale-100 translate-y-0' : 'scale-90 translate-y-10'
         }`}
+        style={{ maxHeight: '70vh' }}
       >
-        {/* Header - shrinks proportionally */}
-        <div className="text-center flex-shrink-0" style={{ marginBottom: 'clamp(0.5rem, 2vh, 1rem)' }}>
+        {/* Header - compact */}
+        <div className="text-center flex-shrink-0" style={{ marginBottom: 'clamp(0.25rem, 1vh, 0.5rem)' }}>
           {isVictory ? (
             <>
-              <div className="animate-bounce flex justify-center" style={{ marginBottom: 'clamp(0.25rem, 1vh, 0.75rem)' }}>
-                <img src="/ui/icons/trophy.png" alt="Trophy" style={{ width: 'clamp(3rem, 8vh, 5rem)', height: 'clamp(3rem, 8vh, 5rem)' }} />
+              <div className="animate-bounce flex justify-center" style={{ marginBottom: 'clamp(0.125rem, 0.5vh, 0.25rem)' }}>
+                <img src="/ui/icons/trophy.png" alt="Trophy" style={{ width: 'clamp(2rem, 5vh, 3rem)', height: 'clamp(2rem, 5vh, 3rem)' }} />
               </div>
               <h1
                 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400"
                 style={{
-                  fontSize: 'clamp(1.5rem, 5vh, 2.5rem)',
+                  fontSize: 'clamp(1.25rem, 4vh, 2rem)',
                   textShadow: '0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.3)',
                 }}
               >
                 VICTORY!
               </h1>
               {rewardsBreakdown && rewardsBreakdown.stairsReached > 0 && (
-                <p className="text-yellow-200" style={{ fontSize: 'clamp(0.75rem, 2vh, 1rem)', marginTop: '0.25rem' }}>
+                <p className="text-yellow-200" style={{ fontSize: 'clamp(0.625rem, 1.5vh, 0.875rem)', marginTop: '0.125rem' }}>
                   Reached Stair {rewardsBreakdown.stairsReached}!
                 </p>
               )}
             </>
           ) : (
             <>
-              <div className="flex justify-center" style={{ marginBottom: 'clamp(0.25rem, 1vh, 0.75rem)' }}>
-                <img src="/ui/icons/skull.png" alt="Game Over" style={{ width: 'clamp(3rem, 8vh, 5rem)', height: 'clamp(3rem, 8vh, 5rem)' }} />
+              <div className="flex justify-center" style={{ marginBottom: 'clamp(0.125rem, 0.5vh, 0.25rem)' }}>
+                <img src="/ui/icons/skull.png" alt="Game Over" style={{ width: 'clamp(2rem, 5vh, 3rem)', height: 'clamp(2rem, 5vh, 3rem)' }} />
               </div>
-              <h1 className="font-bold text-white" style={{ fontSize: 'clamp(1.5rem, 5vh, 2.5rem)' }}>GAME OVER</h1>
-              <p className="text-gray-400" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)', marginTop: '0.25rem' }}>Better luck next time!</p>
+              <h1 className="font-bold text-white" style={{ fontSize: 'clamp(1.25rem, 4vh, 2rem)' }}>GAME OVER</h1>
+              <p className="text-gray-400" style={{ fontSize: 'clamp(0.6rem, 1.2vh, 0.75rem)', marginTop: '0.125rem' }}>Better luck next time!</p>
             </>
           )}
         </div>
 
-        {/* Stats card - flex-shrink to fit */}
+        {/* Stats card - compact */}
         <div
-          className="bg-black/50 backdrop-blur-md rounded-2xl border border-white/10 flex-shrink"
-          style={{ padding: 'clamp(0.75rem, 2vh, 1.5rem)', marginBottom: 'clamp(0.5rem, 1.5vh, 1rem)' }}
+          className="bg-black/50 backdrop-blur-md rounded-xl border border-white/10 flex-shrink"
+          style={{ padding: 'clamp(0.5rem, 1.5vh, 0.75rem)', marginBottom: 'clamp(0.25rem, 1vh, 0.5rem)' }}
         >
-          {/* Distance and Time */}
-          <div className="grid grid-cols-2" style={{ gap: 'clamp(0.5rem, 1.5vh, 1rem)', marginBottom: 'clamp(0.5rem, 1.5vh, 1rem)' }}>
+          {/* All stats in one row on larger screens, 2x2 on small */}
+          <div className="grid grid-cols-4 gap-1" style={{ gap: 'clamp(0.25rem, 0.75vh, 0.5rem)' }}>
             <StatBox label="Distance" value={`${Math.floor(result.distanceTraveled)}m`} />
             <StatBox label="Time" value={formatTime(result.timeTaken)} />
-          </div>
-
-          {/* Army and Score */}
-          <div className="grid grid-cols-2" style={{ gap: 'clamp(0.5rem, 1.5vh, 1rem)' }}>
-            <StatBox label="Army Size" value={result.maxArmy.toString()} iconSrc="/ui/icons/army.png" />
+            <StatBox label="Army" value={result.maxArmy.toString()} iconSrc="/ui/icons/army.png" />
             <StatBox label="Score" value={result.finalScore.toLocaleString()} iconSrc="/ui/icons/star.png" />
           </div>
         </div>
@@ -158,23 +155,23 @@ export default function PostGame() {
         {/* Rewards breakdown - flex-shrink to fit */}
         {rewardsBreakdown && <RewardsBreakdown breakdown={rewardsBreakdown} />}
 
-        {/* Action buttons - fixed height at bottom */}
-        <div className="flex flex-shrink-0" style={{ gap: 'clamp(0.5rem, 1.5vh, 1rem)', marginTop: 'clamp(0.5rem, 2vh, 1.5rem)' }}>
+        {/* Action buttons - compact */}
+        <div className="flex flex-shrink-0" style={{ gap: 'clamp(0.25rem, 1vh, 0.5rem)', marginTop: 'clamp(0.25rem, 1vh, 0.5rem)' }}>
           <button
             onClick={handlePlayAgain}
-            className={`flex-1 font-bold rounded-xl transition-all duration-200 ${
+            className={`flex-1 font-bold rounded-lg transition-all duration-200 ${
               isVictory
                 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-black hover:from-yellow-300 hover:to-orange-400 shadow-lg shadow-orange-500/30'
                 : 'bg-white text-gray-800 hover:bg-gray-100'
             }`}
-            style={{ padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1rem, 3vh, 1.5rem)', fontSize: 'clamp(0.875rem, 2vh, 1.125rem)' }}
+            style={{ padding: 'clamp(0.5rem, 1.5vh, 0.75rem) clamp(0.75rem, 2vh, 1rem)', fontSize: 'clamp(0.75rem, 1.75vh, 1rem)' }}
           >
             Play Again
           </button>
           <button
             onClick={handleQuit}
-            className="flex-1 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all duration-200 backdrop-blur-sm"
-            style={{ padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1rem, 3vh, 1.5rem)', fontSize: 'clamp(0.875rem, 2vh, 1.125rem)' }}
+            className="flex-1 bg-white/20 text-white font-bold rounded-lg hover:bg-white/30 transition-all duration-200 backdrop-blur-sm"
+            style={{ padding: 'clamp(0.5rem, 1.5vh, 0.75rem) clamp(0.75rem, 2vh, 1rem)', fontSize: 'clamp(0.75rem, 1.75vh, 1rem)' }}
           >
             Quit
           </button>
@@ -193,10 +190,10 @@ interface StatBoxProps {
 
 function StatBox({ label, value, iconSrc }: StatBoxProps) {
   return (
-    <div className="bg-white/10 rounded-xl text-center" style={{ padding: 'clamp(0.5rem, 1.5vh, 0.75rem)' }}>
-      <div className="text-white/60 uppercase tracking-wider" style={{ fontSize: 'clamp(0.6rem, 1.2vh, 0.75rem)', marginBottom: '0.25rem' }}>{label}</div>
-      <div className="text-white font-bold flex items-center justify-center" style={{ fontSize: 'clamp(0.875rem, 2.5vh, 1.25rem)', gap: '0.25rem' }}>
-        {iconSrc && <img src={iconSrc} alt="" style={{ width: 'clamp(1rem, 2vh, 1.25rem)', height: 'clamp(1rem, 2vh, 1.25rem)' }} />}
+    <div className="bg-white/10 rounded-lg text-center" style={{ padding: 'clamp(0.25rem, 1vh, 0.5rem)' }}>
+      <div className="text-white/60 uppercase tracking-wider" style={{ fontSize: 'clamp(0.5rem, 1vh, 0.625rem)', marginBottom: '0.125rem' }}>{label}</div>
+      <div className="text-white font-bold flex items-center justify-center" style={{ fontSize: 'clamp(0.7rem, 1.75vh, 0.9rem)', gap: '0.125rem' }}>
+        {iconSrc && <img src={iconSrc} alt="" style={{ width: 'clamp(0.75rem, 1.5vh, 1rem)', height: 'clamp(0.75rem, 1.5vh, 1rem)' }} />}
         {value}
       </div>
     </div>
@@ -257,16 +254,16 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
 
   return (
     <div
-      className={`bg-gradient-to-br from-yellow-900/40 to-orange-900/40 backdrop-blur-md rounded-2xl border border-yellow-500/20 transition-all duration-700 flex-shrink ${
+      className={`bg-gradient-to-br from-yellow-900/40 to-orange-900/40 backdrop-blur-md rounded-xl border border-yellow-500/20 transition-all duration-700 flex-shrink ${
         showDetails ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
-      style={{ padding: 'clamp(0.75rem, 2vh, 1.25rem)' }}
+      style={{ padding: 'clamp(0.5rem, 1.25vh, 0.75rem)' }}
     >
-      <h3 className="text-yellow-400 font-bold flex items-center" style={{ fontSize: 'clamp(0.875rem, 2vh, 1.125rem)', gap: '0.5rem', marginBottom: 'clamp(0.5rem, 1.5vh, 1rem)' }}>
-        <img src="/ui/Coin.png" alt="Coins" style={{ width: 'clamp(1rem, 2vh, 1.25rem)', height: 'clamp(1rem, 2vh, 1.25rem)' }} /> Rewards Breakdown
+      <h3 className="text-yellow-400 font-bold flex items-center" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)', gap: '0.25rem', marginBottom: 'clamp(0.25rem, 0.75vh, 0.5rem)' }}>
+        <img src="/ui/Coin.png" alt="Coins" style={{ width: 'clamp(0.75rem, 1.5vh, 1rem)', height: 'clamp(0.75rem, 1.5vh, 1rem)' }} /> Rewards
       </h3>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(0.25rem, 1vh, 0.75rem)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(0.125rem, 0.5vh, 0.25rem)' }}>
         {/* Coins collected */}
         <RewardRow
           label="Coins collected"
@@ -277,7 +274,7 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
         {/* Income multiplier */}
         {breakdown.incomeMultiplier > 1 && (
           <RewardRow
-            label={`Income bonus (x${breakdown.incomeMultiplier.toFixed(2)})`}
+            label={`Income (x${breakdown.incomeMultiplier.toFixed(2)})`}
             value={breakdown.coinsAfterIncome}
             isMultiplier
             delay={200}
@@ -287,7 +284,7 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
         {/* Stair multiplier */}
         {breakdown.stairMultiplier > 1 && (
           <RewardRow
-            label={`Stair bonus (x${breakdown.stairMultiplier.toFixed(1)})`}
+            label={`Stair (x${breakdown.stairMultiplier.toFixed(1)})`}
             value={breakdown.finalCoins}
             isMultiplier
             delay={400}
@@ -295,29 +292,21 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
         )}
 
         {/* Divider */}
-        <div className="border-t border-yellow-500/30" style={{ margin: 'clamp(0.25rem, 0.75vh, 0.5rem) 0' }} />
+        <div className="border-t border-yellow-500/30" style={{ margin: 'clamp(0.125rem, 0.5vh, 0.25rem) 0' }} />
 
-        {/* Final coins */}
+        {/* Final coins and diamonds in one row */}
         <div className="flex justify-between items-center">
-          <span className="text-yellow-300 font-bold" style={{ fontSize: 'clamp(0.875rem, 2vh, 1.125rem)' }}>Total Coins</span>
-          <span className="text-yellow-400 font-bold flex items-center" style={{ fontSize: 'clamp(1rem, 2.5vh, 1.5rem)', gap: '0.25rem' }}>
-            <img src="/ui/Coin.png" alt="Coins" style={{ width: 'clamp(1.25rem, 2.5vh, 1.5rem)', height: 'clamp(1.25rem, 2.5vh, 1.5rem)' }} />
+          <span className="text-yellow-300 font-bold flex items-center" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)', gap: '0.125rem' }}>
+            <img src="/ui/Coin.png" alt="Coins" style={{ width: 'clamp(0.875rem, 1.75vh, 1rem)', height: 'clamp(0.875rem, 1.75vh, 1rem)' }} />
             {breakdown.finalCoins.toLocaleString()}
           </span>
-        </div>
-
-        {/* Diamonds earned */}
-        {breakdown.diamondsEarned > 0 && (
-          <div className="flex justify-between items-center bg-purple-900/30 rounded-lg" style={{ marginTop: 'clamp(0.25rem, 0.75vh, 0.5rem)', padding: 'clamp(0.5rem, 1.25vh, 0.75rem)' }}>
-            <span className="text-purple-300 font-medium" style={{ fontSize: 'clamp(0.75rem, 1.5vh, 0.875rem)' }}>
-              Diamonds ({breakdown.stairsReached} stairs)
-            </span>
-            <span className="text-purple-400 font-bold flex items-center" style={{ fontSize: 'clamp(0.875rem, 2vh, 1.125rem)', gap: '0.25rem' }}>
-              <img src="/ui/Gem.png" alt="Gems" style={{ width: 'clamp(1rem, 2vh, 1.25rem)', height: 'clamp(1rem, 2vh, 1.25rem)' }} />
+          {breakdown.diamondsEarned > 0 && (
+            <span className="text-purple-400 font-bold flex items-center" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)', gap: '0.125rem' }}>
+              <img src="/ui/Gem.png" alt="Gems" style={{ width: 'clamp(0.875rem, 1.75vh, 1rem)', height: 'clamp(0.875rem, 1.75vh, 1rem)' }} />
               +{breakdown.diamondsEarned}
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -345,8 +334,8 @@ function RewardRow({ label, value, isMultiplier, delay }: RewardRowProps) {
         visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
       }`}
     >
-      <span className="text-white/70" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)' }}>{label}</span>
-      <span className={`font-semibold ${isMultiplier ? 'text-green-400' : 'text-white'}`} style={{ fontSize: 'clamp(0.75rem, 1.75vh, 1rem)' }}>
+      <span className="text-white/70" style={{ fontSize: 'clamp(0.55rem, 1.2vh, 0.7rem)' }}>{label}</span>
+      <span className={`font-semibold ${isMultiplier ? 'text-green-400' : 'text-white'}`} style={{ fontSize: 'clamp(0.6rem, 1.3vh, 0.75rem)' }}>
         {isMultiplier ? '= ' : ''}
         {value.toLocaleString()}
       </span>

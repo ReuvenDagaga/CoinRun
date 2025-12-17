@@ -2,8 +2,10 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGame } from '@/context';
+import { useAuth } from '@/hooks/useAuth';
 import { STAIR_CONSTANTS } from '@shared/types/game.types';
 import { TRACK_WIDTH, TRACK_LENGTH } from '../Track/config';
+import { CharacterModel } from '../characters';
 
 // Calculate stairs start position based on actual track length
 const STAIRS_START_Z = TRACK_LENGTH + 10; // 10m after track end
@@ -215,40 +217,43 @@ function NumberDisplay({ number, position, isReached }: NumberDisplayProps) {
   );
 }
 
-// Soldiers on stair representation
+// Soldiers on stair representation using actual CharacterModel
 interface SoldiersOnStairProps {
   count: number;
   stairWidth: number;
 }
 
 function SoldiersOnStair({ count, stairWidth }: SoldiersOnStairProps) {
+  const { user } = useAuth();
+  const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
+
   // Limit visual soldiers to prevent performance issues
-  const visualCount = Math.min(count, 20);
-  const rows = Math.ceil(visualCount / 5);
+  const visualCount = Math.min(count, 15);
 
   return (
-    <group position={[0, STAIR_CONSTANTS.STAIR_HEIGHT + 0.5, 0]}>
+    <group position={[0, STAIR_CONSTANTS.STAIR_HEIGHT + 0.3, 0]}>
       {Array.from({ length: visualCount }, (_, i) => {
         const row = Math.floor(i / 5);
         const col = i % 5;
-        const x = (col - 2) * 1.2;
-        const z = row * 1.0;
+        // Calculate position based on how many in this row
+        const soldiersInRow = Math.min(5, visualCount - row * 5);
+        const x = (col - (soldiersInRow - 1) / 2) * 1.0;
+        const z = row * 0.8;
 
         return (
-          <mesh key={i} position={[x, 0, z]}>
-            <capsuleGeometry args={[0.2, 0.6, 4, 8]} />
-            <meshStandardMaterial
-              color="#4a90d9"
-              emissive="#2a5090"
-              emissiveIntensity={0.2}
+          <group key={i} position={[x, 0, z]}>
+            <CharacterModel
+              skinId={currentSkin}
+              animation="idle"
+              scale={0.9}
             />
-          </mesh>
+          </group>
         );
       })}
       {/* Show count badge if more than visual soldiers */}
       {count > visualCount && (
-        <mesh position={[0, 1.5, 0]}>
-          <sphereGeometry args={[0.5, 16, 16]} />
+        <mesh position={[0, 2, 0]}>
+          <sphereGeometry args={[0.4, 16, 16]} />
           <meshStandardMaterial color="#FF4444" emissive="#FF0000" emissiveIntensity={0.5} />
         </mesh>
       )}

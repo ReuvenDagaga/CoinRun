@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
+import { generateTrackLayout } from './TrackLayoutManager';
 
 // Loading screen component
 interface LoadingScreenProps {
@@ -94,19 +95,11 @@ export interface PreloadedData {
 
 interface GameLoaderProps {
   onLoadComplete: (data: PreloadedData) => void;
-  generateEnemies: (trackLength: number) => any[];
-  generateGates: (trackLength: number) => any[];
-  generateCoins: (trackLength: number) => any[];
-  generateSoldiers: (trackLength: number) => any[];
   trackLength: number;
 }
 
 export function GameLoader({
   onLoadComplete,
-  generateEnemies,
-  generateGates,
-  generateCoins,
-  generateSoldiers,
   trackLength,
 }: GameLoaderProps) {
   const [progress, setProgress] = useState(0);
@@ -114,39 +107,37 @@ export function GameLoader({
   const [shaderWarmedUp, setShaderWarmedUp] = useState(false);
   const [preloadedData, setPreloadedData] = useState<PreloadedData | null>(null);
 
-  // Pre-generate all game data
+  // Pre-generate all game data using smart placement system
   useEffect(() => {
     const loadData = async () => {
-      // Step 1: Generate enemies (20%)
-      setMessage('Generating obstacles...');
+      setMessage('Generating track layout...');
+      setProgress(10);
       await new Promise(resolve => setTimeout(resolve, 50));
-      const enemies = generateEnemies(trackLength);
-      setProgress(20);
 
-      // Step 2: Generate gates (40%)
-      setMessage('Generating gates...');
+      // Use the smart placement system to generate everything together
+      setMessage('Placing gates and obstacles...');
+      setProgress(30);
       await new Promise(resolve => setTimeout(resolve, 50));
-      const gates = generateGates(trackLength);
-      setProgress(40);
 
-      // Step 3: Generate coins (60%)
-      setMessage('Generating coins...');
-      await new Promise(resolve => setTimeout(resolve, 50));
-      const coins = generateCoins(trackLength);
-      setProgress(60);
+      const layout = generateTrackLayout(trackLength);
+      setProgress(70);
 
-      // Step 4: Generate soldiers (80%)
-      setMessage('Generating soldiers...');
+      setMessage('Finalizing placement...');
       await new Promise(resolve => setTimeout(resolve, 50));
-      const soldiers = generateSoldiers(trackLength);
+
+      setPreloadedData({
+        enemies: layout.enemies,
+        gates: layout.gates,
+        coins: layout.coins,
+        soldiers: layout.soldiers,
+      });
+
       setProgress(80);
-
-      setPreloadedData({ enemies, gates, coins, soldiers });
       setMessage('Warming up shaders...');
     };
 
     loadData();
-  }, [generateEnemies, generateGates, generateCoins, generateSoldiers, trackLength]);
+  }, [trackLength]);
 
   // Handle shader warmup complete
   const handleShaderWarmup = useCallback(() => {
@@ -224,40 +215,6 @@ export class DeadSoldierPool {
 
   get active(): number {
     return this.activeCount;
-  }
-}
-
-// Object pool for projectiles
-export class ProjectilePool {
-  private pool: any[] = [];
-  private activeCount = 0;
-  private maxSize: number;
-
-  constructor(maxSize: number = 20) {
-    this.maxSize = maxSize;
-  }
-
-  acquire(data: any): any {
-    if (this.pool.length > 0) {
-      const item = this.pool.pop();
-      Object.assign(item, data);
-      this.activeCount++;
-      return item;
-    }
-    this.activeCount++;
-    return { ...data };
-  }
-
-  release(item: any): void {
-    if (this.pool.length < this.maxSize) {
-      this.pool.push(item);
-    }
-    this.activeCount--;
-  }
-
-  clear(): void {
-    this.pool = [];
-    this.activeCount = 0;
   }
 }
 

@@ -7,13 +7,12 @@ import Track from './Track/Track';
 import Environment from './Track/Environment/Environment';
 import GameCamera from './GameCamera';
 import { FPSDisplay } from './FPSMonitor';
-import { SoldierPickups, generateSoldiers, SoldierPickupData } from './SoldierPickup';
+import { SoldierPickups, SoldierPickupData } from './SoldierPickup';
 import { ArmyFollowers, BoulderCollision } from './ArmyFollowers';
 import { GatesRenderer } from './Track/Environment/Gates';
 import {
   SimpleGateType,
   GateData,
-  generateGates,
   SPEED_EFFECT_DURATION,
   SPEED_BOOST_MULTIPLIER,
   SPEED_SLOW_MULTIPLIER,
@@ -25,20 +24,20 @@ import {
   REVERSE_CONTROLS_DURATION,
   SHRINK_DURATION,
   EnemyData,
-  generateEnemies,
 } from './Track/Environment/types';
 import { EnemiesRenderer } from './Track/Environment/Enemies';
 import type { DeathInfo } from './Track/Environment/Enemies';
 import { DeadSoldiersRenderer, DeadSoldierData } from './DeadSoldier';
-import { CoinsRenderer, CoinData, generateCoins } from './coin';
+import { CoinsRenderer, CoinData } from './coin';
 import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';
 import { CLIENT_CONSTANTS } from '@/utils/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';
+import { generateTrackLayout } from './TrackLayoutManager';
 
-// Simple track data for core mechanics
-const TRACK_LENGTH = 800;
+// Track length increased to 2000 meters
+const TRACK_LENGTH = 2000;
 
 // Loading phases
 type LoadingPhase = 'loading' | 'ready' | 'playing';
@@ -428,10 +427,6 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       <div className="w-full h-full touch-none relative">
         <GameLoader
           onLoadComplete={handleLoadComplete}
-          generateEnemies={generateEnemies}
-          generateGates={generateGates}
-          generateCoins={generateCoins}
-          generateSoldiers={generateSoldiers}
           trackLength={TRACK_LENGTH}
         />
       </div>

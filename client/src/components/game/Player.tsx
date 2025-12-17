@@ -57,8 +57,8 @@ export default function Player({ boulders = [] }: PlayerProps) {
 
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
-  // Base speed reduced by 30% (was 25, now 17.5)
-  const FORWARD_SPEED = 17.5;
+  // Base speed reduced by 30% again (was 17.5, now 12.25)
+  const FORWARD_SPEED = 12.25;
   const HORIZONTAL_SPEED = 8;
   const SMOOTH_FACTOR = 0.15;
   const TRACK_HALF_WIDTH = GAME_CONSTANTS.TRACK_HALF_WIDTH;

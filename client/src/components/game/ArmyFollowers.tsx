@@ -1,12 +1,14 @@
-import { useRef, memo, useState, useEffect } from 'react';
+import { useRef, memo, useState, useEffect, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 import { CharacterModel, CharacterModelRef } from './characters';
 import { GROUND_Y, getAnimationFromSpeed } from './Player';
-import { STAIR_CONSTANTS } from '@shared/types/game.types';
+import { STAIR_CONSTANTS, GAME_CONSTANTS } from '@shared/types/game.types';
 import { TRACK_LENGTH } from './Track/config';
+import { WeaponModel } from './weapons/WeaponModel';
+import { WeaponTier, WEAPON_CONFIGS, getWeaponTier, BulletData, BULLET_Y_OFFSET } from './weapons/types';
 
 // Calculate stairs start position based on actual track length
 const STAIRS_START_Z = TRACK_LENGTH + 10;
@@ -138,6 +140,8 @@ interface ArmySoldierProps {
   isEndGame: boolean;
   currentClimbedStair: number;
   soldiersRemaining: number;
+  weaponTier: WeaponTier;
+  onFire?: (soldierIndex: number, position: { x: number; y: number; z: number }) => void;
 }
 
 const ArmySoldier = memo(function ArmySoldier({
@@ -150,15 +154,21 @@ const ArmySoldier = memo(function ArmySoldier({
   isEndGame,
   currentClimbedStair,
   soldiersRemaining,
+  weaponTier,
+  onFire,
 }: ArmySoldierProps) {
   const groupRef = useRef<THREE.Group>(null);
   const characterRef = useRef<CharacterModelRef>(null);
   const lastAnimState = useRef(getAnimationFromSpeed(speedMultiplier));
+  const lastFireTime = useRef(0);
 
   // Each soldier has a unique animation phase offset and wobble frequency
   const animPhaseOffset = seededRandom(index * 23 + 7) * Math.PI * 2;
   const wobbleFrequency = 1.5 + seededRandom(index * 31 + 11) * 1.0; // 1.5-2.5 Hz
   const wobbleAmplitude = 0.02 + seededRandom(index * 37 + 13) * 0.02; // 0.02-0.04 units
+
+  // Stagger fire times so not all soldiers fire at once
+  const fireTimeOffset = seededRandom(index * 41 + 19) * 1000; // 0-1 second offset
 
   const currentPos = useRef({
     x: playerX,
@@ -242,6 +252,23 @@ const ArmySoldier = memo(function ArmySoldier({
       currentPos.current.y,
       currentPos.current.z
     );
+
+    // Shooting logic - only during gameplay, not endgame or on stairs
+    if (!isEndGame && !isConsumedByStair && onFire) {
+      const now = Date.now();
+      const config = WEAPON_CONFIGS[weaponTier];
+      const fireInterval = 1000 / config.fireRate; // Convert rate to interval in ms
+
+      // Check if enough time has passed (with staggered offset)
+      if (now - lastFireTime.current >= fireInterval + fireTimeOffset) {
+        onFire(index, {
+          x: currentPos.current.x,
+          y: currentPos.current.y,
+          z: currentPos.current.z,
+        });
+        lastFireTime.current = now - fireTimeOffset; // Reset timer (subtract offset so next fire is at proper interval)
+      }
+    }
   });
 
   return (
@@ -252,6 +279,10 @@ const ArmySoldier = memo(function ArmySoldier({
         animation={isConsumedByStair ? 'idle' : getAnimationFromSpeed(speedMultiplier)}
         scale={1}
       />
+      {/* Weapon attached to right hand position */}
+      <group position={[0.25, 0.5, 0.15]} rotation={[0, 0, -0.3]}>
+        <WeaponModel tier={weaponTier} />
+      </group>
     </group>
   );
 });
@@ -259,14 +290,21 @@ const ArmySoldier = memo(function ArmySoldier({
 interface ArmyFollowersProps {
   armySize: number;
   boulders?: BoulderCollision[];
+  weaponTier?: WeaponTier;
+  onBulletFire?: (bullet: BulletData) => void;
+  playerSpeed?: number;
 }
 
 export const ArmyFollowers = memo(function ArmyFollowers({
   armySize,
   boulders = [],
+  weaponTier = 1,
+  onBulletFire,
+  playerSpeed = GAME_CONSTANTS.BASE_SPEED,
 }: ArmyFollowersProps) {
   const { player, status, speedMultiplier, endGameState } = useGame();
   const { user } = useAuth();
+  const bulletIdCounter = useRef(0);
 
   // Gradually animate to target army size to prevent frame freeze
   const [displayedArmySize, setDisplayedArmySize] = useState(0);
@@ -302,6 +340,38 @@ export const ArmyFollowers = memo(function ArmyFollowers({
   const currentClimbedStair = endGameState?.currentStair || 0;
   const soldiersRemaining = endGameState?.soldiersRemaining || armySize;
 
+  // Handle bullet firing from soldiers
+  const handleSoldierFire = useCallback(
+    (soldierIndex: number, position: { x: number; y: number; z: number }) => {
+      if (!onBulletFire) return;
+
+      const config = WEAPON_CONFIGS[weaponTier];
+      const bulletSpeed = playerSpeed * speedMultiplier * config.bulletSpeed;
+
+      const bullet: BulletData = {
+        id: `bullet-${bulletIdCounter.current++}`,
+        position: {
+          x: position.x,
+          y: position.y + BULLET_Y_OFFSET,
+          z: position.z,
+        },
+        velocity: {
+          x: 0,
+          y: 0,
+          z: bulletSpeed, // Forward direction
+        },
+        damage: config.damage,
+        size: config.bulletSize,
+        color: config.bulletColor,
+        sourceIndex: soldierIndex,
+        createdAt: Date.now(),
+      };
+
+      onBulletFire(bullet);
+    },
+    [onBulletFire, weaponTier, playerSpeed, speedMultiplier]
+  );
+
   if (displayedArmySize <= 0) return null;
   // Now also render during 'endgame' status to show soldiers on stairs
   if (status !== 'playing' && status !== 'countdown' && status !== 'finished' && status !== 'endgame') return null;
@@ -320,6 +390,8 @@ export const ArmyFollowers = memo(function ArmyFollowers({
           isEndGame={isEndGame}
           currentClimbedStair={currentClimbedStair}
           soldiersRemaining={soldiersRemaining}
+          weaponTier={weaponTier}
+          onFire={status === 'playing' ? handleSoldierFire : undefined}
         />
       ))}
     </group>

@@ -14,10 +14,12 @@ interface CharacterModelProps {
   skinId?: string;
   animation?: AnimationState;
   scale?: number;
+  holdingWeapon?: boolean;
+  rightHandItem?: React.ReactNode;
 }
 
 const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
-  ({ skinId = 'default', animation = 'idle', scale = 1 }, ref) => {
+  ({ skinId = 'default', animation = 'idle', scale = 1, holdingWeapon = false, rightHandItem }, ref) => {
     const rigRef = useRef<CharacterRigRef>(null);
 
     const config = getSkinConfig(skinId);
@@ -39,6 +41,8 @@ const CharacterModel = forwardRef<CharacterModelRef, CharacterModelProps>(
         config={config}
         animation={animation}
         scale={scale}
+        holdingWeapon={holdingWeapon}
+        rightHandItem={rightHandItem}
       />
     );
   }

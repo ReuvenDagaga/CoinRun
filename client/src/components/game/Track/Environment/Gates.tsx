@@ -79,6 +79,62 @@ interface GateProps {
   playerX: number;
   playerZ: number;
   status: string;
+  enhancement: number;
+}
+
+// Calculate enhanced label based on gate type and enhancement count
+function getEnhancedLabel(gateType: SimpleGateType, enhancement: number): string {
+  const baseConfig = GATE_CONFIGS[gateType];
+
+  if (enhancement === 0) return baseConfig.label;
+
+  switch (gateType) {
+    case SimpleGateType.ADD_SOLDIERS:
+      return `+${5 + enhancement}`;
+    case SimpleGateType.SUBTRACT_SOLDIERS:
+      const sub3Val = -3 + enhancement;
+      return sub3Val >= 0 ? `+${sub3Val}` : `${sub3Val}`;
+    case SimpleGateType.MULTIPLY_SOLDIERS:
+      return `x${2 + enhancement}`;
+    case SimpleGateType.DIVIDE_SOLDIERS:
+      const div2Val = Math.max(1, 2 - enhancement);
+      return div2Val > 1 ? `÷${div2Val}` : 'x1';
+    case SimpleGateType.SPEED_BOOST:
+      return `SPEED +${50 + enhancement * 10}%`;
+    case SimpleGateType.SLOW_DOWN:
+      if (enhancement >= 5) return `SPEED +${(enhancement - 5) * 10}%`;
+      return `SLOW -${50 - enhancement * 10}%`;
+    case SimpleGateType.SHIELD:
+      return `SHIELD +${enhancement}`;
+    case SimpleGateType.MAGNET:
+      return `MAGNET +${enhancement}`;
+    case SimpleGateType.GIANT:
+      return `GIANT +${enhancement}`;
+    case SimpleGateType.SUPER_SLOW:
+      if (enhancement >= 8) return `SPEED +${(enhancement - 8) * 5}%`;
+      return `FREEZE -${80 - enhancement * 10}%`;
+    case SimpleGateType.SUBTRACT_SOLDIERS_5:
+      const sub5Val = -5 + enhancement;
+      return sub5Val >= 0 ? `+${sub5Val}` : `${sub5Val}`;
+    case SimpleGateType.SUBTRACT_SOLDIERS_10:
+      const sub10Val = -10 + enhancement;
+      return sub10Val >= 0 ? `+${sub10Val}` : `${sub10Val}`;
+    case SimpleGateType.DIVIDE_SOLDIERS_3:
+      const div3Val = Math.max(1, 3 - enhancement);
+      return div3Val > 1 ? `÷${div3Val}` : 'x1';
+    case SimpleGateType.REVERSE_CONTROLS:
+      const reverseTime = Math.max(0, 5 - enhancement * 0.5);
+      return reverseTime > 0 ? `REVERSE ${reverseTime.toFixed(1)}s` : 'SKIP';
+    case SimpleGateType.SHRINK:
+      const shrinkTime = Math.max(0, 5 - enhancement * 0.5);
+      return shrinkTime > 0 ? `SHRINK ${shrinkTime.toFixed(1)}s` : 'SKIP';
+    case SimpleGateType.DOUBLE_POINTS:
+      return `2x PTS +${enhancement}s`;
+    case SimpleGateType.WEAPON_POWER:
+      return `POWER +${2 + enhancement}`;
+    default:
+      return baseConfig.label;
+  }
 }
 
 // Use primitive props to ensure memo works correctly
@@ -91,7 +147,8 @@ const SingleGate = memo(function SingleGate({
   armySize,
   playerX,
   playerZ,
-  status
+  status,
+  enhancement
 }: GateProps) {
   const groupRef = useRef<THREE.Group>(null);
   const isTriggeredRef = useRef(false);
@@ -355,10 +412,10 @@ const SingleGate = memo(function SingleGate({
       <Text
         ref={textRef}
         position={[0, baseY + GATE_HEIGHT / 2, 0.2]}
-        fontSize={0.9}
+        fontSize={enhancement > 0 ? 1.0 : 0.9}
         maxWidth={GATE_WIDTH - PILLAR_WIDTH * 2 - 0.5}
         textAlign="center"
-        color="#FFFFFF"
+        color={enhancement > 0 ? '#00FF00' : '#FFFFFF'}
         anchorX="center"
         anchorY="middle"
         outlineWidth={0.06}
@@ -369,7 +426,7 @@ const SingleGate = memo(function SingleGate({
         lineHeight={1.2}
         font="/fonts/LilitaOne-Regular.ttf"
       >
-        {config.label}
+        {getEnhancedLabel(gateType, enhancement)}
       </Text>
 
       {/* Ground plane */}
@@ -412,12 +469,14 @@ interface GatesProps {
   gates: GateData[];
   onGateTrigger: (gateId: string, gateType: SimpleGateType) => void;
   armySize: number;
+  gateEnhancements?: Map<string, number>;
 }
 
 export const GatesRenderer = memo(function GatesRenderer({
   gates,
   onGateTrigger,
   armySize,
+  gateEnhancements,
 }: GatesProps) {
   const { player, status } = useGame();
 
@@ -456,6 +515,7 @@ export const GatesRenderer = memo(function GatesRenderer({
           playerX={player.position.x}
           playerZ={player.position.z}
           status={status}
+          enhancement={gateEnhancements?.get(gate.id) || 0}
         />
       ))}
     </group>

@@ -14,10 +14,10 @@ export const GAME_CONSTANTS = {
   LANE_COUNT: 3,
   LANE_WIDTH: 3,
 
-  // Player - Increased speed for faster gameplay
-  BASE_SPEED: 50,             // Changed from 10 - 5x faster!
-  HORIZONTAL_SPEED: 15,       // New: Horizontal movement speed (m/s)
-  BASE_JUMP_HEIGHT: 3,        // Increased for faster gameplay
+  // Player - Balanced speed for enjoyable gameplay
+  BASE_SPEED: 18,             // Balanced base speed (reduced from 50)
+  HORIZONTAL_SPEED: 12,       // Horizontal movement speed (m/s)
+  BASE_JUMP_HEIGHT: 2.5,      // Jump height
   BASE_MAX_ARMY: 30,
   BASE_STARTING_ARMY: 1,
 
@@ -32,7 +32,7 @@ export const GAME_CONSTANTS = {
   COLLISION_RADIUS: 1,
 
   // Shooting system
-  BULLET_SPEED: 80,           // Bullets travel at 80 m/s
+  BULLET_SPEED: 45,           // Bullets travel at 45 m/s (2.5x base speed)
   BULLET_FIRE_RATE: 1,        // 1 bullet per second per soldier
   BASE_BULLET_DAMAGE: 10,     // Base damage per bullet
 

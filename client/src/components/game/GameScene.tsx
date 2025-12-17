@@ -23,7 +23,10 @@ import {
   GIANT_DURATION,
   REVERSE_CONTROLS_DURATION,
   SHRINK_DURATION,
+  WEAPON_POWER_DURATION,
+  WEAPON_POWER_BASE_BOOST,
   EnemyData,
+  GATE_WIDTH,
 } from './Track/Environment/types';
 import { EnemiesRenderer } from './Track/Environment/Enemies';
 import type { DeathInfo } from './Track/Environment/Enemies';
@@ -35,6 +38,9 @@ import { CLIENT_CONSTANTS } from '@/utils/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';
 import { generateTrackLayout } from './TrackLayoutManager';
+import { BulletSystem } from './weapons/BulletSystem';
+import { BulletData, BULLET_LIFETIME, getWeaponTier, WeaponTier, WEAPON_CONFIGS } from './weapons/types';
+import { getPlayerSpeed, GAME_CONSTANTS } from '@shared/types/game.types';
 
 // End game components
 import { FinishGate, Stairs, StairClimbController, EndGameCamera, Confetti } from './EndGame';
@@ -104,6 +110,24 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   // Get current skin for dead soldiers
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
+  // Bullets state
+  const [bullets, setBullets] = useState<BulletData[]>([]);
+
+  // Boulder health tracking (10 hits to destroy)
+  const boulderHealthRef = useRef<Map<string, number>>(new Map());
+
+  // Gate enhancement tracking (how much each gate has been improved by bullets)
+  const gateEnhancementsRef = useRef<Map<string, number>>(new Map());
+
+  // Weapon system state
+  const bulletPowerLevel = user?.upgrades?.bulletPower || 0;
+  const weaponTier = getWeaponTier(bulletPowerLevel) as WeaponTier;
+  const [temporaryWeaponBoost, setTemporaryWeaponBoost] = useState(0);
+  const effectiveWeaponTier = Math.min(10, weaponTier + Math.floor(temporaryWeaponBoost)) as WeaponTier;
+
+  // Player speed calculation
+  const playerSpeed = getPlayerSpeed(user?.upgrades?.speed || 0);
+
   // Handle preloaded data from GameLoader
   const handleLoadComplete = useCallback((data: PreloadedData) => {
     const seed = trackSeed || `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -134,6 +158,12 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     setGates(data.gates);
     setCoins(data.coins);
     setEnemies(data.enemies);
+
+    // Reset bullet system
+    setBullets([]);
+    boulderHealthRef.current.clear();
+    gateEnhancementsRef.current.clear();
+    setTemporaryWeaponBoost(0);
 
     // Transition to ready phase
     setLoadingPhase('ready');
@@ -168,12 +198,17 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
       updateTime(delta);
 
+      // Update bullets
+      if (status === 'playing') {
+        updateBullets(delta);
+      }
+
       animationId = requestAnimationFrame(gameLoop);
     };
 
     animationId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationId);
-  }, [status, updateTime]);
+  }, [status, updateTime, updateBullets]);
 
   // Handle soldier collection
   const handleSoldierCollect = useCallback((soldierId: string) => {
@@ -201,58 +236,108 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     // The SingleGate component manages its own visual state via isTriggeredRef
     triggeredGateIds.current.add(gateId);
 
-    // Apply gate effect
+    // Get bullet enhancements for this gate
+    const enhancement = gateEnhancementsRef.current.get(gateId) || 0;
+
+    // Apply gate effect with enhancements
     switch (gateType) {
       case SimpleGateType.ADD_SOLDIERS:
-        addSoldiers(5);
+        // Base +5, +1 per bullet hit
+        addSoldiers(5 + enhancement);
         break;
       case SimpleGateType.SUBTRACT_SOLDIERS:
-        addSoldiers(-3);
+        // Base -3, +1 per bullet (becomes -2, -1, 0, +1, etc.)
+        addSoldiers(-3 + enhancement);
         break;
       case SimpleGateType.MULTIPLY_SOLDIERS:
-        multiplyArmy(2);
+        // Base x2, +1 per bullet (becomes x3, x4, etc.)
+        multiplyArmy(2 + enhancement);
         break;
       case SimpleGateType.DIVIDE_SOLDIERS:
-        divideArmy(2);
+        // Base ÷2, -1 per bullet (÷1 = no effect)
+        const divisor = Math.max(1, 2 - enhancement);
+        if (divisor > 1) divideArmy(divisor);
         break;
       case SimpleGateType.SPEED_BOOST:
-        setSpeedMultiplier(SPEED_BOOST_MULTIPLIER, 'boost', SPEED_EFFECT_DURATION);
+        // Stronger boost per bullet (+10% per bullet)
+        const boostMultiplier = SPEED_BOOST_MULTIPLIER + (enhancement * 0.1);
+        setSpeedMultiplier(boostMultiplier, 'boost', SPEED_EFFECT_DURATION + (enhancement * 500));
         break;
       case SimpleGateType.SLOW_DOWN:
-        setSpeedMultiplier(SPEED_SLOW_MULTIPLIER, 'slow', SPEED_EFFECT_DURATION);
+        // Convert toward speed boost with enough bullets
+        if (enhancement >= 5) {
+          // Converted to speed boost
+          setSpeedMultiplier(1 + ((enhancement - 5) * 0.1), 'boost', SPEED_EFFECT_DURATION);
+        } else {
+          // Less slow
+          const slowMultiplier = SPEED_SLOW_MULTIPLIER + (enhancement * 0.1);
+          setSpeedMultiplier(slowMultiplier, 'slow', SPEED_EFFECT_DURATION);
+        }
         break;
       case SimpleGateType.SHIELD:
-        activateShield(SHIELD_DURATION);
+        // Longer duration per bullet (+500ms per bullet)
+        activateShield(SHIELD_DURATION + (enhancement * 500));
         break;
       case SimpleGateType.DOUBLE_POINTS:
-        activateDoublePoints(DOUBLE_POINTS_DURATION);
+        // Higher multiplier would need separate handling, just increase duration
+        activateDoublePoints(DOUBLE_POINTS_DURATION + (enhancement * 1000));
         break;
       case SimpleGateType.MAGNET:
-        activateMagnet(MAGNET_DURATION);
+        // Longer duration per bullet
+        activateMagnet(MAGNET_DURATION + (enhancement * 500));
         break;
       case SimpleGateType.GIANT:
-        activateGiant(GIANT_DURATION);
+        // Longer duration per bullet
+        activateGiant(GIANT_DURATION + (enhancement * 500));
         break;
       // Additional negative gates
       case SimpleGateType.SUPER_SLOW:
-        setSpeedMultiplier(SUPER_SLOW_MULTIPLIER, 'slow', SPEED_EFFECT_DURATION);
+        // Convert toward speed boost with enough bullets
+        if (enhancement >= 8) {
+          setSpeedMultiplier(1 + ((enhancement - 8) * 0.05), 'boost', SPEED_EFFECT_DURATION);
+        } else {
+          const superSlowMultiplier = SUPER_SLOW_MULTIPLIER + (enhancement * 0.1);
+          setSpeedMultiplier(superSlowMultiplier, 'slow', SPEED_EFFECT_DURATION);
+        }
         break;
       case SimpleGateType.SUBTRACT_SOLDIERS_5:
-        addSoldiers(-5);
+        addSoldiers(-5 + enhancement);
         break;
       case SimpleGateType.SUBTRACT_SOLDIERS_10:
-        addSoldiers(-10);
+        addSoldiers(-10 + enhancement);
         break;
       case SimpleGateType.DIVIDE_SOLDIERS_3:
-        divideArmy(3);
+        const divisor3 = Math.max(1, 3 - enhancement);
+        if (divisor3 > 1) divideArmy(divisor3);
         break;
       case SimpleGateType.REVERSE_CONTROLS:
-        activateReverseControls(REVERSE_CONTROLS_DURATION);
+        // Reduce duration with bullets, or skip entirely
+        const reverseDuration = Math.max(0, REVERSE_CONTROLS_DURATION - (enhancement * 500));
+        if (reverseDuration > 0) {
+          activateReverseControls(reverseDuration);
+        }
         break;
       case SimpleGateType.SHRINK:
-        activateShrink(SHRINK_DURATION);
+        // Reduce duration with bullets
+        const shrinkDuration = Math.max(0, SHRINK_DURATION - (enhancement * 500));
+        if (shrinkDuration > 0) {
+          activateShrink(shrinkDuration);
+        }
+        break;
+      case SimpleGateType.WEAPON_POWER:
+        // Temporary weapon power boost
+        // Base boost + 1 per bullet enhancement
+        const weaponBoost = WEAPON_POWER_BASE_BOOST + enhancement;
+        setTemporaryWeaponBoost(prev => Math.min(9, prev + weaponBoost));
+        // Schedule boost removal after duration (+ 500ms per bullet)
+        setTimeout(() => {
+          setTemporaryWeaponBoost(0);
+        }, WEAPON_POWER_DURATION + (enhancement * 500));
         break;
     }
+
+    // Clear enhancement after use
+    gateEnhancementsRef.current.delete(gateId);
 
     // Haptic feedback for gates
     if (isVibrationEnabled) {
@@ -279,6 +364,104 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       vibrate(5);
     }
   }, [collectCoin, isVibrationEnabled]);
+
+  // Handle bullet fired by soldier
+  const handleBulletFire = useCallback((bullet: BulletData) => {
+    setBullets(prev => [...prev, bullet]);
+  }, []);
+
+  // Update bullets and check collisions
+  const updateBullets = useCallback((delta: number) => {
+    const now = Date.now();
+
+    setBullets(prev => {
+      const bulletsToRemove = new Set<string>();
+      const updatedBullets: BulletData[] = [];
+
+      for (const bullet of prev) {
+        // Update position
+        const newBullet = {
+          ...bullet,
+          position: {
+            x: bullet.position.x + bullet.velocity.x * delta,
+            y: bullet.position.y + bullet.velocity.y * delta,
+            z: bullet.position.z + bullet.velocity.z * delta,
+          },
+        };
+
+        // Check lifetime
+        if (now - bullet.createdAt > BULLET_LIFETIME) {
+          continue;
+        }
+
+        // Check if bullet is behind player
+        if (newBullet.position.z < player.position.z - 20) {
+          continue;
+        }
+
+        // Check if bullet is way too far ahead
+        if (newBullet.position.z > player.position.z + 200) {
+          continue;
+        }
+
+        // Check collision with gates (improve them)
+        let hitGate = false;
+        for (const gate of gates) {
+          if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
+
+          const distX = Math.abs(newBullet.position.x - gate.position.x);
+          const distZ = Math.abs(newBullet.position.z - gate.position.z);
+
+          if (distX < GATE_WIDTH / 2 && distZ < 1.5 && Math.abs(newBullet.position.y - 1) < 3) {
+            // Hit gate - enhance it
+            const currentEnhancement = gateEnhancementsRef.current.get(gate.id) || 0;
+            gateEnhancementsRef.current.set(gate.id, currentEnhancement + 1);
+            hitGate = true;
+            break;
+          }
+        }
+
+        if (hitGate) {
+          continue;
+        }
+
+        // Check collision with boulders (damage them)
+        let hitBoulder = false;
+        for (const enemy of enemies) {
+          if (enemy.type !== 'boulder') continue;
+
+          const dx = newBullet.position.x - enemy.position.x;
+          const dz = newBullet.position.z - enemy.position.z;
+          const dist = Math.sqrt(dx * dx + dz * dz);
+
+          if (dist < (enemy as BoulderData).radius + 0.3) {
+            // Hit boulder
+            const currentHealth = boulderHealthRef.current.get(enemy.id);
+            if (currentHealth === undefined) {
+              boulderHealthRef.current.set(enemy.id, 10 - 1); // 10 hits to destroy, minus this hit
+            } else if (currentHealth > 1) {
+              boulderHealthRef.current.set(enemy.id, currentHealth - 1);
+            } else {
+              // Boulder destroyed - remove it
+              setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== enemy.id));
+              boulderHealthRef.current.delete(enemy.id);
+            }
+            hitBoulder = true;
+            break;
+          }
+        }
+
+        if (hitBoulder) {
+          continue;
+        }
+
+        // Bullet didn't hit anything, keep it
+        updatedBullets.push(newBullet);
+      }
+
+      return updatedBullets;
+    });
+  }, [player.position.z, gates, enemies]);
 
   // Helper to create a dead soldier with ragdoll physics
   const createDeadSoldier = useCallback((
@@ -498,6 +681,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           currentTime={gameTimeRef.current}
         />
 
+        {/* Bullets */}
+        <BulletSystem bullets={bullets} />
+
         {/* Soldier pickups on track */}
         <SoldierPickups
           soldiers={soldiers}
@@ -506,7 +692,13 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         {/* Army following player (snake formation) - hide during endgame */}
         {status !== 'endgame' && (
-          <ArmyFollowers armySize={armySize} boulders={boulderCollisions} />
+          <ArmyFollowers
+            armySize={armySize}
+            boulders={boulderCollisions}
+            weaponTier={effectiveWeaponTier}
+            onBulletFire={handleBulletFire}
+            playerSpeed={playerSpeed}
+          />
         )}
 
         {/* Player with smooth movement - hide during endgame */}

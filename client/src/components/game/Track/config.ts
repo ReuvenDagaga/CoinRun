@@ -1,5 +1,5 @@
-export const TRACK_LENGTH = 500; // Temporary: shortened for testing
-export const SEGMENT_COUNT = 10; // Reduced segments for shorter track
+export const TRACK_LENGTH = 1000; // 1000m track
+export const SEGMENT_COUNT = 10; // 10 segments for 1000m track (100m each)
 export const SEGMENT_LENGTH = TRACK_LENGTH / SEGMENT_COUNT;
 export const TRACK_WIDTH = 10;
 

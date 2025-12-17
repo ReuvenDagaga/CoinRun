@@ -2,9 +2,9 @@
 
 export const GAME_CONSTANTS = {
   // Track - Updated for faster gameplay
-  TRACK_LENGTH: 800,          // Changed from 2000 - ~40-60 seconds gameplay
-  SECTION_COUNT: 6,           // Changed from 10
-  SECTION_LENGTH: 130,        // Changed from 200 - ~8-10 seconds per section
+  TRACK_LENGTH: 1000,         // 1000m track
+  SECTION_COUNT: 10,          // 10 sections for 1000m track
+  SECTION_LENGTH: 100,        // 100m per section
 
   // New: Free movement track (no lanes)
   TRACK_WIDTH: 10,            // 10m wide track (-5m to +5m)

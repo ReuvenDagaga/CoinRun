@@ -3,9 +3,6 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TRACK_LENGTH, TRACK_WIDTH } from './config';
 
-const CHECKER_SIZE = 0.5;
-const FLAG_WIDTH = 8;
-const FLAG_HEIGHT = 6;
 const FINISH_OFFSET = 5;
 
 export default function FinishLine() {
@@ -22,7 +19,6 @@ export default function FinishLine() {
     <group position={[0, 0, finishZ]}>
       <GroundLine />
       <FlagPoles />
-      <CheckeredBanner ref={flagRef} />
       <PoleTopSpheres />
     </group>
   );
@@ -59,62 +55,7 @@ function FlagPoles() {
 
 import { forwardRef } from 'react';
 
-const CheckeredBanner = forwardRef<THREE.Group>((_, ref) => {
-  const rows = Math.floor(FLAG_HEIGHT / CHECKER_SIZE);
-  const cols = Math.floor(FLAG_WIDTH / CHECKER_SIZE);
 
-  return (
-    <group ref={ref} position={[0, 6, 0]}>
-      {/* Removed black background - only thin frame border now */}
-      {/* Top border */}
-      <mesh position={[0, FLAG_HEIGHT / 2 + 0.15, -0.05]}>
-        <boxGeometry args={[FLAG_WIDTH + 0.4, 0.2, 0.1]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
-      {/* Bottom border */}
-      <mesh position={[0, -FLAG_HEIGHT / 2 - 0.15, -0.05]}>
-        <boxGeometry args={[FLAG_WIDTH + 0.4, 0.2, 0.1]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
-      {/* Left border */}
-      <mesh position={[-FLAG_WIDTH / 2 - 0.15, 0, -0.05]}>
-        <boxGeometry args={[0.2, FLAG_HEIGHT + 0.4, 0.1]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
-      {/* Right border */}
-      <mesh position={[FLAG_WIDTH / 2 + 0.15, 0, -0.05]}>
-        <boxGeometry args={[0.2, FLAG_HEIGHT + 0.4, 0.1]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
-
-      {Array.from({ length: rows * cols }, (_, i) => {
-        const row = Math.floor(i / cols);
-        const col = i % cols;
-        const isBlack = (row + col) % 2 === 0;
-        const x = (col - cols / 2 + 0.5) * CHECKER_SIZE;
-        const y = (row - rows / 2 + 0.5) * CHECKER_SIZE;
-
-        return (
-          <mesh key={`checker-${i}`} position={[x, y, 0]}>
-            <boxGeometry args={[CHECKER_SIZE - 0.02, CHECKER_SIZE - 0.02, 0.12]} />
-            <meshStandardMaterial
-              color={isBlack ? '#000000' : '#ffffff'}
-              emissive={isBlack ? '#000000' : '#333333'}
-              emissiveIntensity={0.2}
-            />
-          </mesh>
-        );
-      })}
-
-      <mesh position={[0, -FLAG_HEIGHT / 2 - 0.8, 0]}>
-        <boxGeometry args={[4, 1, 0.2]} />
-        <meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.5} />
-      </mesh>
-    </group>
-  );
-});
-
-CheckeredBanner.displayName = 'CheckeredBanner';
 
 function PoleTopSpheres() {
   const sphereProps = {

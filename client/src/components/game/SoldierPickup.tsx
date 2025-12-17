@@ -5,6 +5,7 @@ import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 import { CharacterModel } from './characters';
 import { GROUND_Y } from './Player';
+import { CHUNK_CONFIG, buildChunkIndex, getObjectsFromChunks } from './utils/ChunkManager';
 
 export interface SoldierPickupData {
   id: string;
@@ -89,16 +90,37 @@ export const SoldierPickups = memo(function SoldierPickups({
   onCollect,
 }: SoldierPickupsProps) {
   const { user } = useAuth();
+  const { player } = useGame();
 
   const currentSkin = user?.currentSkin || user?.ownedSkins?.[0] || 'default';
 
-  const activeSoldiers = useMemo(() => {
-    return soldiers.filter((s) => !s.isCollected);
+  // Build spatial index once when soldiers change
+  const chunkIndex = useMemo(() => {
+    return buildChunkIndex(soldiers);
   }, [soldiers]);
+
+  // Only recompute visible soldiers when player moves significantly (every 10 units)
+  const playerZBucket = Math.floor(player.position.z / 10) * 10;
+
+  // Get visible soldiers using chunk-based spatial query
+  const visibleSoldiers = useMemo(() => {
+    const chunkedSoldiers = getObjectsFromChunks(chunkIndex, player.position.z);
+
+    // Filter to exact render window and uncollected
+    const minZ = player.position.z - CHUNK_CONFIG.RENDER_BEHIND;
+    const maxZ = player.position.z + CHUNK_CONFIG.RENDER_AHEAD;
+
+    return chunkedSoldiers.filter(
+      (s) =>
+        !s.isCollected &&
+        s.position.z >= minZ &&
+        s.position.z <= maxZ
+    );
+  }, [chunkIndex, playerZBucket, player.position.z, soldiers]);
 
   return (
     <group>
-      {activeSoldiers.map((soldier) => (
+      {visibleSoldiers.map((soldier) => (
         <SingleSoldier
           key={soldier.id}
           soldier={soldier}

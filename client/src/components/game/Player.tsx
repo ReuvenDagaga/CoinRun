@@ -5,6 +5,7 @@ import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 import { GAME_CONSTANTS } from '@shared/types/game.types';
 import { CharacterModel, CharacterModelRef, AnimationState } from './characters';
+import { TRACK_LENGTH } from './Track/config';
 
 function lerp(start: number, end: number, factor: number): number {
   return start + (end - start) * factor;
@@ -26,7 +27,6 @@ export interface BoulderCollision {
 
 export const playerPath: PathPoint[] = [];
 
-const TRACK_LENGTH = 800;
 export const GROUND_Y = 0.5;
 
 // Boulder collision speed reduction

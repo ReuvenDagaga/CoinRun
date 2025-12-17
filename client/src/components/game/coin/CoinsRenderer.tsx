@@ -1,14 +1,15 @@
-import { memo, useMemo, Suspense } from 'react';
+import { memo, useMemo, useRef, Suspense, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGame } from '@/context';
 import CoinModel from './CoinModel';
 import { CoinData, COLLECTION_RADIUS } from './coinTypes';
+import { CHUNK_CONFIG, buildChunkIndex, getObjectsFromChunks } from '../utils/ChunkManager';
 
 // New tighter, organic formation constants (must match ArmyFollowers.tsx)
 const SOLDIERS_PER_ROW = 3;
-const SPACING_X = 0.8; // Reduced from 1.2 - much tighter
-const SPACING_Z = 1.0; // Reduced from 1.5 - closer together
-const BACK_OFFSET = -1.5; // Closer to player
+const SPACING_X = 0.8;
+const SPACING_Z = 1.0;
+const BACK_OFFSET = -1.5;
 
 // Seeded random for consistent randomization per soldier
 function seededRandom(seed: number): number {
@@ -24,17 +25,14 @@ function getArmyPosition(
   const row = Math.floor(index / SOLDIERS_PER_ROW);
   const col = index % SOLDIERS_PER_ROW;
 
-  // Base position in tighter grid
   const baseXOffset = (col - (SOLDIERS_PER_ROW - 1) / 2) * SPACING_X;
   const baseZOffset = BACK_OFFSET - row * SPACING_Z;
 
-  // Add seeded random offsets for organic feel (must match ArmyFollowers.tsx)
   const seedX = index * 7 + 13;
   const seedZ = index * 11 + 17;
-  const randomXOffset = (seededRandom(seedX) - 0.5) * 0.6; // ±0.3 units
-  const randomZOffset = (seededRandom(seedZ) - 0.5) * 0.4; // ±0.2 units
+  const randomXOffset = (seededRandom(seedX) - 0.5) * 0.6;
+  const randomZOffset = (seededRandom(seedZ) - 0.5) * 0.4;
 
-  // Soldiers closer to front are more centered, back rows spread wider
   const rowSpreadMultiplier = 1 + row * 0.1;
   const adjustedXOffset = baseXOffset * rowSpreadMultiplier;
 
@@ -77,7 +75,9 @@ const SingleCoinWrapper = memo(function SingleCoinWrapper({
       return;
     }
 
-    for (let i = 0; i < armySize; i++) {
+    // Only check first 20 soldiers for performance
+    const soldiersToCheck = Math.min(armySize, 20);
+    for (let i = 0; i < soldiersToCheck; i++) {
       const soldierPos = getArmyPosition(i, playerX, playerZ);
       if (checkCollision(soldierPos.x, soldierPos.z)) {
         collected.current = true;
@@ -95,8 +95,6 @@ const SingleCoinWrapper = memo(function SingleCoinWrapper({
   );
 });
 
-import { useRef } from 'react';
-
 interface CoinsRendererProps {
   coins: CoinData[];
   onCoinCollect: (coinId: string) => void;
@@ -110,16 +108,43 @@ export const CoinsRenderer = memo(function CoinsRenderer({
 }: CoinsRendererProps) {
   const { player } = useGame();
 
+  // Build spatial index once when coins change
+  const chunkIndex = useMemo(() => {
+    return buildChunkIndex(coins);
+  }, [coins]);
+
+  // Track collected coin IDs for fast lookup
+  const collectedIds = useRef(new Set<string>());
+
+  // Update collected IDs when coins change
+  useEffect(() => {
+    collectedIds.current.clear();
+    for (const coin of coins) {
+      if (coin.isCollected) {
+        collectedIds.current.add(coin.id);
+      }
+    }
+  }, [coins]);
+
+  // Get visible coins using chunk-based spatial query
+  // Only recompute when player moves significantly (every 10 units)
+  const playerZBucket = Math.floor(player.position.z / 10) * 10;
+
   const visibleCoins = useMemo(() => {
-    const playerZ = player.position.z;
-    const viewDistance = 80;
-    return coins.filter(
+    const chunkedCoins = getObjectsFromChunks(chunkIndex, player.position.z);
+
+    // Filter to exact render window and uncollected
+    const minZ = player.position.z - CHUNK_CONFIG.RENDER_BEHIND;
+    const maxZ = player.position.z + CHUNK_CONFIG.RENDER_AHEAD;
+
+    return chunkedCoins.filter(
       (c) =>
         !c.isCollected &&
-        c.position.z > playerZ - 15 &&
-        c.position.z < playerZ + viewDistance
+        !collectedIds.current.has(c.id) &&
+        c.position.z >= minZ &&
+        c.position.z <= maxZ
     );
-  }, [coins, player.position.z]);
+  }, [chunkIndex, playerZBucket, player.position.z]);
 
   return (
     <Suspense fallback={null}>

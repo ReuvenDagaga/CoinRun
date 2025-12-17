@@ -11,6 +11,7 @@ import {
   GATE_HEIGHT,
 } from './types';
 import { GROUND_Y } from '../../Player';
+import { CHUNK_CONFIG, buildChunkIndex, getObjectsFromChunks } from '../../utils/ChunkManager';
 
 const PILLAR_WIDTH = 0.5;
 const PILLAR_DEPTH = 0.5;
@@ -420,9 +421,30 @@ export const GatesRenderer = memo(function GatesRenderer({
 }: GatesProps) {
   const { player, status } = useGame();
 
+  // Build spatial index once when gates change
+  const chunkIndex = useMemo(() => {
+    return buildChunkIndex(gates);
+  }, [gates]);
+
+  // Only recompute visible gates when player moves significantly (every 10 units)
+  const playerZBucket = Math.floor(player.position.z / 10) * 10;
+
+  // Get visible gates using chunk-based spatial query
+  const visibleGates = useMemo(() => {
+    const chunkedGates = getObjectsFromChunks(chunkIndex, player.position.z);
+
+    // Filter to exact render window
+    const minZ = player.position.z - CHUNK_CONFIG.RENDER_BEHIND;
+    const maxZ = player.position.z + CHUNK_CONFIG.RENDER_AHEAD;
+
+    return chunkedGates.filter(
+      (g) => g.position.z >= minZ && g.position.z <= maxZ
+    );
+  }, [chunkIndex, playerZBucket, player.position.z]);
+
   return (
     <group>
-      {gates.map((gate) => (
+      {visibleGates.map((gate) => (
         <SingleGate
           key={gate.id}
           gateId={gate.id}

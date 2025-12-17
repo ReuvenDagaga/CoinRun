@@ -1,4 +1,4 @@
-import { useRef, memo, useCallback } from 'react';
+import { useRef, memo, useCallback, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGame } from '@/context';
 import { EnemySpinner } from './EnemySpinner';
@@ -14,6 +14,7 @@ import {
   FIST_ARM_LENGTH,
 } from '../types';
 import { GROUND_Y } from '../../../Player';
+import { CHUNK_CONFIG, buildChunkIndex, getObjectsFromChunks } from '../../../utils/ChunkManager';
 
 // Formation constants for army position calculation
 const SOLDIERS_PER_ROW = 3;
@@ -301,10 +302,26 @@ export const EnemiesRenderer = memo(function EnemiesRenderer({
     [onSoldiersKill]
   );
 
-  // Filter visible enemies (only render enemies within view distance)
-  const visibleEnemies = enemies.filter(
-    (enemy) => Math.abs(enemy.position.z - player.position.z) < 100
-  );
+  // Build spatial index once when enemies change
+  const chunkIndex = useMemo(() => {
+    return buildChunkIndex(enemies);
+  }, [enemies]);
+
+  // Only recompute visible enemies when player moves significantly (every 10 units)
+  const playerZBucket = Math.floor(player.position.z / 10) * 10;
+
+  // Get visible enemies using chunk-based spatial query
+  const visibleEnemies = useMemo(() => {
+    const chunkedEnemies = getObjectsFromChunks(chunkIndex, player.position.z);
+
+    // Filter to exact render window
+    const minZ = player.position.z - CHUNK_CONFIG.RENDER_BEHIND;
+    const maxZ = player.position.z + CHUNK_CONFIG.RENDER_AHEAD;
+
+    return chunkedEnemies.filter(
+      (e) => e.position.z >= minZ && e.position.z <= maxZ
+    );
+  }, [chunkIndex, playerZBucket, player.position.z]);
 
   // Separate enemies by type
   const spinners = visibleEnemies.filter((e): e is SpinnerData => e.type === 'spinner');

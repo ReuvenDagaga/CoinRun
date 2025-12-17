@@ -62,7 +62,7 @@ export default function HUD() {
         {/* Coin counter - below main stats */}
         <div className="mt-2 flex justify-start">
           <div className="bg-yellow-600/70 px-4 py-2 rounded-lg flex items-center gap-2">
-            <span className="text-2xl">💰</span>
+            <img src="/ui/Coin.png" alt="Coins" className="w-6 h-6" />
             <span className="text-yellow-100 text-xl font-bold">{player.coinsCollected}</span>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function HUD() {
                   : 'bg-red-500/80'
               }`}
             >
-              {activeSpeedEffect.type === 'boost' ? '⚡ SPEED BOOST!' : '🐢 SLOWED!'}
+              {activeSpeedEffect.type === 'boost' ? 'SPEED BOOST!' : 'SLOWED!'}
               <span className="ml-2 text-sm opacity-80">
                 {speedMultiplier > 1 ? `+${Math.round((speedMultiplier - 1) * 100)}%` : `-${Math.round((1 - speedMultiplier) * 100)}%`}
               </span>
@@ -155,7 +155,7 @@ export function VictoryScreen() {
           <div className="bg-yellow-600/30 rounded-lg p-3">
             <div className="text-yellow-200 text-sm">Coins Collected</div>
             <div className="text-white text-2xl font-bold flex items-center justify-center gap-2">
-              <span>💰</span>
+              <img src="/ui/Coin.png" alt="Coins" className="w-6 h-6" />
               <span>{result?.coinsCollected || 0}</span>
             </div>
           </div>

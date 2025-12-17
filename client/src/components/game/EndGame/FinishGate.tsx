@@ -91,14 +91,29 @@ export default function FinishGate() {
       {/* Checkered banner */}
       <CheckeredBanner />
 
-      {/* "FINISH" text backing */}
-      <mesh position={[0, GATE_HEIGHT - 1.5, 0.2]}>
-        <boxGeometry args={[6, 1.5, 0.3]} />
-        <meshStandardMaterial
-          color={DARK_COLOR}
-          emissive="#000"
-        />
-      </mesh>
+      {/* "FINISH" text frame - transparent center */}
+      <group position={[0, GATE_HEIGHT - 1.5, 0.2]}>
+        {/* Top border */}
+        <mesh position={[0, 0.65, 0]}>
+          <boxGeometry args={[6, 0.2, 0.15]} />
+          <meshStandardMaterial color={GOLD_COLOR} emissive={GOLD_EMISSIVE} emissiveIntensity={0.3} metalness={0.8} roughness={0.2} />
+        </mesh>
+        {/* Bottom border */}
+        <mesh position={[0, -0.65, 0]}>
+          <boxGeometry args={[6, 0.2, 0.15]} />
+          <meshStandardMaterial color={GOLD_COLOR} emissive={GOLD_EMISSIVE} emissiveIntensity={0.3} metalness={0.8} roughness={0.2} />
+        </mesh>
+        {/* Left border */}
+        <mesh position={[-2.9, 0, 0]}>
+          <boxGeometry args={[0.2, 1.5, 0.15]} />
+          <meshStandardMaterial color={GOLD_COLOR} emissive={GOLD_EMISSIVE} emissiveIntensity={0.3} metalness={0.8} roughness={0.2} />
+        </mesh>
+        {/* Right border */}
+        <mesh position={[2.9, 0, 0]}>
+          <boxGeometry args={[0.2, 1.5, 0.15]} />
+          <meshStandardMaterial color={GOLD_COLOR} emissive={GOLD_EMISSIVE} emissiveIntensity={0.3} metalness={0.8} roughness={0.2} />
+        </mesh>
+      </group>
 
       {/* Decorative star on top */}
       <group ref={starRef} position={[0, GATE_HEIGHT + 1.5, 0]}>
@@ -154,9 +169,21 @@ function CheckeredBanner() {
 
   return (
     <group position={[0, GATE_HEIGHT - 4, 0.1]}>
-      {/* Banner background */}
-      <mesh position={[0, 0, -0.1]}>
-        <boxGeometry args={[BANNER_WIDTH + 0.4, BANNER_HEIGHT + 0.4, 0.15]} />
+      {/* Banner frame - thin border only, no solid blocking */}
+      <mesh position={[0, BANNER_HEIGHT / 2 + 0.15, -0.05]}>
+        <boxGeometry args={[BANNER_WIDTH + 0.4, 0.2, 0.1]} />
+        <meshStandardMaterial color={DARK_COLOR} />
+      </mesh>
+      <mesh position={[0, -BANNER_HEIGHT / 2 - 0.15, -0.05]}>
+        <boxGeometry args={[BANNER_WIDTH + 0.4, 0.2, 0.1]} />
+        <meshStandardMaterial color={DARK_COLOR} />
+      </mesh>
+      <mesh position={[-BANNER_WIDTH / 2 - 0.15, 0, -0.05]}>
+        <boxGeometry args={[0.2, BANNER_HEIGHT + 0.4, 0.1]} />
+        <meshStandardMaterial color={DARK_COLOR} />
+      </mesh>
+      <mesh position={[BANNER_WIDTH / 2 + 0.15, 0, -0.05]}>
+        <boxGeometry args={[0.2, BANNER_HEIGHT + 0.4, 0.1]} />
         <meshStandardMaterial color={DARK_COLOR} />
       </mesh>
 

@@ -9,8 +9,11 @@ import { TRACK_LENGTH } from '../Track/config';
 const APPROACH_CAMERA_OFFSET = { x: 0, y: 8, z: -15 };
 const STAIR_CAMERA_OFFSET = { x: 8, y: 6, z: -8 };
 const CELEBRATION_CAMERA_OFFSET = { x: 0, y: 12, z: -18 };
-const CAMERA_LERP_SPEED = 2;
-const CAMERA_LOOK_LERP_SPEED = 3;
+// Slower lerp speeds for smoother camera movement
+const CAMERA_LERP_SPEED = 0.8;
+const CAMERA_LOOK_LERP_SPEED = 1.2;
+// Minimum delta to prevent micro-jitters
+const MIN_MOVE_THRESHOLD = 0.001;
 
 interface EndGameCameraProps {
   enabled?: boolean;
@@ -69,12 +72,18 @@ export default function EndGameCamera({ enabled = true }: EndGameCameraProps) {
         break;
     }
 
-    // Smoothly interpolate camera position
-    state.currentPosition.lerp(state.targetPosition, CAMERA_LERP_SPEED * delta);
-    camera.position.copy(state.currentPosition);
+    // Smoothly interpolate camera position with easing
+    const posLerpFactor = smoothstep(CAMERA_LERP_SPEED * delta);
+    state.currentPosition.lerp(state.targetPosition, posLerpFactor);
 
-    // Smoothly interpolate look-at target
-    state.currentLookAt.lerp(state.targetLookAt, CAMERA_LOOK_LERP_SPEED * delta);
+    // Only update if moved significantly (prevents micro-jitter)
+    if (state.currentPosition.distanceTo(camera.position) > MIN_MOVE_THRESHOLD) {
+      camera.position.copy(state.currentPosition);
+    }
+
+    // Smoothly interpolate look-at target with easing
+    const lookLerpFactor = smoothstep(CAMERA_LOOK_LERP_SPEED * delta);
+    state.currentLookAt.lerp(state.targetLookAt, lookLerpFactor);
     camera.lookAt(state.currentLookAt);
 
     // Update context with camera state
@@ -179,4 +188,12 @@ function handleCelebrationCamera(
     stairY + 3,
     stairZ
   );
+}
+
+// Smoothstep easing function for smoother camera transitions
+function smoothstep(t: number): number {
+  // Clamp to valid range
+  const x = Math.max(0, Math.min(1, t));
+  // Smooth interpolation curve
+  return x * x * (3 - 2 * x);
 }

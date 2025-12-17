@@ -71,7 +71,7 @@ export default function Leaderboard() {
         {/* 2nd place */}
         <div className="w-24">
           <div className="bg-gray-700 rounded-t-xl p-2 text-center h-24 flex flex-col justify-end">
-            <div className="text-3xl mb-1">🥈</div>
+            <img src="/ui/leaderboard/silver.png" alt="2nd" className="w-8 h-8 mx-auto mb-1" />
             <p className="text-white text-sm font-semibold truncate">{leaderboard[1]?.username}</p>
             <p className="text-gray-400 text-xs">{leaderboard[1]?.score.toLocaleString()}</p>
           </div>
@@ -80,7 +80,7 @@ export default function Leaderboard() {
         {/* 1st place */}
         <div className="w-28">
           <div className="bg-yellow-500/20 border-2 border-yellow-500 rounded-t-xl p-2 text-center h-32 flex flex-col justify-end">
-            <div className="text-4xl mb-1">👑</div>
+            <img src="/ui/leaderboard/gold.png" alt="1st" className="w-10 h-10 mx-auto mb-1" />
             <p className="text-yellow-400 font-bold truncate">{leaderboard[0]?.username}</p>
             <p className="text-yellow-300 text-sm">{leaderboard[0]?.score.toLocaleString()}</p>
           </div>
@@ -89,7 +89,7 @@ export default function Leaderboard() {
         {/* 3rd place */}
         <div className="w-24">
           <div className="bg-gray-700 rounded-t-xl p-2 text-center h-20 flex flex-col justify-end">
-            <div className="text-2xl mb-1">🥉</div>
+            <img src="/ui/leaderboard/bronze.png" alt="3rd" className="w-7 h-7 mx-auto mb-1" />
             <p className="text-white text-sm font-semibold truncate">{leaderboard[2]?.username}</p>
             <p className="text-gray-400 text-xs">{leaderboard[2]?.score.toLocaleString()}</p>
           </div>
@@ -128,21 +128,35 @@ export default function Leaderboard() {
       <div className="mt-6 card bg-gradient-to-r from-yellow-500/20 to-orange-500/20">
         <h3 className="text-white font-semibold mb-2">Daily Rewards</h3>
         <div className="space-y-1 text-sm">
-          <p className="flex justify-between">
-            <span className="text-yellow-400">🥇 #1</span>
-            <span className="text-white">5,000 💰 + 200 💎</span>
+          <p className="flex justify-between items-center">
+            <span className="text-yellow-400 flex items-center gap-1">
+              <img src="/ui/leaderboard/gold.png" alt="#1" className="w-4 h-4" /> #1
+            </span>
+            <span className="text-white flex items-center gap-1">
+              5,000 <img src="/ui/Coin.png" alt="coins" className="w-4 h-4" /> + 200 <img src="/ui/Gem.png" alt="gems" className="w-4 h-4" />
+            </span>
           </p>
-          <p className="flex justify-between">
-            <span className="text-gray-300">🥈 #2</span>
-            <span className="text-white">3,000 💰 + 150 💎</span>
+          <p className="flex justify-between items-center">
+            <span className="text-gray-300 flex items-center gap-1">
+              <img src="/ui/leaderboard/silver.png" alt="#2" className="w-4 h-4" /> #2
+            </span>
+            <span className="text-white flex items-center gap-1">
+              3,000 <img src="/ui/Coin.png" alt="coins" className="w-4 h-4" /> + 150 <img src="/ui/Gem.png" alt="gems" className="w-4 h-4" />
+            </span>
           </p>
-          <p className="flex justify-between">
-            <span className="text-orange-400">🥉 #3</span>
-            <span className="text-white">2,000 💰 + 100 💎</span>
+          <p className="flex justify-between items-center">
+            <span className="text-orange-400 flex items-center gap-1">
+              <img src="/ui/leaderboard/bronze.png" alt="#3" className="w-4 h-4" /> #3
+            </span>
+            <span className="text-white flex items-center gap-1">
+              2,000 <img src="/ui/Coin.png" alt="coins" className="w-4 h-4" /> + 100 <img src="/ui/Gem.png" alt="gems" className="w-4 h-4" />
+            </span>
           </p>
-          <p className="flex justify-between">
+          <p className="flex justify-between items-center">
             <span className="text-gray-400">#4-10</span>
-            <span className="text-white">1,000 💰 + 50 💎</span>
+            <span className="text-white flex items-center gap-1">
+              1,000 <img src="/ui/Coin.png" alt="coins" className="w-4 h-4" /> + 50 <img src="/ui/Gem.png" alt="gems" className="w-4 h-4" />
+            </span>
           </p>
         </div>
       </div>

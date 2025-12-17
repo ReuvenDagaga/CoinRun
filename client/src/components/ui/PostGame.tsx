@@ -100,17 +100,19 @@ export default function PostGame() {
 
       {/* Main content */}
       <div
-        className={`relative w-full max-w-md transform transition-all duration-700 ${
+        className={`relative w-full max-w-md max-h-[70vh] overflow-y-auto transform transition-all duration-700 ${
           isVisible ? 'scale-100 translate-y-0' : 'scale-90 translate-y-10'
         }`}
       >
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           {isVictory ? (
             <>
-              <div className="text-8xl mb-4 animate-bounce">🏆</div>
+              <div className="mb-3 animate-bounce flex justify-center">
+                <img src="/ui/icons/trophy.png" alt="Trophy" className="w-20 h-20" />
+              </div>
               <h1
-                className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400"
+                className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400"
                 style={{
                   textShadow: '0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.3)',
                 }}
@@ -118,16 +120,18 @@ export default function PostGame() {
                 VICTORY!
               </h1>
               {rewardsBreakdown && rewardsBreakdown.stairsReached > 0 && (
-                <p className="text-yellow-200 mt-2 text-lg">
+                <p className="text-yellow-200 mt-1 text-base">
                   Reached Stair {rewardsBreakdown.stairsReached}!
                 </p>
               )}
             </>
           ) : (
             <>
-              <div className="text-8xl mb-4">💀</div>
-              <h1 className="text-5xl font-bold text-white">GAME OVER</h1>
-              <p className="text-gray-400 mt-2">Better luck next time!</p>
+              <div className="mb-3 flex justify-center">
+                <img src="/ui/icons/skull.png" alt="Game Over" className="w-20 h-20" />
+              </div>
+              <h1 className="text-4xl font-bold text-white">GAME OVER</h1>
+              <p className="text-gray-400 mt-1">Better luck next time!</p>
             </>
           )}
         </div>
@@ -142,8 +146,8 @@ export default function PostGame() {
 
           {/* Army and Score */}
           <div className="grid grid-cols-2 gap-4">
-            <StatBox label="Army Size" value={result.maxArmy.toString()} icon="👥" />
-            <StatBox label="Score" value={result.finalScore.toLocaleString()} icon="⭐" />
+            <StatBox label="Army Size" value={result.maxArmy.toString()} iconSrc="/ui/icons/army.png" />
+            <StatBox label="Score" value={result.finalScore.toLocaleString()} iconSrc="/ui/icons/star.png" />
           </div>
         </div>
 
@@ -178,15 +182,15 @@ export default function PostGame() {
 interface StatBoxProps {
   label: string;
   value: string;
-  icon?: string;
+  iconSrc?: string;
 }
 
-function StatBox({ label, value, icon }: StatBoxProps) {
+function StatBox({ label, value, iconSrc }: StatBoxProps) {
   return (
     <div className="bg-white/10 rounded-xl p-3 text-center">
       <div className="text-white/60 text-xs uppercase tracking-wider mb-1">{label}</div>
-      <div className="text-white text-2xl font-bold flex items-center justify-center gap-2">
-        {icon && <span>{icon}</span>}
+      <div className="text-white text-xl font-bold flex items-center justify-center gap-2">
+        {iconSrc && <img src={iconSrc} alt="" className="w-5 h-5" />}
         {value}
       </div>
     </div>
@@ -252,7 +256,7 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
       }`}
     >
       <h3 className="text-yellow-400 font-bold text-lg mb-4 flex items-center gap-2">
-        <span>💰</span> Rewards Breakdown
+        <img src="/ui/Coin.png" alt="Coins" className="w-5 h-5" /> Rewards Breakdown
       </h3>
 
       <div className="space-y-3">
@@ -290,7 +294,7 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
         <div className="flex justify-between items-center">
           <span className="text-yellow-300 font-bold text-lg">Total Coins</span>
           <span className="text-yellow-400 font-bold text-2xl flex items-center gap-1">
-            <span>🪙</span>
+            <img src="/ui/Coin.png" alt="Coins" className="w-6 h-6" />
             {breakdown.finalCoins.toLocaleString()}
           </span>
         </div>
@@ -302,7 +306,7 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
               Diamonds ({breakdown.stairsReached} stairs)
             </span>
             <span className="text-purple-400 font-bold text-xl flex items-center gap-1">
-              <span>💎</span>
+              <img src="/ui/Gem.png" alt="Gems" className="w-5 h-5" />
               +{breakdown.diamondsEarned}
             </span>
           </div>

@@ -65,8 +65,25 @@ const CheckeredBanner = forwardRef<THREE.Group>((_, ref) => {
 
   return (
     <group ref={ref} position={[0, 6, 0]}>
-      <mesh position={[0, 0, -0.05]}>
-        <boxGeometry args={[FLAG_WIDTH + 0.4, FLAG_HEIGHT + 0.4, 0.1]} />
+      {/* Removed black background - only thin frame border now */}
+      {/* Top border */}
+      <mesh position={[0, FLAG_HEIGHT / 2 + 0.15, -0.05]}>
+        <boxGeometry args={[FLAG_WIDTH + 0.4, 0.2, 0.1]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      {/* Bottom border */}
+      <mesh position={[0, -FLAG_HEIGHT / 2 - 0.15, -0.05]}>
+        <boxGeometry args={[FLAG_WIDTH + 0.4, 0.2, 0.1]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      {/* Left border */}
+      <mesh position={[-FLAG_WIDTH / 2 - 0.15, 0, -0.05]}>
+        <boxGeometry args={[0.2, FLAG_HEIGHT + 0.4, 0.1]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      {/* Right border */}
+      <mesh position={[FLAG_WIDTH / 2 + 0.15, 0, -0.05]}>
+        <boxGeometry args={[0.2, FLAG_HEIGHT + 0.4, 0.1]} />
         <meshStandardMaterial color="#1a1a1a" />
       </mesh>
 

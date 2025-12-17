@@ -16,6 +16,10 @@ const STAIRS_START_Z = TRACK_LENGTH + 10;
 // Maximum soldiers to add per frame to prevent freeze
 const MAX_SOLDIERS_PER_FRAME = 5;
 
+// Performance optimization: only a fraction of soldiers fire each second
+// With 100 soldiers, only ~10 will fire per second to keep bullets manageable
+const MAX_FIRING_SOLDIERS_PER_SECOND = 10;
+
 function lerp(start: number, end: number, factor: number): number {
   return start + (end - start) * factor;
 }
@@ -167,8 +171,11 @@ const ArmySoldier = memo(function ArmySoldier({
   const wobbleFrequency = 1.5 + seededRandom(index * 31 + 11) * 1.0; // 1.5-2.5 Hz
   const wobbleAmplitude = 0.02 + seededRandom(index * 37 + 13) * 0.02; // 0.02-0.04 units
 
-  // Stagger fire times so not all soldiers fire at once
-  const fireTimeOffset = seededRandom(index * 41 + 19) * 1000; // 0-1 second offset
+  // Stagger fire times significantly so soldiers fire in waves
+  // With 100 soldiers and fireRate of 1/sec, spread over full second
+  const fireTimeOffset = (index % MAX_FIRING_SOLDIERS_PER_SECOND) * (1000 / MAX_FIRING_SOLDIERS_PER_SECOND);
+  // Additional random jitter to avoid synchronized bursts
+  const fireJitter = seededRandom(index * 41 + 19) * 50; // 0-50ms jitter
 
   const currentPos = useRef({
     x: playerX,
@@ -259,14 +266,17 @@ const ArmySoldier = memo(function ArmySoldier({
       const config = WEAPON_CONFIGS[weaponTier];
       const fireInterval = 1000 / config.fireRate; // Convert rate to interval in ms
 
+      // Calculate staggered fire time - soldiers fire in rolling waves
+      const staggeredInterval = fireInterval + fireTimeOffset + fireJitter;
+
       // Check if enough time has passed (with staggered offset)
-      if (now - lastFireTime.current >= fireInterval + fireTimeOffset) {
+      if (now - lastFireTime.current >= staggeredInterval) {
         onFire(index, {
           x: currentPos.current.x,
           y: currentPos.current.y,
           z: currentPos.current.z,
         });
-        lastFireTime.current = now - fireTimeOffset; // Reset timer (subtract offset so next fire is at proper interval)
+        lastFireTime.current = now;
       }
     }
   });
@@ -278,11 +288,9 @@ const ArmySoldier = memo(function ArmySoldier({
         skinId={skinId}
         animation={isConsumedByStair ? 'idle' : getAnimationFromSpeed(speedMultiplier)}
         scale={1}
+        holdingWeapon={true}
+        rightHandItem={<WeaponModel tier={weaponTier} />}
       />
-      {/* Weapon attached to right hand position */}
-      <group position={[0.25, 0.5, 0.15]} rotation={[0, 0, -0.3]}>
-        <WeaponModel tier={weaponTier} />
-      </group>
     </group>
   );
 });

@@ -7,6 +7,8 @@ interface CharacterRigProps {
   config: CharacterConfig;
   animation?: AnimationState;
   scale?: number;
+  holdingWeapon?: boolean;
+  rightHandItem?: React.ReactNode;
 }
 
 export interface CharacterRigRef {
@@ -15,7 +17,7 @@ export interface CharacterRigRef {
 }
 
 const CharacterRig = forwardRef<CharacterRigRef, CharacterRigProps>(
-  ({ config, animation = 'idle', scale = 1 }, ref) => {
+  ({ config, animation = 'idle', scale = 1, holdingWeapon = false, rightHandItem }, ref) => {
     const groupRef = useRef<THREE.Group>(null);
     const animationRef = useRef<AnimationState>(animation);
 
@@ -103,15 +105,35 @@ const CharacterRig = forwardRef<CharacterRigRef, CharacterRigProps>(
       if (leftWristRef.current) {
         leftWristRef.current.rotation.x = 0;
       }
-      if (rightShoulderRef.current) {
-        rightShoulderRef.current.rotation.x = 0;
-        rightShoulderRef.current.rotation.z = -0.15 - Math.sin(time * 0.9) * 0.03;
-      }
-      if (rightElbowRef.current) {
-        rightElbowRef.current.rotation.x = -0.1;
-      }
-      if (rightWristRef.current) {
-        rightWristRef.current.rotation.x = 0;
+
+      // Right arm - weapon holding pose when armed
+      if (holdingWeapon) {
+        if (rightShoulderRef.current) {
+          // Arm extended forward to hold weapon
+          rightShoulderRef.current.rotation.x = -1.2; // Forward
+          rightShoulderRef.current.rotation.z = -0.3;
+          rightShoulderRef.current.rotation.y = 0.2;
+        }
+        if (rightElbowRef.current) {
+          // Bent to grip weapon
+          rightElbowRef.current.rotation.x = -0.8;
+        }
+        if (rightWristRef.current) {
+          // Wrist aligned with weapon
+          rightWristRef.current.rotation.x = 0.3;
+          rightWristRef.current.rotation.z = 0.1;
+        }
+      } else {
+        if (rightShoulderRef.current) {
+          rightShoulderRef.current.rotation.x = 0;
+          rightShoulderRef.current.rotation.z = -0.15 - Math.sin(time * 0.9) * 0.03;
+        }
+        if (rightElbowRef.current) {
+          rightElbowRef.current.rotation.x = -0.1;
+        }
+        if (rightWristRef.current) {
+          rightWristRef.current.rotation.x = 0;
+        }
       }
 
       if (leftHipRef.current) {
@@ -171,15 +193,32 @@ const CharacterRig = forwardRef<CharacterRigRef, CharacterRigProps>(
         leftWristRef.current.rotation.x = Math.sin(cycle * 2) * 0.3 * intensity;
       }
 
-      if (rightShoulderRef.current) {
-        rightShoulderRef.current.rotation.x = Math.sin(cycle + Math.PI) * 1.0 * intensity;
-        rightShoulderRef.current.rotation.z = -0.1;
-      }
-      if (rightElbowRef.current) {
-        rightElbowRef.current.rotation.x = -0.6 - Math.abs(Math.sin(cycle + Math.PI)) * 0.5 * intensity;
-      }
-      if (rightWristRef.current) {
-        rightWristRef.current.rotation.x = Math.sin(cycle * 2 + Math.PI) * 0.3 * intensity;
+      // Right arm - weapon aiming during locomotion or natural swing
+      if (holdingWeapon) {
+        if (rightShoulderRef.current) {
+          // Keep weapon forward while running with slight bob
+          rightShoulderRef.current.rotation.x = -1.0 + Math.sin(cycle) * 0.1 * intensity;
+          rightShoulderRef.current.rotation.z = -0.25;
+          rightShoulderRef.current.rotation.y = 0.15;
+        }
+        if (rightElbowRef.current) {
+          rightElbowRef.current.rotation.x = -0.7 - Math.sin(cycle) * 0.1 * intensity;
+        }
+        if (rightWristRef.current) {
+          rightWristRef.current.rotation.x = 0.25;
+          rightWristRef.current.rotation.z = 0.1;
+        }
+      } else {
+        if (rightShoulderRef.current) {
+          rightShoulderRef.current.rotation.x = Math.sin(cycle + Math.PI) * 1.0 * intensity;
+          rightShoulderRef.current.rotation.z = -0.1;
+        }
+        if (rightElbowRef.current) {
+          rightElbowRef.current.rotation.x = -0.6 - Math.abs(Math.sin(cycle + Math.PI)) * 0.5 * intensity;
+        }
+        if (rightWristRef.current) {
+          rightWristRef.current.rotation.x = Math.sin(cycle * 2 + Math.PI) * 0.3 * intensity;
+        }
       }
 
       if (leftHipRef.current) {
@@ -388,6 +427,13 @@ const CharacterRig = forwardRef<CharacterRigRef, CharacterRigProps>(
                           <boxGeometry args={[0.04, 0.05, 0.02]} />
                           <meshStandardMaterial color={colors.skin} />
                         </mesh>
+
+                        {/* Weapon attachment point - positioned forward from hand */}
+                        {rightHandItem && (
+                          <group position={[0, -0.08, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
+                            {rightHandItem}
+                          </group>
+                        )}
                       </group>
                     </group>
                   </group>

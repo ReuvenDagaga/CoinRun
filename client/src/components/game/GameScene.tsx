@@ -38,7 +38,7 @@ import { CLIENT_CONSTANTS } from '@/utils/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';
 import { generateTrackLayout } from './TrackLayoutManager';
-import { BulletSystem } from './weapons/BulletSystem';
+import { InstancedBulletSystem } from './weapons/BulletSystem';
 import { BulletData, BULLET_LIFETIME, getWeaponTier, WeaponTier, WEAPON_CONFIGS } from './weapons/types';
 import { getPlayerSpeed, GAME_CONSTANTS } from '@shared/types/game.types';
 
@@ -47,6 +47,9 @@ import { FinishGate, Stairs, StairClimbController, EndGameCamera, Confetti } fro
 
 // Track length increased to 2000 meters
 const TRACK_LENGTH = 2000;
+
+// Performance: limit max bullets to prevent lag with large armies
+const MAX_ACTIVE_BULLETS = 150;
 
 // Loading phases
 type LoadingPhase = 'loading' | 'ready' | 'playing';
@@ -117,7 +120,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   const boulderHealthRef = useRef<Map<string, number>>(new Map());
 
   // Gate enhancement tracking (how much each gate has been improved by bullets)
-  const gateEnhancementsRef = useRef<Map<string, number>>(new Map());
+  // Using state to trigger re-renders when bullets hit gates
+  const [gateEnhancements, setGateEnhancements] = useState<Map<string, number>>(new Map());
 
   // Weapon system state
   const bulletPowerLevel = user?.upgrades?.bulletPower || 0;
@@ -162,7 +166,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     // Reset bullet system
     setBullets([]);
     boulderHealthRef.current.clear();
-    gateEnhancementsRef.current.clear();
+    setGateEnhancements(new Map());
     setTemporaryWeaponBoost(0);
 
     // Transition to ready phase
@@ -216,6 +220,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         // Check collision with gates (improve them)
         let hitGate = false;
+        let hitGateId: string | null = null;
         for (const gate of gates) {
           if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
 
@@ -224,11 +229,20 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
           if (distX < GATE_WIDTH / 2 && distZ < 1.5 && Math.abs(newBullet.position.y - 1) < 3) {
             // Hit gate - enhance it
-            const currentEnhancement = gateEnhancementsRef.current.get(gate.id) || 0;
-            gateEnhancementsRef.current.set(gate.id, currentEnhancement + 1);
             hitGate = true;
+            hitGateId = gate.id;
             break;
           }
+        }
+
+        // Update gate enhancement outside the bullet loop to avoid closure issues
+        if (hitGate && hitGateId) {
+          setGateEnhancements(prev => {
+            const newMap = new Map(prev);
+            const currentEnhancement = newMap.get(hitGateId!) || 0;
+            newMap.set(hitGateId!, currentEnhancement + 1);
+            return newMap;
+          });
         }
 
         if (hitGate) {
@@ -329,7 +343,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     triggeredGateIds.current.add(gateId);
 
     // Get bullet enhancements for this gate
-    const enhancement = gateEnhancementsRef.current.get(gateId) || 0;
+    const enhancement = gateEnhancements.get(gateId) || 0;
 
     // Apply gate effect with enhancements
     switch (gateType) {
@@ -429,13 +443,17 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
 
     // Clear enhancement after use
-    gateEnhancementsRef.current.delete(gateId);
+    setGateEnhancements(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(gateId);
+      return newMap;
+    });
 
     // Haptic feedback for gates
     if (isVibrationEnabled) {
       vibrate(30);
     }
-  }, [setSpeedMultiplier, multiplyArmy, divideArmy, addSoldiers, activateShield, activateDoublePoints, activateMagnet, activateGiant, activateReverseControls, activateShrink, isVibrationEnabled]);
+  }, [setSpeedMultiplier, multiplyArmy, divideArmy, addSoldiers, activateShield, activateDoublePoints, activateMagnet, activateGiant, activateReverseControls, activateShrink, isVibrationEnabled, gateEnhancements]);
 
   // Handle coin collection
   const handleCoinCollect = useCallback((coinId: string) => {
@@ -459,7 +477,15 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Handle bullet fired by soldier
   const handleBulletFire = useCallback((bullet: BulletData) => {
-    setBullets(prev => [...prev, bullet]);
+    setBullets(prev => {
+      // Limit max bullets for performance
+      if (prev.length >= MAX_ACTIVE_BULLETS) {
+        // Remove oldest bullets to make room
+        const newBullets = prev.slice(-MAX_ACTIVE_BULLETS + 1);
+        return [...newBullets, bullet];
+      }
+      return [...prev, bullet];
+    });
   }, []);
 
   // Helper to create a dead soldier with ragdoll physics
@@ -663,7 +689,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         <CoinsRenderer coins={coins} onCoinCollect={handleCoinCollect} armySize={armySize} />
 
         {/* Gates on track */}
-        <GatesRenderer gates={gates} onGateTrigger={handleGateTrigger} armySize={armySize} />
+        <GatesRenderer gates={gates} onGateTrigger={handleGateTrigger} armySize={armySize} gateEnhancements={gateEnhancements} />
 
         {/* Enemies on track (spinning spike obstacles) */}
         <EnemiesRenderer
@@ -680,8 +706,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           currentTime={gameTimeRef.current}
         />
 
-        {/* Bullets */}
-        <BulletSystem bullets={bullets} />
+        {/* Bullets - using instanced rendering for performance */}
+        <InstancedBulletSystem bullets={bullets} />
 
         {/* Soldier pickups on track */}
         <SoldierPickups

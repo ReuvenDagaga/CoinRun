@@ -9,73 +9,86 @@ interface WeaponModelProps {
   scale?: number;
 }
 
-// Procedural Pistol Model
+// Procedural Pistol Model - Larger and more visible
 const ProceduralPistol = memo(function ProceduralPistol({ scale = 1 }: { scale: number }) {
   const materials = useMemo(() => ({
     body: new THREE.MeshStandardMaterial({
-      color: '#2a2a2a',
+      color: '#3a3a3a',
       metalness: 0.8,
       roughness: 0.3,
     }),
     grip: new THREE.MeshStandardMaterial({
-      color: '#4a3728',
+      color: '#5a4738',
       metalness: 0.2,
       roughness: 0.8,
     }),
     barrel: new THREE.MeshStandardMaterial({
-      color: '#1a1a1a',
+      color: '#2a2a2a',
       metalness: 0.9,
       roughness: 0.2,
     }),
     accent: new THREE.MeshStandardMaterial({
-      color: '#c0c0c0',
+      color: '#d0d0d0',
       metalness: 0.95,
       roughness: 0.1,
     }),
   }), []);
 
   return (
-    <group scale={scale} rotation={[0, Math.PI / 2, 0]}>
-      {/* Main body/slide */}
-      <mesh material={materials.body} position={[0, 0.03, 0.12]}>
-        <boxGeometry args={[0.08, 0.06, 0.35]} />
+    <group scale={scale}>
+      {/* Main body/slide - more visible */}
+      <mesh material={materials.body} position={[0, 0, 0.08]} castShadow>
+        <boxGeometry args={[0.06, 0.08, 0.28]} />
       </mesh>
 
-      {/* Barrel */}
-      <mesh material={materials.barrel} position={[0, 0.03, 0.35]}>
-        <cylinderGeometry args={[0.015, 0.02, 0.15, 8]} />
-        <meshStandardMaterial color="#1a1a1a" metalness={0.9} roughness={0.2} />
+      {/* Barrel - rotated correctly and extended */}
+      <mesh position={[0, 0, 0.28]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.018, 0.022, 0.12, 8]} />
+        <meshStandardMaterial color="#2a2a2a" metalness={0.9} roughness={0.2} />
+      </mesh>
+
+      {/* Muzzle */}
+      <mesh position={[0, 0, 0.35]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.012, 0.018, 0.02, 8]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.95} roughness={0.1} />
       </mesh>
 
       {/* Front sight */}
-      <mesh material={materials.accent} position={[0, 0.07, 0.25]}>
-        <boxGeometry args={[0.02, 0.02, 0.02]} />
+      <mesh material={materials.accent} position={[0, 0.055, 0.18]} castShadow>
+        <boxGeometry args={[0.015, 0.025, 0.015]} />
       </mesh>
 
       {/* Rear sight */}
-      <mesh material={materials.accent} position={[0, 0.07, -0.02]}>
-        <boxGeometry args={[0.06, 0.02, 0.02]} />
+      <mesh material={materials.accent} position={[0, 0.055, -0.02]} castShadow>
+        <boxGeometry args={[0.05, 0.02, 0.015]} />
       </mesh>
 
-      {/* Grip */}
-      <mesh material={materials.grip} position={[0, -0.08, -0.05]} rotation={[0.2, 0, 0]}>
-        <boxGeometry args={[0.06, 0.18, 0.08]} />
+      {/* Grip - angled back */}
+      <mesh material={materials.grip} position={[0, -0.08, -0.04]} rotation={[0.25, 0, 0]} castShadow>
+        <boxGeometry args={[0.05, 0.14, 0.06]} />
       </mesh>
 
       {/* Trigger guard */}
-      <mesh material={materials.body} position={[0, -0.02, 0.05]}>
-        <torusGeometry args={[0.025, 0.008, 8, 8, Math.PI]} />
+      <mesh material={materials.body} position={[0, -0.03, 0.04]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.022, 0.006, 6, 8, Math.PI]} />
       </mesh>
 
       {/* Trigger */}
-      <mesh material={materials.accent} position={[0, -0.02, 0.05]}>
-        <boxGeometry args={[0.015, 0.03, 0.01]} />
+      <mesh material={materials.accent} position={[0, -0.025, 0.04]}>
+        <boxGeometry args={[0.012, 0.025, 0.008]} />
       </mesh>
 
-      {/* Magazine */}
-      <mesh material={materials.body} position={[0, -0.15, -0.05]}>
-        <boxGeometry args={[0.05, 0.06, 0.06]} />
+      {/* Magazine base */}
+      <mesh material={materials.body} position={[0, -0.16, -0.04]} castShadow>
+        <boxGeometry args={[0.04, 0.04, 0.05]} />
       </mesh>
+
+      {/* Slide serrations - visual detail */}
+      {[-0.04, 0, 0.04].map((zOff, i) => (
+        <mesh key={i} material={materials.accent} position={[0.032, 0, zOff]}>
+          <boxGeometry args={[0.003, 0.06, 0.015]} />
+        </mesh>
+      ))}
     </group>
   );
 });
@@ -110,20 +123,11 @@ const GLBWeaponModel = memo(function GLBWeaponModel({
 // Main WeaponModel component
 export const WeaponModel = memo(function WeaponModel({ tier, scale }: WeaponModelProps) {
   const config = WEAPON_CONFIGS[tier];
-  const finalScale = scale || config.scale;
+  // Use larger default scale for visibility
+  const finalScale = scale || config.scale * 2.5;
 
   // For now, all tiers use the procedural pistol since only tier 1 is implemented
   // Future tiers will have their own models
-  if (tier === 1) {
-    // Try to load GLB, fallback to procedural
-    return (
-      <Suspense fallback={<ProceduralPistol scale={finalScale} />}>
-        <ProceduralPistol scale={finalScale} />
-      </Suspense>
-    );
-  }
-
-  // For future tiers (2-10), use procedural pistol as placeholder
   return <ProceduralPistol scale={finalScale} />;
 });
 

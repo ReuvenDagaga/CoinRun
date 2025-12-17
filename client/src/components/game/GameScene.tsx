@@ -8,7 +8,7 @@ import Environment from './Track/Environment/Environment';
 import GameCamera from './GameCamera';
 import { FPSDisplay } from './FPSMonitor';
 import { SoldierPickups, SoldierPickupData } from './SoldierPickup';
-import { ArmyFollowers, BoulderCollision } from './ArmyFollowers';
+import { TieredArmyFollowers, BoulderCollision } from './soldiers/TieredArmyFollowers';
 import { GatesRenderer } from './Track/Environment/Gates';
 import {
   SimpleGateType,
@@ -715,9 +715,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           onCollect={handleSoldierCollect}
         />
 
-        {/* Army following player (snake formation) - hide during endgame */}
+        {/* Army following player (tiered system - max 10 soldiers with levels) */}
         {status !== 'endgame' && (
-          <ArmyFollowers
+          <TieredArmyFollowers
             armySize={armySize}
             boulders={boulderCollisions}
             weaponTier={effectiveWeaponTier}

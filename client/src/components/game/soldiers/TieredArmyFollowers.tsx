@@ -286,10 +286,10 @@ export const TieredArmyFollowers = memo(function TieredArmyFollowers({
           y: 0,
           z: bulletSpeed,
         },
-        damage: config.damage * (1 + soldierValue * 0.1), // Higher value = more damage
+        damage: soldierValue, // Soldier value = bullet damage (soldier worth 8 = bullet does 8 damage)
         size: config.bulletSize,
         color: config.bulletColor,
-        sourceIndex: soldierValue,
+        sourceIndex: soldierValue, // Store soldier value for damage popup display
         createdAt: Date.now(),
       };
 

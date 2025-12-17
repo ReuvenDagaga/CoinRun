@@ -38,7 +38,7 @@ import { CLIENT_CONSTANTS } from '@/utils/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';
 import { generateTrackLayout } from './TrackLayoutManager';
-import { InstancedBulletSystem } from './weapons/BulletSystem';
+import { BulletSystem, DamagePopups, DamagePopup } from './weapons/BulletSystem';
 import { BulletData, BULLET_LIFETIME, getWeaponTier, WeaponTier, WEAPON_CONFIGS } from './weapons/types';
 import { getPlayerSpeed, GAME_CONSTANTS } from '@shared/types/game.types';
 
@@ -116,6 +116,10 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   // Bullets state
   const [bullets, setBullets] = useState<BulletData[]>([]);
 
+  // Damage popups state (floating damage numbers)
+  const [damagePopups, setDamagePopups] = useState<DamagePopup[]>([]);
+  const damagePopupIdCounter = useRef(0);
+
   // Boulder health tracking (10 hits to destroy)
   const boulderHealthRef = useRef<Map<string, number>>(new Map());
 
@@ -131,6 +135,22 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   // Player speed calculation
   const playerSpeed = getPlayerSpeed(user?.upgrades?.speed || 0);
+
+  // Create a damage popup at a position
+  const createDamagePopup = useCallback((position: { x: number; y: number; z: number }, damage: number) => {
+    const popup: DamagePopup = {
+      id: `damage-${damagePopupIdCounter.current++}`,
+      position: { ...position },
+      damage: Math.round(damage),
+      createdAt: Date.now(),
+    };
+    setDamagePopups(prev => [...prev, popup]);
+
+    // Remove after 1.5 seconds
+    setTimeout(() => {
+      setDamagePopups(prev => prev.filter(p => p.id !== popup.id));
+    }, 1500);
+  }, []);
 
   // Handle preloaded data from GameLoader
   const handleLoadComplete = useCallback((data: PreloadedData) => {
@@ -189,6 +209,10 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   const updateBullets = useCallback((delta: number) => {
     const now = Date.now();
 
+    // Collect hits for damage popups (can't create inside setState)
+    const hitEvents: { position: { x: number; y: number; z: number }; damage: number }[] = [];
+    const gateHits: { gateId: string }[] = [];
+
     setBullets(prev => {
       const updatedBullets: BulletData[] = [];
 
@@ -220,7 +244,6 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         // Check collision with gates (improve them)
         let hitGate = false;
-        let hitGateId: string | null = null;
         for (const gate of gates) {
           if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
 
@@ -230,19 +253,14 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           if (distX < GATE_WIDTH / 2 && distZ < 1.5 && Math.abs(newBullet.position.y - 1) < 3) {
             // Hit gate - enhance it
             hitGate = true;
-            hitGateId = gate.id;
+            gateHits.push({ gateId: gate.id });
+            // Create damage popup - soldier value is stored in sourceIndex
+            hitEvents.push({
+              position: { ...newBullet.position },
+              damage: bullet.sourceIndex, // Soldier value = bullet damage
+            });
             break;
           }
-        }
-
-        // Update gate enhancement outside the bullet loop to avoid closure issues
-        if (hitGate && hitGateId) {
-          setGateEnhancements(prev => {
-            const newMap = new Map(prev);
-            const currentEnhancement = newMap.get(hitGateId!) || 0;
-            newMap.set(hitGateId!, currentEnhancement + 1);
-            return newMap;
-          });
         }
 
         if (hitGate) {
@@ -270,6 +288,11 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
               setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== enemy.id));
               boulderHealthRef.current.delete(enemy.id);
             }
+            // Create damage popup for boulder hit
+            hitEvents.push({
+              position: { ...newBullet.position },
+              damage: bullet.sourceIndex, // Soldier value = bullet damage
+            });
             hitBoulder = true;
             break;
           }
@@ -285,7 +308,22 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
       return updatedBullets;
     });
-  }, [player.position.z, gates, enemies]);
+
+    // Process gate enhancements after state update
+    gateHits.forEach(hit => {
+      setGateEnhancements(prev => {
+        const newMap = new Map(prev);
+        const currentEnhancement = newMap.get(hit.gateId) || 0;
+        newMap.set(hit.gateId, currentEnhancement + 1);
+        return newMap;
+      });
+    });
+
+    // Create damage popups for all hits
+    hitEvents.forEach(hit => {
+      createDamagePopup(hit.position, hit.damage);
+    });
+  }, [player.position.z, gates, enemies, createDamagePopup]);
 
   // Game loop - update time only (finish is handled in Player component)
   useEffect(() => {
@@ -706,8 +744,11 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           currentTime={gameTimeRef.current}
         />
 
-        {/* Bullets - using instanced rendering for performance */}
-        <InstancedBulletSystem bullets={bullets} />
+        {/* Bullets - using simple rendering for debugging */}
+        <BulletSystem bullets={bullets} />
+
+        {/* Floating damage numbers */}
+        <DamagePopups popups={damagePopups} />
 
         {/* Soldier pickups on track */}
         <SoldierPickups

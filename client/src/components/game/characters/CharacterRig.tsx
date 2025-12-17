@@ -428,9 +428,9 @@ const CharacterRig = forwardRef<CharacterRigRef, CharacterRigProps>(
                           <meshStandardMaterial color={colors.skin} />
                         </mesh>
 
-                        {/* Weapon attachment point - positioned forward from hand */}
+                        {/* Weapon attachment point - positioned in front of hand */}
                         {rightHandItem && (
-                          <group position={[0, -0.08, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
+                          <group position={[0, 0, 0.25]} rotation={[0, 0, 0]}>
                             {rightHandItem}
                           </group>
                         )}

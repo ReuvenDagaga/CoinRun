@@ -9,86 +9,31 @@ interface WeaponModelProps {
   scale?: number;
 }
 
-// Procedural Pistol Model - Larger and more visible
+// Procedural Pistol Model - DEBUG: Made bright red and large for visibility
 const ProceduralPistol = memo(function ProceduralPistol({ scale = 1 }: { scale: number }) {
-  const materials = useMemo(() => ({
-    body: new THREE.MeshStandardMaterial({
-      color: '#3a3a3a',
-      metalness: 0.8,
-      roughness: 0.3,
-    }),
-    grip: new THREE.MeshStandardMaterial({
-      color: '#5a4738',
-      metalness: 0.2,
-      roughness: 0.8,
-    }),
-    barrel: new THREE.MeshStandardMaterial({
-      color: '#2a2a2a',
-      metalness: 0.9,
-      roughness: 0.2,
-    }),
-    accent: new THREE.MeshStandardMaterial({
-      color: '#d0d0d0',
-      metalness: 0.95,
-      roughness: 0.1,
-    }),
+  // DEBUG: Bright red material to spot the weapon
+  const debugMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#FF0000',
+    emissive: '#FF0000',
+    emissiveIntensity: 0.5,
+    metalness: 0.3,
+    roughness: 0.5,
   }), []);
 
   return (
-    <group scale={scale}>
-      {/* Main body/slide - more visible */}
-      <mesh material={materials.body} position={[0, 0, 0.08]} castShadow>
-        <boxGeometry args={[0.06, 0.08, 0.28]} />
+    <group scale={scale * 3}> {/* DEBUG: 3x larger */}
+      {/* Simple box to debug visibility */}
+      <mesh material={debugMaterial} castShadow>
+        <boxGeometry args={[0.15, 0.1, 0.4]} />
       </mesh>
-
-      {/* Barrel - rotated correctly and extended */}
-      <mesh position={[0, 0, 0.28]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.018, 0.022, 0.12, 8]} />
-        <meshStandardMaterial color="#2a2a2a" metalness={0.9} roughness={0.2} />
+      {/* Barrel */}
+      <mesh material={debugMaterial} position={[0, 0.02, 0.25]} castShadow>
+        <cylinderGeometry args={[0.03, 0.03, 0.15, 8]} />
       </mesh>
-
-      {/* Muzzle */}
-      <mesh position={[0, 0, 0.35]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.012, 0.018, 0.02, 8]} />
-        <meshStandardMaterial color="#1a1a1a" metalness={0.95} roughness={0.1} />
+      {/* Grip */}
+      <mesh material={debugMaterial} position={[0, -0.12, -0.05]} rotation={[0.2, 0, 0]} castShadow>
+        <boxGeometry args={[0.08, 0.18, 0.08]} />
       </mesh>
-
-      {/* Front sight */}
-      <mesh material={materials.accent} position={[0, 0.055, 0.18]} castShadow>
-        <boxGeometry args={[0.015, 0.025, 0.015]} />
-      </mesh>
-
-      {/* Rear sight */}
-      <mesh material={materials.accent} position={[0, 0.055, -0.02]} castShadow>
-        <boxGeometry args={[0.05, 0.02, 0.015]} />
-      </mesh>
-
-      {/* Grip - angled back */}
-      <mesh material={materials.grip} position={[0, -0.08, -0.04]} rotation={[0.25, 0, 0]} castShadow>
-        <boxGeometry args={[0.05, 0.14, 0.06]} />
-      </mesh>
-
-      {/* Trigger guard */}
-      <mesh material={materials.body} position={[0, -0.03, 0.04]} rotation={[0, 0, Math.PI / 2]}>
-        <torusGeometry args={[0.022, 0.006, 6, 8, Math.PI]} />
-      </mesh>
-
-      {/* Trigger */}
-      <mesh material={materials.accent} position={[0, -0.025, 0.04]}>
-        <boxGeometry args={[0.012, 0.025, 0.008]} />
-      </mesh>
-
-      {/* Magazine base */}
-      <mesh material={materials.body} position={[0, -0.16, -0.04]} castShadow>
-        <boxGeometry args={[0.04, 0.04, 0.05]} />
-      </mesh>
-
-      {/* Slide serrations - visual detail */}
-      {[-0.04, 0, 0.04].map((zOff, i) => (
-        <mesh key={i} material={materials.accent} position={[0.032, 0, zOff]}>
-          <boxGeometry args={[0.003, 0.06, 0.015]} />
-        </mesh>
-      ))}
     </group>
   );
 });

@@ -77,7 +77,9 @@ export const InstancedBulletSystem = memo(function InstancedBulletSystem({
         bullet.position.y,
         bullet.position.z
       );
-      tempMatrix.scale(new THREE.Vector3(bullet.size, bullet.size, bullet.size));
+      // Make bullets larger for visibility (min 0.15 radius)
+      const bulletScale = Math.max(bullet.size * 2, 0.15);
+      tempMatrix.scale(new THREE.Vector3(bulletScale, bulletScale, bulletScale));
       meshRef.current!.setMatrixAt(i, tempMatrix);
 
       tempColor.set(bullet.color);

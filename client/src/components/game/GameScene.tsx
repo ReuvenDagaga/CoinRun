@@ -236,6 +236,10 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     enemiesRef.current = enemies;
   }, [enemies]);
 
+  // Refs to store hits that need processing (avoids closure issues with state setters)
+  const pendingGateHitsRef = useRef<{ gateId: string; position: { x: number; y: number; z: number }; damage: number }[]>([]);
+  const pendingBoulderHitsRef = useRef<{ enemyId: string; position: { x: number; y: number; z: number }; damage: number; destroy: boolean }[]>([]);
+
   const updateBullets = useCallback((delta: number) => {
     const now = Date.now();
     const playerZ = player.position.z;
@@ -244,9 +248,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     const currentGates = gatesRef.current;
     const currentEnemies = enemiesRef.current;
 
-    // Collect hits for processing after state update
-    const gateHitsToProcess: { gateId: string; position: { x: number; y: number; z: number }; damage: number }[] = [];
-    const boulderHitsToProcess: { enemyId: string; position: { x: number; y: number; z: number }; damage: number; destroy: boolean }[] = [];
+    // Clear pending hits
+    pendingGateHitsRef.current = [];
+    pendingBoulderHitsRef.current = [];
 
     setBullets(prev => {
       if (prev.length === 0) return prev;
@@ -293,24 +297,19 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
         // === GATE COLLISION - SIMPLIFIED AND CLEAR ===
         for (const gate of currentGates) {
-          // IMPORTANT: Do NOT skip triggered gates!
-          // Bullets should still hit and enhance gates even after player triggers them
-          // This way the enhancement happens and we can see the system working
-
           // Check Z distance (is bullet at same depth as gate?)
           const zDist = Math.abs(newPos.z - gate.position.z);
-          if (zDist > 3.0) continue; // Not at gate yet (increased from 2.0 for more forgiving collision)
+          if (zDist > 3.0) continue;
 
           // Check X bounds (is bullet within gate width?)
-          // Gate is centered at gate.position.x with width GATE_WIDTH
-          const gateMinX = gate.position.x - GATE_WIDTH / 2 - 0.5; // Small margin
+          const gateMinX = gate.position.x - GATE_WIDTH / 2 - 0.5;
           const gateMaxX = gate.position.x + GATE_WIDTH / 2 + 0.5;
 
           if (newPos.x >= gateMinX && newPos.x <= gateMaxX) {
-            // HIT! Bullet collided with gate
+            // HIT! Bullet collided with gate - store in ref (not closure variable)
             console.log(`🎯 BULLET HIT GATE! Gate: ${gate.id}, Bullet Z: ${newPos.z.toFixed(1)}, Gate Z: ${gate.position.z.toFixed(0)}`);
 
-            gateHitsToProcess.push({
+            pendingGateHitsRef.current.push({
               gateId: gate.id,
               position: { x: gate.position.x, y: 2, z: gate.position.z },
               damage: bullet.sourceIndex,
@@ -332,11 +331,10 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           const dist = Math.sqrt(dx * dx + dz * dz);
 
           if (dist < (enemy as BoulderData).radius + 0.3) {
-            // Hit boulder - track damage
             const currentHealth = boulderHealthRef.current.get(enemy.id) ?? 10;
             const newHealth = currentHealth - 1;
 
-            boulderHitsToProcess.push({
+            pendingBoulderHitsRef.current.push({
               enemyId: enemy.id,
               position: { ...newPos },
               damage: bullet.sourceIndex,
@@ -361,17 +359,18 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       return updatedBullets;
     });
 
-    // Process gate hits AFTER state update
-    if (gateHitsToProcess.length > 0) {
-      console.log(`✨ Processing ${gateHitsToProcess.length} gate hits`);
+    // Process gate hits AFTER state update - using refs to avoid closure issues
+    const gateHits = pendingGateHitsRef.current;
+    if (gateHits.length > 0) {
+      console.log(`✨ PROCESSING ${gateHits.length} GATE HITS!`);
 
-      gateHitsToProcess.forEach(hit => {
+      gateHits.forEach(hit => {
         // Update gate enhancement count
         setGateEnhancements(prev => {
           const newMap = new Map(prev);
           const currentValue = newMap.get(hit.gateId) || 0;
           const newValue = currentValue + 1;
-          console.log(`  Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue}`);
+          console.log(`  🔥 Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue}`);
           newMap.set(hit.gateId, newValue);
           return newMap;
         });
@@ -382,7 +381,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
 
     // Process boulder hits
-    boulderHitsToProcess.forEach(hit => {
+    const boulderHits = pendingBoulderHitsRef.current;
+    boulderHits.forEach(hit => {
       if (hit.destroy) {
         setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== hit.enemyId));
         boulderHealthRef.current.delete(hit.enemyId);

@@ -138,8 +138,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   const boulderHealthRef = useRef<Map<string, number>>(new Map());
 
   // Gate enhancement tracking (how much each gate has been improved by bullets)
-  // Using state to trigger re-renders when bullets hit gates
+  // Using BOTH state (for React re-renders) AND ref (for immediate reads)
   const [gateEnhancements, setGateEnhancements] = useState<Map<string, number>>(new Map());
+  const gateEnhancementsRef = useRef<Map<string, number>>(new Map());
 
   // Weapon system state
   const bulletPowerLevel = user?.upgrades?.bulletPower || 0;
@@ -200,6 +201,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     // Reset bullet system
     setBullets([]);
     boulderHealthRef.current.clear();
+    gateEnhancementsRef.current.clear();
     setGateEnhancements(new Map());
     setTemporaryWeaponBoost(0);
 
@@ -357,13 +359,20 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     if (gateHits.length > 0) {
       console.log(`✨ PROCESSING ${gateHits.length} GATE HITS!`);
 
-      // Batch all enhancements into a single state update for performance
+      // Update REF immediately for instant reads (no waiting for React state)
+      gateHits.forEach(hit => {
+        const currentValue = gateEnhancementsRef.current.get(hit.gateId) || 0;
+        const newValue = currentValue + 1;
+        gateEnhancementsRef.current.set(hit.gateId, newValue);
+        console.log(`  🔥 Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue} (REF UPDATED IMMEDIATELY)`);
+      });
+
+      // Also update state for React re-renders (gate visuals)
       setGateEnhancements(prev => {
         const newMap = new Map(prev);
         gateHits.forEach(hit => {
           const currentValue = newMap.get(hit.gateId) || 0;
           const newValue = currentValue + 1;
-          console.log(`  🔥 Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue}`);
           newMap.set(hit.gateId, newValue);
         });
         return newMap;
@@ -443,8 +452,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     // The SingleGate component manages its own visual state via isTriggeredRef
     triggeredGateIds.current.add(gateId);
 
-    // Get bullet enhancements for this gate
-    const enhancement = gateEnhancements.get(gateId) || 0;
+    // Get bullet enhancements for this gate - USE REF not state for instant read!
+    const enhancement = gateEnhancementsRef.current.get(gateId) || 0;
+    console.log(`🚪 Gate ${gateId} triggered with enhancement: ${enhancement}`);
 
     // Apply gate effect with enhancements
     switch (gateType) {
@@ -543,7 +553,8 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         break;
     }
 
-    // Clear enhancement after use
+    // Clear enhancement after use (both ref and state)
+    gateEnhancementsRef.current.delete(gateId);
     setGateEnhancements(prev => {
       const newMap = new Map(prev);
       newMap.delete(gateId);
@@ -554,7 +565,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     if (isVibrationEnabled) {
       vibrate(30);
     }
-  }, [setSpeedMultiplier, multiplyArmy, divideArmy, addSoldiers, activateShield, activateDoublePoints, activateMagnet, activateGiant, activateReverseControls, activateShrink, isVibrationEnabled, gateEnhancements]);
+  }, [setSpeedMultiplier, multiplyArmy, divideArmy, addSoldiers, activateShield, activateDoublePoints, activateMagnet, activateGiant, activateReverseControls, activateShrink, isVibrationEnabled]);
 
   // Handle coin collection
   const handleCoinCollect = useCallback((coinId: string) => {

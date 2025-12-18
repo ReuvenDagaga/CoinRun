@@ -2,6 +2,7 @@
 // Shows loading screen until ALL game assets and systems are ready
 
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
+import BaseLoading from './BaseLoading';
 
 interface LoadingState {
   isLoading: boolean;
@@ -160,7 +161,7 @@ interface LoadingScreenProps {
   phase: LoadingState['phase'];
 }
 
-function LoadingScreen({ progress, message, phase }: LoadingScreenProps) {
+function LoadingScreen({ progress, message }: LoadingScreenProps) {
   return (
     <div
       style={{
@@ -169,84 +170,10 @@ function LoadingScreen({ progress, message, phase }: LoadingScreenProps) {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         zIndex: 9999,
       }}
     >
-      {/* Logo */}
-      <div
-        style={{
-          fontSize: '48px',
-          fontWeight: 'bold',
-          color: '#FFD700',
-          marginBottom: '40px',
-          textShadow: '0 0 20px rgba(255, 215, 0, 0.5)',
-          animation: 'pulse 2s ease-in-out infinite',
-        }}
-      >
-        🏃 CoinRun
-      </div>
-
-      {/* Loading spinner */}
-      <div
-        style={{
-          width: '60px',
-          height: '60px',
-          border: '4px solid rgba(255, 215, 0, 0.2)',
-          borderTop: '4px solid #FFD700',
-          borderRadius: '50%',
-          marginBottom: '30px',
-          animation: 'spin 1s linear infinite',
-        }}
-      />
-
-      {/* Progress bar */}
-      <div
-        style={{
-          width: '200px',
-          height: '8px',
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '4px',
-          overflow: 'hidden',
-          marginBottom: '15px',
-        }}
-      >
-        <div
-          style={{
-            width: `${progress}%`,
-            height: '100%',
-            backgroundColor: '#FFD700',
-            borderRadius: '4px',
-            transition: 'width 0.3s ease-out',
-          }}
-        />
-      </div>
-
-      {/* Message */}
-      <div
-        style={{
-          color: 'rgba(255, 255, 255, 0.8)',
-          fontSize: '14px',
-        }}
-      >
-        {message}
-      </div>
-
-      {/* CSS animations */}
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-      `}</style>
+      <BaseLoading message={message} progress={progress} />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ComboCard from "./ComboCard";
 import { ShopItem } from "./config";
 import GiftCard from "./GiftCard";
@@ -14,8 +15,14 @@ function ShopSection ({
   isGift?: boolean;
   isCombo?: boolean;
 }) {
-  const handlePurchase = (id: string) => {
+  const [purchasing, setPurchasing] = useState<string | null>(null);
+
+  const handlePurchase = async (id: string) => {
+    setPurchasing(id);
     console.log(`Purchase: ${id}`);
+    // TODO: Add actual purchase API call here
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    setPurchasing(null);
   };
 
   return (
@@ -37,6 +44,7 @@ function ShopSection ({
                 key={item.id}
                 item={item}
                 onPurchase={() => handlePurchase(item.id)}
+                isPurchasing={purchasing === item.id}
               />
             ))}
           </div>
@@ -47,6 +55,7 @@ function ShopSection ({
                 key={item.id}
                 item={item}
                 onPurchase={() => handlePurchase(item.id)}
+                isPurchasing={purchasing === item.id}
               />
             ))}
           </div>
@@ -57,6 +66,7 @@ function ShopSection ({
                 key={item.id}
                 item={item}
                 onPurchase={() => handlePurchase(item.id)}
+                isPurchasing={purchasing === item.id}
               />
             ))}
           </div>

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState, useRef } from 'react';
+import BaseLoading from './BaseLoading';
 
 // Screen background image paths (will be provided as assets)
 const VICTORY_BG_PATH = '/assets/victory-bg.png';
@@ -93,12 +94,7 @@ export default function PostGame() {
 
   // Show restart loading overlay
   if (isRestarting) {
-    return (
-      <div className="fixed inset-0 bg-black z-[9999] flex flex-col items-center justify-center">
-        <div className="text-6xl mb-4 animate-spin">🔄</div>
-        <div className="text-white text-2xl font-bold">Loading...</div>
-      </div>
-    );
+    return <BaseLoading message="Restarting..." />;
   }
 
   return (

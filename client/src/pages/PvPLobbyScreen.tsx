@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import ButtonSpinner from '@/components/ui/ButtonSpinner';
 import {
   joinMatchmaking,
   cancelMatchmaking,
@@ -207,10 +208,8 @@ export function PvPLobbyScreen() {
               </div>
 
               {/* Animated searching indicator */}
-              <div className="flex justify-center gap-2 mb-6">
-                <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              <div className="flex justify-center mb-6">
+                <ButtonSpinner size="large" />
               </div>
 
               <button

@@ -2,6 +2,7 @@
 // Prevents visual glitches when starting, ending, or restarting games
 
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
+import BaseLoading from './BaseLoading';
 
 type TransitionType = 'starting' | 'ending' | 'restarting' | 'none';
 
@@ -151,20 +152,7 @@ interface TransitionOverlayProps {
   message: string;
 }
 
-function TransitionOverlay({ type, progress, message }: TransitionOverlayProps) {
-  const getIcon = () => {
-    switch (type) {
-      case 'starting':
-        return '🎮';
-      case 'ending':
-        return '🏆';
-      case 'restarting':
-        return '🔄';
-      default:
-        return '⏳';
-    }
-  };
-
+function TransitionOverlay({ progress, message }: TransitionOverlayProps) {
   return (
     <div
       style={{
@@ -173,70 +161,10 @@ function TransitionOverlay({ type, progress, message }: TransitionOverlayProps) 
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'rgba(0, 0, 0, 0.9)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         zIndex: 10000,
-        animation: 'fadeIn 0.15s ease-out',
       }}
     >
-      {/* Icon */}
-      <div
-        style={{
-          fontSize: '64px',
-          marginBottom: '20px',
-          animation: 'bounce 1s ease-in-out infinite',
-        }}
-      >
-        {getIcon()}
-      </div>
-
-      {/* Message */}
-      <div
-        style={{
-          color: 'white',
-          fontSize: '24px',
-          fontWeight: 'bold',
-          marginBottom: '30px',
-        }}
-      >
-        {message}
-      </div>
-
-      {/* Progress bar */}
-      <div
-        style={{
-          width: '250px',
-          height: '6px',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-          borderRadius: '3px',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            width: `${progress}%`,
-            height: '100%',
-            backgroundColor: '#FFD700',
-            borderRadius: '3px',
-            transition: 'width 0.1s linear',
-          }}
-        />
-      </div>
-
-      {/* CSS animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-      `}</style>
+      <BaseLoading message={message} progress={progress} />
     </div>
   );
 }

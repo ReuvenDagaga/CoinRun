@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import GameScene from '@/components/game/GameScene';
 import HUD from '@/components/ui/HUD';
 import PostGame from '@/components/ui/PostGame';
+import BaseLoading from '@/components/ui/BaseLoading';
 import { useGame } from '@/context';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -39,11 +40,7 @@ export default function Game() {
   }, [reset, navigate]);
 
   if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-900">
-        <div className="spinner" />
-      </div>
-    );
+    return <BaseLoading message="Loading game..." />;
   }
 
   const showPostGame = status === 'finished' || status === 'gameover';

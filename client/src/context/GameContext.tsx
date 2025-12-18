@@ -240,15 +240,16 @@ export function GameProvider({ children }: GameProviderProps) {
   const handleSwipe = useCallback((direction: SwipeDirection) => {
     if (status !== 'playing') return;
 
+    // Note: Controls are inverted because camera is behind player
     if (direction === 'left') {
       setPlayer(prev => ({
         ...prev,
-        horizontalVelocity: -1
+        horizontalVelocity: 1  // Was -1, now inverted
       }));
     } else if (direction === 'right') {
       setPlayer(prev => ({
         ...prev,
-        horizontalVelocity: 1
+        horizontalVelocity: -1  // Was 1, now inverted
       }));
     }
   }, [status]);

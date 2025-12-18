@@ -1,5 +1,5 @@
 // BulletSystem.tsx - Renders bullets and damage numbers
-import { memo, useRef, useMemo, useState, useEffect } from 'react';
+import { memo, useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
@@ -67,28 +67,25 @@ export const DamagePopups = memo(function DamagePopups({ popups }: DamagePopupsP
 });
 
 // Simple visible bullet component - golden glowing bullets
+// Renders directly at position from props - no useFrame needed
 const SimpleBullet = memo(function SimpleBullet({ bullet }: { bullet: BulletData }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  // Update position every frame
-  useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.position.x = bullet.position.x;
-      meshRef.current.position.y = bullet.position.y;
-      meshRef.current.position.z = bullet.position.z;
-    }
-  });
-
   return (
-    <mesh ref={meshRef} position={[bullet.position.x, bullet.position.y, bullet.position.z]}>
-      <sphereGeometry args={[0.12, 8, 6]} />
+    <mesh position={[bullet.position.x, bullet.position.y, bullet.position.z]}>
+      <sphereGeometry args={[0.15, 8, 6]} />
       <meshStandardMaterial
         color="#FFD700"
         emissive="#FFA500"
-        emissiveIntensity={2}
+        emissiveIntensity={3}
       />
     </mesh>
   );
+}, (prev, next) => {
+  // Custom comparison - re-render if position changed significantly
+  const dx = Math.abs(prev.bullet.position.x - next.bullet.position.x);
+  const dy = Math.abs(prev.bullet.position.y - next.bullet.position.y);
+  const dz = Math.abs(prev.bullet.position.z - next.bullet.position.z);
+  // Don't re-render if position barely changed (optimization)
+  return dx < 0.01 && dy < 0.01 && dz < 0.01;
 });
 
 interface BulletSystemProps {

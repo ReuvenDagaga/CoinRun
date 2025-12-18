@@ -247,6 +247,39 @@ const SingleGate = memo(function SingleGate({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.color, config.emissiveIntensity]);
 
+  // Update visual effects when gate is enhanced by bullets
+  useEffect(() => {
+    if (enhancement > 0 && !isTriggeredRef.current) {
+      // Enhanced gate - make it glow brighter with green tint
+      const enhancementFactor = Math.min(enhancement * 0.3, 2); // Max 200% boost
+      const greenBoost = new THREE.Color('#00FF00');
+      const originalColor = new THREE.Color(config.color);
+
+      // Lerp toward green based on enhancement
+      const lerpFactor = Math.min(enhancement * 0.15, 0.7); // Max 70% green
+      const enhancedColor = originalColor.clone().lerp(greenBoost, lerpFactor);
+
+      // Apply enhanced visuals
+      materials.pillar.emissiveIntensity = config.emissiveIntensity * (1 + enhancementFactor);
+      materials.ring.emissiveIntensity = config.emissiveIntensity * (1 + enhancementFactor);
+      materials.portal.emissiveIntensity = config.emissiveIntensity * 0.5 * (1 + enhancementFactor);
+      materials.glowPlane.opacity = 0.2 + enhancement * 0.05;
+
+      // Add green tint
+      materials.pillar.emissive.copy(enhancedColor);
+      materials.ring.emissive.copy(enhancedColor);
+      materials.portal.emissive.copy(enhancedColor);
+
+      // Increase light intensity
+      if (light1Ref.current) light1Ref.current.intensity = 2 + enhancement;
+      if (light2Ref.current) light2Ref.current.intensity = 0.8 + enhancement * 0.5;
+      if (light3Ref.current) light3Ref.current.intensity = 0.8 + enhancement * 0.5;
+
+      console.log(`🌟 Gate ${gateId} enhanced visually (${enhancement} hits)`);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enhancement]);
+
   useFrame((state) => {
     if (!groupRef.current || status !== 'playing') return;
 

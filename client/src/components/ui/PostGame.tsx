@@ -65,15 +65,16 @@ export default function PostGame() {
 
   const [isRestarting, setIsRestarting] = useState(false);
 
-  const handlePlayAgain = async () => {
+  const handlePlayAgain = () => {
     hasUpdatedStats.current = false;
     reset();
-    // Show loading overlay for 2 seconds to hide ugly transition
+    // Set flag so GameScene shows loading overlay for 3 seconds
+    sessionStorage.setItem('game_restarting', 'true');
+    // Show local overlay briefly then reload
     setIsRestarting(true);
-    // Wait 2 seconds with black screen, then reload
     setTimeout(() => {
       window.location.reload();
-    }, 2000);
+    }, 100);
   };
 
   const handleQuit = () => {

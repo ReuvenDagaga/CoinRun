@@ -64,7 +64,14 @@ export default function Home() {
   const handleStart = async () => {
     // Show loading screen during transition
     await startGameTransition();
-    navigate(`/game/${selectedMode}`);
+
+    // Navigate to PvP lobby for 1v1, regular game for solo
+    if (selectedMode === '1v1') {
+      navigate('/pvp/lobby');
+    } else {
+      navigate(`/game/${selectedMode}`);
+    }
+
     // Complete transition after navigation
     setTimeout(completeTransition, 500);
   };

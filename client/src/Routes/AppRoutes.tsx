@@ -9,6 +9,11 @@ const Profile = lazy(() => import('../pages/Profile'));
 const Leaderboard = lazy(() => import('../pages/Leaderboard'));
 const Login = lazy(() => import('../pages/auth/Login'));
 
+// PvP Routes
+const PvPLobby = lazy(() => import('../pages/PvPLobbyScreen'));
+const PvPGame = lazy(() => import('../pages/PvPGameScreen'));
+const PvPResults = lazy(() => import('../pages/PvPResultsScreen'));
+
 export const AppRoutes = () => {
   const location = useLocation();
 
@@ -29,6 +34,11 @@ export const AppRoutes = () => {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/game" element={<Game />} />
         <Route path="/game/:mode" element={<Game />} />
+
+        {/* PvP Routes */}
+        <Route path="/pvp/lobby" element={<PvPLobby />} />
+        <Route path="/pvp/game/:roomId" element={<PvPGame />} />
+        <Route path="/pvp/results/:roomId" element={<PvPResults />} />
       </Routes>
     </Suspense>
   );

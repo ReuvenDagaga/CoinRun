@@ -1,6 +1,5 @@
 import { useGame } from '@/context';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useGameTransition } from './GameTransitionGuard';
+import { useNavigate } from 'react-router-dom';
 
 // Track length constant
 const TRACK_LENGTH = 800;
@@ -116,19 +115,11 @@ export default function HUD() {
 
 // Victory screen shown when player finishes
 export function VictoryScreen() {
-  const navigate = useNavigate();
-  const location = useLocation();
   const { status, result, reset } = useGame();
-  const { restartGameTransition } = useGameTransition();
 
-  const handlePlayAgain = async () => {
-    await restartGameTransition();
+  const handlePlayAgain = () => {
     reset();
-    const currentPath = location.pathname;
-    navigate('/', { replace: true });
-    setTimeout(() => {
-      navigate(currentPath, { replace: true });
-    }, 50);
+    window.location.reload();
   };
 
   if (status !== 'finished') return null;

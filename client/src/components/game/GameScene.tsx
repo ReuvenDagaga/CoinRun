@@ -323,16 +323,23 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     });
 
     // Process gate enhancements after state update
+    if (gateHits.length > 0) {
+      console.log('[updateBullets] Gate hits:', gateHits.length);
+    }
     gateHits.forEach(hit => {
       setGateEnhancements(prev => {
         const newMap = new Map(prev);
         const currentEnhancement = newMap.get(hit.gateId) || 0;
+        console.log(`[updateBullets] Gate ${hit.gateId} enhanced: ${currentEnhancement} -> ${currentEnhancement + 1}`);
         newMap.set(hit.gateId, currentEnhancement + 1);
         return newMap;
       });
     });
 
     // Create damage popups for all hits
+    if (hitEvents.length > 0) {
+      console.log('[updateBullets] Hit events:', hitEvents.length, hitEvents);
+    }
     hitEvents.forEach(hit => {
       createDamagePopup(hit.position, hit.damage);
     });

@@ -1,12 +1,22 @@
 // SoldierTierSystem.tsx - Tiered soldier system for performance
-// Max 10 physical soldiers, each representing multiple soldiers via levels
+// Shows individual soldiers up to 9, then upgrades every 10
 
 export const MAX_VISIBLE_SOLDIERS = 10;
-export const SOLDIERS_PER_LEVEL = 10; // Each level represents 10 soldiers
+export const SOLDIERS_PER_UPGRADE = 10; // Every 10 soldiers = 1 upgraded soldier
 
 // Calculate how many levels a soldier has based on total value
-export function calculateSoldierLevel(totalValue: number): number {
-  return Math.ceil(totalValue / SOLDIERS_PER_LEVEL);
+export function calculateSoldierLevel(value: number): number {
+  if (value <= 1) return 1;
+  if (value <= 10) return 2;
+  if (value <= 20) return 3;
+  if (value <= 30) return 4;
+  if (value <= 40) return 5;
+  if (value <= 50) return 6;
+  if (value <= 60) return 7;
+  if (value <= 70) return 8;
+  if (value <= 80) return 9;
+  if (value <= 90) return 10;
+  return Math.min(15, Math.floor(value / 10) + 1);
 }
 
 // Calculate total soldier value from displayed soldiers
@@ -14,28 +24,37 @@ export function calculateTotalValue(soldiers: TieredSoldier[]): number {
   return soldiers.reduce((sum, s) => sum + s.value, 0);
 }
 
-// Distribute total value among max visible soldiers
+// Distribute soldiers based on count:
+// - 1-9 soldiers: show that many individual soldiers (value 1 each)
+// - 10 soldiers: show 1 upgraded soldier (value 10)
+// - 13 soldiers: show 1 upgraded (value 10) + 3 regular (value 1 each)
+// - 25 soldiers: show 2 upgraded (value 10 each) + 5 regular (value 1 each)
 export function distributeSoldiers(totalValue: number): TieredSoldier[] {
   if (totalValue <= 0) return [];
 
   const soldiers: TieredSoldier[] = [];
-  let remaining = totalValue;
 
-  // First pass: distribute evenly
-  const numSoldiers = Math.min(MAX_VISIBLE_SOLDIERS, Math.ceil(totalValue / SOLDIERS_PER_LEVEL));
-  const baseValue = Math.floor(totalValue / numSoldiers);
-  const extraValue = totalValue % numSoldiers;
+  // Calculate upgraded soldiers (every 10 soldiers = 1 upgraded)
+  const numUpgraded = Math.floor(totalValue / SOLDIERS_PER_UPGRADE);
+  // Regular soldiers are the remainder
+  const numRegular = totalValue % SOLDIERS_PER_UPGRADE;
 
-  for (let i = 0; i < numSoldiers; i++) {
-    const value = baseValue + (i < extraValue ? 1 : 0);
-    if (value > 0) {
-      soldiers.push({
-        id: i,
-        value,
-        level: calculateSoldierLevel(value),
-      });
-      remaining -= value;
-    }
+  // Add upgraded soldiers (each worth 10)
+  for (let i = 0; i < numUpgraded && soldiers.length < MAX_VISIBLE_SOLDIERS; i++) {
+    soldiers.push({
+      id: i,
+      value: 10,
+      level: 2, // Upgraded soldier with helmet
+    });
+  }
+
+  // Add regular soldiers (each worth 1)
+  for (let i = 0; i < numRegular && soldiers.length < MAX_VISIBLE_SOLDIERS; i++) {
+    soldiers.push({
+      id: numUpgraded + i,
+      value: 1,
+      level: 1, // Basic soldier
+    });
   }
 
   return soldiers;

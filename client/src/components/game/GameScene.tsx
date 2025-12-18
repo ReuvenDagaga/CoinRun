@@ -246,6 +246,13 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         // Gates span half the track (GATE_WIDTH=5), positioned at x=±2.5
         // A bullet hits if it's within the gate's horizontal span AND at the gate's z
         let hitGate = false;
+
+        // Debug: check first bullet occasionally
+        const shouldLog = bullet.id.endsWith('0') && Math.random() < 0.05;
+        if (shouldLog) {
+          console.log(`[Collision Check] Bullet at x=${newBullet.position.x.toFixed(1)}, z=${newBullet.position.z.toFixed(1)}, gates to check: ${gates.length}`);
+        }
+
         for (const gate of gates) {
           if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
 
@@ -257,9 +264,14 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
             const gateLeft = gate.position.x - GATE_WIDTH / 2;
             const gateRight = gate.position.x + GATE_WIDTH / 2;
 
+            if (shouldLog) {
+              console.log(`[Collision Check] Gate at z=${gate.position.z.toFixed(1)}, x=${gate.position.x.toFixed(1)}, distZ=${distZ.toFixed(1)}, gateLeft=${gateLeft.toFixed(1)}, gateRight=${gateRight.toFixed(1)}`);
+            }
+
             // Bullet hits if within gate's horizontal span (with small margin)
             if (newBullet.position.x >= gateLeft - 0.5 && newBullet.position.x <= gateRight + 0.5) {
               // Hit gate - enhance it
+              console.log(`[HIT] Bullet hit gate ${gate.id} at x=${newBullet.position.x.toFixed(1)}`);
               hitGate = true;
               gateHits.push({ gateId: gate.id });
               // Create damage popup at gate position for visibility

@@ -352,49 +352,52 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         });
       }
 
+      // ====== PROCESS HITS IMMEDIATELY INSIDE CALLBACK ======
+      // This ensures hits are processed in the same execution context, avoiding closure issues
+
+      // Process gate hits
+      if (gateHits.length > 0) {
+        console.log(`✨ PROCESSING ${gateHits.length} GATE HITS!`);
+
+        // Update REF immediately for instant reads (no waiting for React state)
+        gateHits.forEach(hit => {
+          const currentValue = gateEnhancementsRef.current.get(hit.gateId) || 0;
+          const newValue = currentValue + 1;
+          gateEnhancementsRef.current.set(hit.gateId, newValue);
+          console.log(`  🔥 Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue} (REF UPDATED IMMEDIATELY)`);
+        });
+
+        // Also update state for React re-renders (gate visuals)
+        setGateEnhancements(prev => {
+          const newMap = new Map(prev);
+          gateHits.forEach(hit => {
+            const currentValue = newMap.get(hit.gateId) || 0;
+            const newValue = currentValue + 1;
+            newMap.set(hit.gateId, newValue);
+          });
+          return newMap;
+        });
+
+        // Create floating damage numbers
+        gateHits.forEach(hit => {
+          createDamagePopup(hit.position, hit.damage);
+        });
+      }
+
+      // Process boulder hits
+      if (boulderHits.length > 0) {
+        boulderHits.forEach(hit => {
+          if (hit.destroy) {
+            setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== hit.enemyId));
+            boulderHealthRef.current.delete(hit.enemyId);
+            console.log(`💥 Boulder ${hit.enemyId} destroyed!`);
+          }
+          createDamagePopup(hit.position, hit.damage);
+        });
+      }
+
       return updatedBullets;
     });
-
-    // Process gate hits - NOW this will work because gateHits is populated in the function above
-    if (gateHits.length > 0) {
-      console.log(`✨ PROCESSING ${gateHits.length} GATE HITS!`);
-
-      // Update REF immediately for instant reads (no waiting for React state)
-      gateHits.forEach(hit => {
-        const currentValue = gateEnhancementsRef.current.get(hit.gateId) || 0;
-        const newValue = currentValue + 1;
-        gateEnhancementsRef.current.set(hit.gateId, newValue);
-        console.log(`  🔥 Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue} (REF UPDATED IMMEDIATELY)`);
-      });
-
-      // Also update state for React re-renders (gate visuals)
-      setGateEnhancements(prev => {
-        const newMap = new Map(prev);
-        gateHits.forEach(hit => {
-          const currentValue = newMap.get(hit.gateId) || 0;
-          const newValue = currentValue + 1;
-          newMap.set(hit.gateId, newValue);
-        });
-        return newMap;
-      });
-
-      // Create floating damage numbers
-      gateHits.forEach(hit => {
-        createDamagePopup(hit.position, hit.damage);
-      });
-    }
-
-    // Process boulder hits
-    if (boulderHits.length > 0) {
-      boulderHits.forEach(hit => {
-        if (hit.destroy) {
-          setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== hit.enemyId));
-          boulderHealthRef.current.delete(hit.enemyId);
-          console.log(`💥 Boulder ${hit.enemyId} destroyed!`);
-        }
-        createDamagePopup(hit.position, hit.damage);
-      });
-    }
   }, [player.position.z, createDamagePopup]);
 
   // Game loop - update time only (finish is handled in Player component)

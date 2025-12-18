@@ -45,6 +45,8 @@ import { TRACK_LENGTH } from './Track/config';
 
 // End game components
 import { FinishGate, Stairs, StairClimbController, EndGameCamera, Confetti } from './EndGame';
+import { OpponentCharacter } from '../OpponentCharacter';
+import { PlayerState } from '@shared/types/pvp.types';
 
 // Performance: limit max bullets to prevent lag with large armies
 const MAX_ACTIVE_BULLETS = 150;
@@ -55,9 +57,11 @@ type LoadingPhase = 'loading' | 'ready' | 'playing';
 interface GameSceneProps {
   mode: 'solo' | '1v1';
   trackSeed?: string;
+  opponentState?: PlayerState | null;
+  opponentSkin?: string;
 }
 
-export default function GameScene({ mode, trackSeed }: GameSceneProps) {
+export default function GameScene({ mode, trackSeed, opponentState, opponentSkin = 'default' }: GameSceneProps) {
   const {
     status,
     player,
@@ -858,6 +862,11 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
         {/* Player with smooth movement - hide during endgame */}
         {status !== 'endgame' && (
           <Player boulders={boulderCollisions} />
+        )}
+
+        {/* Opponent Character - only in 1v1 mode */}
+        {mode === '1v1' && opponentState && status !== 'endgame' && (
+          <OpponentCharacter opponentState={opponentState} skin={opponentSkin} />
         )}
 
         {/* Stair Climb Controller - handles player climbing during endgame */}

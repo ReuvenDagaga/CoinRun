@@ -40,6 +40,9 @@ export default function PvPGameScreen() {
   const [gameTime, setGameTime] = useState(0);
   const [maxTime, setMaxTime] = useState(150); // Default 150 seconds
   const [opponentName, setOpponentName] = useState('Opponent');
+  const [opponentSkin, setOpponentSkin] = useState('default');
+  const [yourSkin, setYourSkin] = useState('default');
+  const [trackSeed, setTrackSeed] = useState<string>('');
   const [isPaused, setIsPaused] = useState(false);
   const [disconnectedPlayer, setDisconnectedPlayer] = useState<string | null>(null);
   const [reconnecting, setReconnecting] = useState(false);
@@ -52,6 +55,32 @@ export default function PvPGameScreen() {
     if (!roomId || !user) {
       navigate('/pvp/lobby');
       return;
+    }
+
+    // Get match data from session storage (set by lobby screen)
+    const matchDataStr = sessionStorage.getItem(`pvp_match_${roomId}`);
+    if (matchDataStr) {
+      try {
+        const matchData = JSON.parse(matchDataStr);
+        // Determine which player we are based on user ID comparison
+        const isPlayer1 = matchData.player1.opponent.userId !== user._id;
+        const ourPayload = isPlayer1 ? matchData.player1 : matchData.player2;
+        const theirPayload = isPlayer1 ? matchData.player2 : matchData.player1;
+
+        setYourSkin(ourPayload.yourSkin);
+        setOpponentSkin(ourPayload.opponentSkin);
+        setTrackSeed(ourPayload.trackSeed.toString());
+        setOpponentName(ourPayload.opponent.username);
+
+        console.log('[PvP Game] Loaded match data:', {
+          isPlayer1,
+          yourSkin: ourPayload.yourSkin,
+          opponentSkin: ourPayload.opponentSkin,
+          opponentName: ourPayload.opponent.username
+        });
+      } catch (e) {
+        console.error('[PvP Game] Failed to parse match data:', e);
+      }
     }
 
     // Send ready signal
@@ -193,7 +222,12 @@ export default function PvPGameScreen() {
   return (
     <div className="w-full h-screen bg-gray-900 overflow-hidden touch-none no-select">
       {/* 3D Game Scene with PvP mode */}
-      <GameScene mode="1v1" />
+      <GameScene
+        mode="1v1"
+        trackSeed={trackSeed}
+        opponentState={opponentState}
+        opponentSkin={opponentSkin}
+      />
 
       {/* PvP HUD */}
       <PvPHUD

@@ -99,8 +99,11 @@ export function PvPLobbyScreen() {
 
       if (count === 0) {
         clearInterval(interval);
+        // Store match data in session storage for PvPGameScreen
+        const roomId = data.player1.roomId;
+        sessionStorage.setItem(`pvp_match_${roomId}`, JSON.stringify(data));
         // Navigate to game
-        navigate(`/pvp/game/${data.player1.roomId}`);
+        navigate(`/pvp/game/${roomId}`);
       }
     }, 1000);
   };

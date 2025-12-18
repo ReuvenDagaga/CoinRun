@@ -30,6 +30,7 @@ export interface PlayerState {
   lastInputSequence: number;
   progress: number;          // Track progress (0-1)
   completionTime?: number;   // Time when finished (in ms)
+  ready?: boolean;           // Player loaded and ready to start
 }
 
 export interface Vector3 {

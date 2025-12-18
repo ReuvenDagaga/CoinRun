@@ -6,6 +6,7 @@ import { AuthenticatedSocket } from '../../middleware/socketAuthMiddleware.js';
 import { LOGGER } from '../../log/logger.js';
 import { matchmakingService } from './matchmakingService.js';
 import { roomManager } from './RoomManager.js';
+import { coinHoldService } from '../../services/CoinHoldService.js';
 import { InputPacket } from '../../../../shared/types/pvp.types.js';
 
 export function setupPvPSocket(io: Server) {
@@ -32,6 +33,20 @@ export function setupPvPSocket(io: Server) {
       }
 
       try {
+        // Check if user can afford entry fee
+        const canAfford = await coinHoldService.canAffordEntry(userId);
+        if (!canAfford) {
+          socket.emit('error', { message: 'Insufficient coins. You need 1,000 coins to play.' });
+          return;
+        }
+
+        // Place hold on entry fee
+        const holdPlaced = await coinHoldService.placeHold(userId);
+        if (!holdPlaced) {
+          socket.emit('error', { message: 'Failed to place coin hold. Please try again.' });
+          return;
+        }
+
         const powerLevel = socket.user.getPowerLevel();
         const skin = socket.user.currentSkin || 'default';
         const avatar = socket.user.avatar;
@@ -50,6 +65,8 @@ export function setupPvPSocket(io: Server) {
         socket.emit('matchmaking:searching', { powerLevel });
       } catch (error: any) {
         LOGGER.error(`Matchmaking join error: ${error.message}`);
+        // Release hold on error
+        await coinHoldService.releaseHold(userId);
         socket.emit('error', { message: error.message });
       }
     });
@@ -57,11 +74,15 @@ export function setupPvPSocket(io: Server) {
     /**
      * Cancel matchmaking
      */
-    socket.on('matchmaking:cancel', () => {
+    socket.on('matchmaking:cancel', async () => {
       if (!userId) return;
 
       LOGGER.info(`User ${userId} canceling matchmaking`);
       matchmakingService.removeFromQueue(userId);
+
+      // Release coin hold
+      await coinHoldService.releaseHold(userId);
+
       socket.emit('matchmaking:canceled');
     });
 
@@ -159,12 +180,13 @@ export function setupPvPSocket(io: Server) {
     // DISCONNECTION HANDLING
     // ========================================================================
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
       LOGGER.info(`PvP socket disconnected: ${socket.id}`);
 
       if (userId) {
-        // Remove from matchmaking queue
+        // Remove from matchmaking queue and release hold
         matchmakingService.removeFromQueue(userId);
+        await coinHoldService.releaseHold(userId);
 
         // Handle active game disconnection
         const activeRoom = roomManager.getRoomByPlayerId(userId);

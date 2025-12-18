@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 import {
   joinMatchmaking,
   cancelMatchmaking,
@@ -12,12 +13,13 @@ import {
   onMatchFound,
   onMatchmakingTimeout,
   onMatchmakingCanceled,
-  disconnectPvPSocket
+  getPvPSocket
 } from '../services/pvpSocket';
-import { MatchFoundPayload } from '../../../shared/types/pvp.types';
+import { MatchFoundPayload, PVP_CONSTANTS } from '../../../shared/types/pvp.types';
 
 export function PvPLobbyScreen() {
   const navigate = useNavigate();
+  const { user, powerLevel: userPowerLevel } = useAuth();
 
   const [status, setStatus] = useState<'idle' | 'searching' | 'found' | 'countdown'>('idle');
   const [powerLevel, setPowerLevel] = useState<number>(0);
@@ -27,6 +29,13 @@ export function PvPLobbyScreen() {
   } | null>(null);
   const [countdown, setCountdown] = useState<number>(3);
   const [searchTime, setSearchTime] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialize socket connection on mount
+  useEffect(() => {
+    getPvPSocket(); // Ensure socket is connected
+    console.log('[Lobby] PvP socket initialized');
+  }, []);
 
   // Handle matchmaking
   useEffect(() => {
@@ -34,6 +43,7 @@ export function PvPLobbyScreen() {
       console.log('[Lobby] Searching...', data);
       setStatus('searching');
       setPowerLevel(data.powerLevel);
+      setError(null);
     });
 
     const unsubFound = onMatchFound((data) => {
@@ -51,7 +61,7 @@ export function PvPLobbyScreen() {
     const unsubTimeout = onMatchmakingTimeout(() => {
       console.log('[Lobby] Matchmaking timeout');
       setStatus('idle');
-      alert('No match found. Please try again.');
+      setError('No match found after 60 seconds. Please try again.');
     });
 
     const unsubCanceled = onMatchmakingCanceled(() => {
@@ -96,6 +106,18 @@ export function PvPLobbyScreen() {
   };
 
   const handleJoinQueue = () => {
+    if (!user) {
+      setError('Please log in to play PvP');
+      return;
+    }
+
+    // Check if user has enough coins
+    if (user.coins < PVP_CONSTANTS.ENTRY_FEE) {
+      setError(`You need ${PVP_CONSTANTS.ENTRY_FEE.toLocaleString()} coins to play. You have ${user.coins.toLocaleString()} coins.`);
+      return;
+    }
+
+    setError(null);
     setSearchTime(0);
     joinMatchmaking();
   };
@@ -108,7 +130,6 @@ export function PvPLobbyScreen() {
     if (status === 'searching') {
       cancelMatchmaking();
     }
-    disconnectPvPSocket();
     navigate('/');
   };
 
@@ -135,20 +156,31 @@ export function PvPLobbyScreen() {
               <div className="mb-6">
                 <div className="text-6xl mb-4">⚔️</div>
                 <h2 className="text-2xl font-bold text-white mb-2">Ready to Battle?</h2>
-                <p className="text-blue-200">Entry Fee: 1,000 coins</p>
-                <p className="text-green-300 text-lg mt-2">Winner takes: 1,950 coins + 10 gems</p>
+                <p className="text-blue-200">Entry Fee: {PVP_CONSTANTS.ENTRY_FEE.toLocaleString()} coins</p>
+                <p className="text-green-300 text-lg mt-2">
+                  Winner takes: {Math.floor(PVP_CONSTANTS.ENTRY_FEE * PVP_CONSTANTS.WINNER_MULTIPLIER).toLocaleString()} coins + {PVP_CONSTANTS.WINNER_GEMS} gems
+                </p>
+                {user && (
+                  <p className="text-gray-300 text-sm mt-2">Your balance: {user.coins.toLocaleString()} coins | Power Level: {userPowerLevel}</p>
+                )}
+                {error && (
+                  <div className="mt-4 bg-red-900/30 border border-red-500/50 rounded-lg px-4 py-3">
+                    <p className="text-red-300 text-sm">{error}</p>
+                  </div>
+                )}
               </div>
 
               <button
                 onClick={handleJoinQueue}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-xl py-4 px-12 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                disabled={!user || user.coins < PVP_CONSTANTS.ENTRY_FEE}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-xl py-4 px-12 rounded-xl transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 Find Match
               </button>
 
               <button
                 onClick={handleBack}
-                className="mt-4 text-blue-200 hover:text-white transition-colors"
+                className="mt-4 block mx-auto text-blue-200 hover:text-white transition-colors"
               >
                 ← Back to Menu
               </button>
@@ -168,7 +200,7 @@ export function PvPLobbyScreen() {
                 <div className="text-6xl mb-4 animate-pulse">🔍</div>
                 <h2 className="text-2xl font-bold text-white mb-2">Searching for Opponent...</h2>
                 <p className="text-blue-200">Power Level: {powerLevel}</p>
-                <p className="text-gray-300 mt-2">{searchTime}s</p>
+                <p className="text-gray-300 mt-2">{searchTime}s {searchTime >= 30 && '(Expanding search range...)'}</p>
               </div>
 
               {/* Animated searching indicator */}
@@ -205,7 +237,7 @@ export function PvPLobbyScreen() {
                   <div className="text-4xl mb-3">👤</div>
                   <h3 className="text-xl font-bold text-white mb-1">You</h3>
                   <p className="text-blue-200 text-sm">
-                    Power: {matchData.player1.opponent.powerLevel}
+                    Power: {userPowerLevel}
                   </p>
                 </div>
 

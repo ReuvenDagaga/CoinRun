@@ -7,6 +7,7 @@ import { LOGGER } from '../../log/logger.js';
 import { roomManager } from './RoomManager.js';
 import { emitMatchFound } from './socketManager.js';
 import { io } from '../../index.js';
+import { coinHoldService } from '../../services/CoinHoldService.js';
 
 class MatchmakingService {
   private queue: Map<string, QueueEntry> = new Map();
@@ -113,12 +114,16 @@ class MatchmakingService {
   /**
    * Create a match between two players
    */
-  private createMatch(player1: QueueEntry, player2: QueueEntry): void {
+  private async createMatch(player1: QueueEntry, player2: QueueEntry): Promise<void> {
     LOGGER.info(`Match found! P1: ${player1.userId} (${player1.powerLevel}) vs P2: ${player2.userId} (${player2.powerLevel})`);
 
     // Remove both from queue
     this.removeFromQueue(player1.userId);
     this.removeFromQueue(player2.userId);
+
+    // Convert coin holds to deductions
+    await coinHoldService.convertHoldToDeduction(player1.userId);
+    await coinHoldService.convertHoldToDeduction(player2.userId);
 
     // Generate track seed and length
     const trackSeed = Date.now() + Math.floor(Math.random() * 1000000);
@@ -217,11 +222,14 @@ class MatchmakingService {
   /**
    * Handle matchmaking timeout (60 seconds)
    */
-  private handleTimeout(userId: string): void {
+  private async handleTimeout(userId: string): Promise<void> {
     const player = this.queue.get(userId);
     if (!player) return;
 
     LOGGER.info(`Matchmaking timeout for ${userId}`);
+
+    // Release coin hold
+    await coinHoldService.releaseHold(userId);
 
     // Emit timeout event
     const pvpNamespace = io.of('/pvp');

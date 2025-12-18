@@ -157,12 +157,45 @@ export function setupPvPSocket(io: Server) {
       const room = roomManager.getRoom(roomId);
       if (!room) return;
 
+      // Update last activity time
+      const isPlayer1 = room.player1.userId === userId;
+      if (isPlayer1) {
+        room.player1.lastActivityAt = Date.now();
+        room.player1.inactivityWarned = false;
+      } else {
+        room.player2.lastActivityAt = Date.now();
+        room.player2.inactivityWarned = false;
+      }
+
       // Forward input to game loop for processing
       // Game loop will validate and apply input
       pvpNamespace.to(roomId).emit('game:player_input', {
         userId,
         input
       });
+    });
+
+    /**
+     * Player activity confirmation (for inactivity warning)
+     * Client sends: { roomId: string }
+     */
+    socket.on('player:activity', ({ roomId }: { roomId: string }) => {
+      if (!userId) return;
+
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+
+      // Update last activity time and clear warning
+      const isPlayer1 = room.player1.userId === userId;
+      if (isPlayer1) {
+        room.player1.lastActivityAt = Date.now();
+        room.player1.inactivityWarned = false;
+      } else {
+        room.player2.lastActivityAt = Date.now();
+        room.player2.inactivityWarned = false;
+      }
+
+      LOGGER.info(`Player ${userId} confirmed activity in room ${roomId}`);
     });
 
     /**

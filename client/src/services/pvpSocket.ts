@@ -153,6 +153,22 @@ export function sendPlayerDied(roomId: string) {
 }
 
 /**
+ * Confirm player activity (respond to inactivity warning)
+ */
+export function sendActivity(roomId: string) {
+  getPvPSocket().emit('player:activity', { roomId });
+}
+
+/**
+ * Listen for inactivity warning
+ */
+export function onInactivityWarning(callback: (data: { userId: string; username: string; secondsRemaining: number }) => void) {
+  const socket = getPvPSocket();
+  socket.on('player:inactivity_warning', callback);
+  return () => socket.off('player:inactivity_warning', callback);
+}
+
+/**
  * Listen for ready acknowledgment
  */
 export function onReadyAck(callback: (data: { roomId: string }) => void) {

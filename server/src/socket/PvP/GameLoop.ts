@@ -149,6 +149,9 @@ class GameLoopManager {
     // Update physics/positions (simplified for now)
     this.updatePhysics(room, deltaTime);
 
+    // Check for player inactivity
+    this.checkInactivity(room, now);
+
     // Check win conditions
     this.checkWinConditions(room);
 
@@ -178,6 +181,39 @@ class GameLoopManager {
     // In a full implementation, server would simulate physics
     // For CoinRun, we trust client physics but validate results
     // This prevents minor network discrepancies while catching major cheats
+  }
+
+  /**
+   * Check for player inactivity and warn/kick
+   */
+  private checkInactivity(room: GameRoom, now: number): void {
+    const pvpNamespace = io.of('/pvp');
+
+    // Check both players for inactivity
+    [room.player1, room.player2].forEach((player, index) => {
+      if (!player.isAlive || player.completionTime) return; // Skip dead or finished players
+
+      const timeSinceActivity = now - (player.lastActivityAt || now);
+
+      // Kick after warning time + kick time (40 seconds total)
+      if (player.inactivityWarned && timeSinceActivity >= PVP_CONSTANTS.INACTIVITY_WARNING_TIME + PVP_CONSTANTS.INACTIVITY_KICK_TIME) {
+        LOGGER.info(`Player ${player.userId} kicked for inactivity (${timeSinceActivity}ms)`);
+        // Declare opponent as winner
+        this.endGame(room.roomId, `player_${index === 0 ? '1' : '2'}_inactive`);
+        return;
+      }
+
+      // Warn after 30 seconds of inactivity
+      if (!player.inactivityWarned && timeSinceActivity >= PVP_CONSTANTS.INACTIVITY_WARNING_TIME) {
+        player.inactivityWarned = true;
+        LOGGER.info(`Inactivity warning for player ${player.userId} (${timeSinceActivity}ms)`);
+        pvpNamespace.to(room.roomId).emit('player:inactivity_warning', {
+          userId: player.userId,
+          username: player.username,
+          secondsRemaining: Math.floor(PVP_CONSTANTS.INACTIVITY_KICK_TIME / 1000)
+        });
+      }
+    });
   }
 
   /**

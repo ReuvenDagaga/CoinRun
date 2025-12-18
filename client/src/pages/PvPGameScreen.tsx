@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import GameScene from '@/components/game/GameScene';
 import PvPHUD from '@/components/PvPHUD';
 import DisconnectionOverlay, { ReconnectionOverlay } from '@/components/DisconnectionOverlay';
+import InactivityWarningPopup from '@/components/InactivityWarningPopup';
 import { useAuth } from '@/hooks/useAuth';
 import { useGame } from '@/context';
 import {
@@ -20,6 +21,8 @@ import {
   sendReady,
   sendFinished,
   sendPlayerDied,
+  sendActivity,
+  onInactivityWarning,
   disconnectPvPSocket
 } from '@/services/pvpSocket';
 import { EntityInterpolation } from '@/multiplayer/EntityInterpolation';
@@ -47,6 +50,8 @@ export default function PvPGameScreen() {
   const [disconnectedPlayer, setDisconnectedPlayer] = useState<string | null>(null);
   const [reconnecting, setReconnecting] = useState(false);
   const [reconnectCountdown, setReconnectCountdown] = useState(3);
+  const [showInactivityWarning, setShowInactivityWarning] = useState(false);
+  const [inactivitySecondsRemaining, setInactivitySecondsRemaining] = useState(10);
 
   const interpolator = useRef(new EntityInterpolation());
   const hasFinished = useRef(false);
@@ -170,6 +175,16 @@ export default function PvPGameScreen() {
       }, 2000);
     });
 
+    // Listen for inactivity warning
+    const unsubInactivity = onInactivityWarning((data) => {
+      console.log('[PvP Game] Inactivity warning:', data);
+      // Only show popup if it's for us
+      if (data.userId === user._id) {
+        setShowInactivityWarning(true);
+        setInactivitySecondsRemaining(data.secondsRemaining);
+      }
+    });
+
     // Cleanup
     return () => {
       unsubStart();
@@ -179,9 +194,18 @@ export default function PvPGameScreen() {
       unsubPaused();
       unsubResumed();
       unsubGameFinished();
+      unsubInactivity();
       interpolator.current.clear();
     };
   }, [roomId, user, navigate, opponentName]);
+
+  // Handle inactivity warning confirmation
+  const handleConfirmActivity = () => {
+    if (roomId) {
+      sendActivity(roomId);
+      setShowInactivityWarning(false);
+    }
+  };
 
   // Handle game events from GameContext
   useEffect(() => {
@@ -257,6 +281,13 @@ export default function PvPGameScreen() {
       {reconnecting && (
         <ReconnectionOverlay countdown={reconnectCountdown} />
       )}
+
+      {/* Inactivity Warning Popup */}
+      <InactivityWarningPopup
+        isVisible={showInactivityWarning}
+        secondsRemaining={inactivitySecondsRemaining}
+        onConfirm={handleConfirmActivity}
+      />
 
       {/* Pre-game countdown */}
       {!gameStarted && (

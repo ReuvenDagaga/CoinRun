@@ -4,8 +4,7 @@
  */
 import { io, Socket } from 'socket.io-client';
 import { MatchFoundPayload, InputPacket, GameStatePacket } from '../../../shared/types/pvp.types';
-
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
+import { CLIENT_CONSTANTS } from '@/utils/constants';
 
 let pvpSocket: Socket | null = null;
 
@@ -16,7 +15,10 @@ export function getPvPSocket(): Socket {
   if (!pvpSocket) {
     const token = localStorage.getItem('token');
 
-    pvpSocket = io(`${SOCKET_URL}/pvp`, {
+    console.log('[PvP Socket] Initializing with token:', token ? 'Present' : 'Missing');
+    console.log('[PvP Socket] Socket URL:', CLIENT_CONSTANTS.SOCKET_URL);
+
+    pvpSocket = io(`${CLIENT_CONSTANTS.SOCKET_URL}/pvp`, {
       auth: { token },
       transports: ['websocket'],
       reconnection: true,

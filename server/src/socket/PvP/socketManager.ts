@@ -108,7 +108,42 @@ export function setupPvPSocket(io: Server) {
         return;
       }
 
-      // Mark player as ready (handled by game loop)
+      // Join room for socket events
+      socket.join(roomId);
+
+      // Mark player as ready
+      const isPlayer1 = room.player1.userId === userId;
+      if (isPlayer1) {
+        room.player1.ready = true;
+      } else {
+        room.player2.ready = true;
+      }
+
+      LOGGER.info(`Player ${userId} ready. P1: ${room.player1.ready}, P2: ${room.player2.ready}`);
+
+      // If both players are ready, start the game
+      if (room.player1.ready && room.player2.ready) {
+        LOGGER.info(`Both players ready in room ${roomId}. Starting game in 3 seconds...`);
+
+        // Send countdown to both players
+        pvpNamespace.to(roomId).emit('game:countdown', { seconds: 3 });
+
+        // Start game after 3 second countdown
+        setTimeout(() => {
+          LOGGER.info(`Starting game for room ${roomId}`);
+          pvpNamespace.to(roomId).emit('game:start', {
+            roomId,
+            trackSeed: room.trackSeed,
+            trackLength: room.trackLength,
+            maxTime: room.maxTime
+          });
+
+          // Start game loop
+          const { gameLoopManager } = require('./GameLoop.js');
+          gameLoopManager.startGameLoop(roomId);
+        }, 3000);
+      }
+
       socket.emit('game:ready_ack', { roomId });
     });
 
@@ -122,12 +157,45 @@ export function setupPvPSocket(io: Server) {
       const room = roomManager.getRoom(roomId);
       if (!room) return;
 
+      // Update last activity time
+      const isPlayer1 = room.player1.userId === userId;
+      if (isPlayer1) {
+        room.player1.lastActivityAt = Date.now();
+        room.player1.inactivityWarned = false;
+      } else {
+        room.player2.lastActivityAt = Date.now();
+        room.player2.inactivityWarned = false;
+      }
+
       // Forward input to game loop for processing
       // Game loop will validate and apply input
       pvpNamespace.to(roomId).emit('game:player_input', {
         userId,
         input
       });
+    });
+
+    /**
+     * Player activity confirmation (for inactivity warning)
+     * Client sends: { roomId: string }
+     */
+    socket.on('player:activity', ({ roomId }: { roomId: string }) => {
+      if (!userId) return;
+
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+
+      // Update last activity time and clear warning
+      const isPlayer1 = room.player1.userId === userId;
+      if (isPlayer1) {
+        room.player1.lastActivityAt = Date.now();
+        room.player1.inactivityWarned = false;
+      } else {
+        room.player2.lastActivityAt = Date.now();
+        room.player2.inactivityWarned = false;
+      }
+
+      LOGGER.info(`Player ${userId} confirmed activity in room ${roomId}`);
     });
 
     /**

@@ -30,6 +30,9 @@ export interface PlayerState {
   lastInputSequence: number;
   progress: number;          // Track progress (0-1)
   completionTime?: number;   // Time when finished (in ms)
+  ready?: boolean;           // Player loaded and ready to start
+  lastActivityAt?: number;   // Last input/activity timestamp
+  inactivityWarned?: boolean; // Whether inactivity warning was sent
 }
 
 export interface Vector3 {
@@ -149,6 +152,8 @@ export const PVP_CONSTANTS = {
   WINNER_MULTIPLIER: 1.95,
   WINNER_GEMS: 10,
   LOSER_GEMS: 1,
+  INACTIVITY_WARNING_TIME: 30000,  // 30 seconds
+  INACTIVITY_KICK_TIME: 10000,     // 10 seconds after warning
   SOLDIER_POINTS: 10,
   TIME_BONUS_POINTS: 5,
   TICK_RATE: 30,             // ticks per second

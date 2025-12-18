@@ -37,14 +37,20 @@ class RoomManager {
         position: { x: 0, y: 0, z: 0 },
         velocity: { x: 0, y: 0, z: 0 },
         lastInputSequence: 0,
-        progress: 0
+        progress: 0,
+        ready: false,
+        lastActivityAt: Date.now(),
+        inactivityWarned: false
       },
       player2: {
         ...player2,
         position: { x: 0, y: 0, z: 0 },
         velocity: { x: 0, y: 0, z: 0 },
         lastInputSequence: 0,
-        progress: 0
+        progress: 0,
+        ready: false,
+        lastActivityAt: Date.now(),
+        inactivityWarned: false
       },
       state: RoomState.WAITING,
       trackSeed,

@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import GameScene from '@/components/game/GameScene';
 import PvPHUD from '@/components/PvPHUD';
 import DisconnectionOverlay, { ReconnectionOverlay } from '@/components/DisconnectionOverlay';
+import InactivityWarningPopup from '@/components/InactivityWarningPopup';
 import { useAuth } from '@/hooks/useAuth';
 import { useGame } from '@/context';
 import {
@@ -20,6 +21,8 @@ import {
   sendReady,
   sendFinished,
   sendPlayerDied,
+  sendActivity,
+  onInactivityWarning,
   disconnectPvPSocket
 } from '@/services/pvpSocket';
 import { EntityInterpolation } from '@/multiplayer/EntityInterpolation';
@@ -40,10 +43,15 @@ export default function PvPGameScreen() {
   const [gameTime, setGameTime] = useState(0);
   const [maxTime, setMaxTime] = useState(150); // Default 150 seconds
   const [opponentName, setOpponentName] = useState('Opponent');
+  const [opponentSkin, setOpponentSkin] = useState('default');
+  const [yourSkin, setYourSkin] = useState('default');
+  const [trackSeed, setTrackSeed] = useState<string>('');
   const [isPaused, setIsPaused] = useState(false);
   const [disconnectedPlayer, setDisconnectedPlayer] = useState<string | null>(null);
   const [reconnecting, setReconnecting] = useState(false);
   const [reconnectCountdown, setReconnectCountdown] = useState(3);
+  const [showInactivityWarning, setShowInactivityWarning] = useState(false);
+  const [inactivitySecondsRemaining, setInactivitySecondsRemaining] = useState(10);
 
   const interpolator = useRef(new EntityInterpolation());
   const hasFinished = useRef(false);
@@ -52,6 +60,32 @@ export default function PvPGameScreen() {
     if (!roomId || !user) {
       navigate('/pvp/lobby');
       return;
+    }
+
+    // Get match data from session storage (set by lobby screen)
+    const matchDataStr = sessionStorage.getItem(`pvp_match_${roomId}`);
+    if (matchDataStr) {
+      try {
+        const matchData = JSON.parse(matchDataStr);
+        // Determine which player we are based on user ID comparison
+        const isPlayer1 = matchData.player1.opponent.userId !== user._id;
+        const ourPayload = isPlayer1 ? matchData.player1 : matchData.player2;
+        const theirPayload = isPlayer1 ? matchData.player2 : matchData.player1;
+
+        setYourSkin(ourPayload.yourSkin);
+        setOpponentSkin(ourPayload.opponentSkin);
+        setTrackSeed(ourPayload.trackSeed.toString());
+        setOpponentName(ourPayload.opponent.username);
+
+        console.log('[PvP Game] Loaded match data:', {
+          isPlayer1,
+          yourSkin: ourPayload.yourSkin,
+          opponentSkin: ourPayload.opponentSkin,
+          opponentName: ourPayload.opponent.username
+        });
+      } catch (e) {
+        console.error('[PvP Game] Failed to parse match data:', e);
+      }
     }
 
     // Send ready signal
@@ -133,10 +167,22 @@ export default function PvPGameScreen() {
     // Listen for game finished
     const unsubGameFinished = onGameFinished((result) => {
       console.log('[PvP Game] Game finished:', result);
+      // Store result in session storage for results screen
+      sessionStorage.setItem(`pvp_result_${roomId}`, JSON.stringify(result));
       // Navigate to results after short delay
       setTimeout(() => {
         navigate(`/pvp/results/${roomId}`);
       }, 2000);
+    });
+
+    // Listen for inactivity warning
+    const unsubInactivity = onInactivityWarning((data) => {
+      console.log('[PvP Game] Inactivity warning:', data);
+      // Only show popup if it's for us
+      if (data.userId === user._id) {
+        setShowInactivityWarning(true);
+        setInactivitySecondsRemaining(data.secondsRemaining);
+      }
     });
 
     // Cleanup
@@ -148,9 +194,18 @@ export default function PvPGameScreen() {
       unsubPaused();
       unsubResumed();
       unsubGameFinished();
+      unsubInactivity();
       interpolator.current.clear();
     };
   }, [roomId, user, navigate, opponentName]);
+
+  // Handle inactivity warning confirmation
+  const handleConfirmActivity = () => {
+    if (roomId) {
+      sendActivity(roomId);
+      setShowInactivityWarning(false);
+    }
+  };
 
   // Handle game events from GameContext
   useEffect(() => {
@@ -193,7 +248,12 @@ export default function PvPGameScreen() {
   return (
     <div className="w-full h-screen bg-gray-900 overflow-hidden touch-none no-select">
       {/* 3D Game Scene with PvP mode */}
-      <GameScene mode="1v1" />
+      <GameScene
+        mode="1v1"
+        trackSeed={trackSeed}
+        opponentState={opponentState}
+        opponentSkin={opponentSkin}
+      />
 
       {/* PvP HUD */}
       <PvPHUD
@@ -221,6 +281,13 @@ export default function PvPGameScreen() {
       {reconnecting && (
         <ReconnectionOverlay countdown={reconnectCountdown} />
       )}
+
+      {/* Inactivity Warning Popup */}
+      <InactivityWarningPopup
+        isVisible={showInactivityWarning}
+        secondsRemaining={inactivitySecondsRemaining}
+        onConfirm={handleConfirmActivity}
+      />
 
       {/* Pre-game countdown */}
       {!gameStarted && (

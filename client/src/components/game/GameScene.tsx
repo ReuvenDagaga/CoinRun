@@ -234,10 +234,6 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     enemiesRef.current = enemies;
   }, [enemies]);
 
-  // Refs to store hits that need processing (avoids closure issues with state setters)
-  const pendingGateHitsRef = useRef<{ gateId: string; position: { x: number; y: number; z: number }; damage: number }[]>([]);
-  const pendingBoulderHitsRef = useRef<{ enemyId: string; position: { x: number; y: number; z: number }; damage: number; destroy: boolean }[]>([]);
-
   const updateBullets = useCallback((delta: number) => {
     const now = Date.now();
     const playerZ = player.position.z;
@@ -246,9 +242,9 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     const currentGates = gatesRef.current;
     const currentEnemies = enemiesRef.current;
 
-    // Clear pending hits
-    pendingGateHitsRef.current = [];
-    pendingBoulderHitsRef.current = [];
+    // Use LOCAL arrays to accumulate hits (not refs - refs have timing issues!)
+    const gateHits: { gateId: string; position: { x: number; y: number; z: number }; damage: number }[] = [];
+    const boulderHits: { enemyId: string; position: { x: number; y: number; z: number }; damage: number; destroy: boolean }[] = [];
 
     setBullets(prev => {
       if (prev.length === 0) return prev;
@@ -304,10 +300,10 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
           const gateMaxX = gate.position.x + GATE_WIDTH / 2 + 0.5;
 
           if (newPos.x >= gateMinX && newPos.x <= gateMaxX) {
-            // HIT! Bullet collided with gate - store in ref (not closure variable)
+            // HIT! Bullet collided with gate
             console.log(`🎯 BULLET HIT GATE! Gate: ${gate.id}, Bullet Z: ${newPos.z.toFixed(1)}, Gate Z: ${gate.position.z.toFixed(0)}`);
 
-            pendingGateHitsRef.current.push({
+            gateHits.push({
               gateId: gate.id,
               position: { x: gate.position.x, y: 2, z: gate.position.z },
               damage: bullet.sourceIndex,
@@ -332,7 +328,7 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
             const currentHealth = boulderHealthRef.current.get(enemy.id) ?? 10;
             const newHealth = currentHealth - 1;
 
-            pendingBoulderHitsRef.current.push({
+            boulderHits.push({
               enemyId: enemy.id,
               position: { ...newPos },
               damage: bullet.sourceIndex,
@@ -357,37 +353,39 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
       return updatedBullets;
     });
 
-    // Process gate hits AFTER state update - using refs to avoid closure issues
-    const gateHits = pendingGateHitsRef.current;
+    // Process gate hits - NOW this will work because gateHits is populated in the function above
     if (gateHits.length > 0) {
       console.log(`✨ PROCESSING ${gateHits.length} GATE HITS!`);
 
-      gateHits.forEach(hit => {
-        // Update gate enhancement count
-        setGateEnhancements(prev => {
-          const newMap = new Map(prev);
+      // Batch all enhancements into a single state update for performance
+      setGateEnhancements(prev => {
+        const newMap = new Map(prev);
+        gateHits.forEach(hit => {
           const currentValue = newMap.get(hit.gateId) || 0;
           const newValue = currentValue + 1;
           console.log(`  🔥 Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue}`);
           newMap.set(hit.gateId, newValue);
-          return newMap;
         });
+        return newMap;
+      });
 
-        // Create floating damage number
+      // Create floating damage numbers
+      gateHits.forEach(hit => {
         createDamagePopup(hit.position, hit.damage);
       });
     }
 
     // Process boulder hits
-    const boulderHits = pendingBoulderHitsRef.current;
-    boulderHits.forEach(hit => {
-      if (hit.destroy) {
-        setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== hit.enemyId));
-        boulderHealthRef.current.delete(hit.enemyId);
-        console.log(`💥 Boulder ${hit.enemyId} destroyed!`);
-      }
-      createDamagePopup(hit.position, hit.damage);
-    });
+    if (boulderHits.length > 0) {
+      boulderHits.forEach(hit => {
+        if (hit.destroy) {
+          setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== hit.enemyId));
+          boulderHealthRef.current.delete(hit.enemyId);
+          console.log(`💥 Boulder ${hit.enemyId} destroyed!`);
+        }
+        createDamagePopup(hit.position, hit.damage);
+      });
+    }
   }, [player.position.z, createDamagePopup]);
 
   // Game loop - update time only (finish is handled in Player component)

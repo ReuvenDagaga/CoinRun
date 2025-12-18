@@ -58,6 +58,7 @@ const userSchema = new Schema<IUser>({
   // Balances - VIRTUAL ONLY (NO CRYPTO!)
   coins: { type: Number, default: 1000, min: 0 },
   gems: { type: Number, default: 50, min: 0 },
+  heldCoins: { type: Number, default: 0, min: 0 }, // Coins held during matchmaking
 
   // Stats
   gamesPlayed: { type: Number, default: 0, min: 0 },

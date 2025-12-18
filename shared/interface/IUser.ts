@@ -18,6 +18,7 @@ export interface IUser extends Document {
   // Balances (VIRTUAL CURRENCIES ONLY - NO CRYPTO)
   coins: number;
   gems: number;
+  heldCoins: number; // Coins held during matchmaking
 
   // Stats
   gamesPlayed: number;
@@ -69,6 +70,7 @@ export interface IUserData {
   // Balances (VIRTUAL CURRENCIES ONLY - NO CRYPTO)
   coins: number;
   gems: number;
+  heldCoins: number; // Coins held during matchmaking
 
   // Stats
   gamesPlayed: number;

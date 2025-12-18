@@ -214,6 +214,14 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     const gateHits: { gateId: string }[] = [];
 
     setBullets(prev => {
+      // Debug log once per second
+      if (prev.length > 0 && Math.random() < 0.02) {
+        console.log(`[updateBullets] Processing ${prev.length} bullets, ${gates.length} total gates, player at z=${player.position.z.toFixed(0)}`);
+        // Find nearby gates
+        const nearbyGates = gates.filter(g => Math.abs(g.position.z - player.position.z) < 50);
+        console.log(`[updateBullets] Nearby gates (within 50): ${nearbyGates.length}`, nearbyGates.map(g => ({ id: g.id, z: g.position.z.toFixed(0), x: g.position.x.toFixed(1) })));
+      }
+
       const updatedBullets: BulletData[] = [];
 
       for (const bullet of prev) {

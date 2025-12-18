@@ -162,6 +162,8 @@ export default function PvPGameScreen() {
     // Listen for game finished
     const unsubGameFinished = onGameFinished((result) => {
       console.log('[PvP Game] Game finished:', result);
+      // Store result in session storage for results screen
+      sessionStorage.setItem(`pvp_result_${roomId}`, JSON.stringify(result));
       // Navigate to results after short delay
       setTimeout(() => {
         navigate(`/pvp/results/${roomId}`);

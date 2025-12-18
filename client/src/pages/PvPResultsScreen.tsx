@@ -6,64 +6,70 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PVP_CONSTANTS } from '../../../shared/types/pvp.types';
+import { useAuth } from '@/hooks/useAuth';
 
-interface MatchResult {
+interface GameResult {
+  roomId: string;
   winnerId: string | null;
   player1: {
     userId: string;
-    username: string;
     soldiers: number;
     completionTime: number;
-    score: number;
+    isAlive: boolean;
   };
   player2: {
     userId: string;
-    username: string;
     soldiers: number;
     completionTime: number;
-    score: number;
+    isAlive: boolean;
   };
-  winCondition: string;
+  reason: string;
 }
 
 export function PvPResultsScreen() {
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const [result, setResult] = useState<MatchResult | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string>(''); // Would come from auth context
+  const { user } = useAuth();
+  const [result, setResult] = useState<GameResult | null>(null);
   const [showRewards, setShowRewards] = useState(false);
+  const [player1Name, setPlayer1Name] = useState('Player 1');
+  const [player2Name, setPlayer2Name] = useState('Player 2');
 
-  // Mock result for demonstration
+  // Get result from session storage (set by PvPGameScreen when game:finished is received)
   useEffect(() => {
-    // In real implementation, this would come from the game finished event
-    // or fetched from the server
-    setTimeout(() => {
-      setResult({
-        winnerId: 'player1',
-        player1: {
-          userId: 'player1',
-          username: 'You',
-          soldiers: 45,
-          completionTime: 120000,
-          score: 450 + 150
-        },
-        player2: {
-          userId: 'player2',
-          username: 'Opponent',
-          soldiers: 38,
-          completionTime: 135000,
-          score: 380 + 75
-        },
-        winCondition: 'HIGHER_SCORE'
-      });
-      setCurrentUserId('player1');
-    }, 500);
+    const resultStr = sessionStorage.getItem(`pvp_result_${roomId}`);
+    if (resultStr) {
+      try {
+        const gameResult = JSON.parse(resultStr) as GameResult;
+        setResult(gameResult);
 
-    // Show rewards after 2 seconds
-    setTimeout(() => {
-      setShowRewards(true);
-    }, 2500);
-  }, [roomId]);
+        // Get player names from match data
+        const matchDataStr = sessionStorage.getItem(`pvp_match_${roomId}`);
+        if (matchDataStr) {
+          const matchData = JSON.parse(matchDataStr);
+          // Determine names based on user ID
+          const isPlayer1 = matchData.player1.opponent.userId !== user?._id;
+          if (isPlayer1) {
+            setPlayer1Name('You');
+            setPlayer2Name(matchData.player1.opponent.username);
+          } else {
+            setPlayer1Name(matchData.player2.opponent.username);
+            setPlayer2Name('You');
+          }
+        }
+
+        // Show rewards after 2 seconds
+        setTimeout(() => {
+          setShowRewards(true);
+        }, 2500);
+
+        // Clear session storage after loading
+        sessionStorage.removeItem(`pvp_result_${roomId}`);
+      } catch (e) {
+        console.error('[Results] Failed to parse result data:', e);
+      }
+    }
+  }, [roomId, user]);
 
   if (!result) {
     return (
@@ -73,10 +79,23 @@ export function PvPResultsScreen() {
     );
   }
 
-  const isWinner = result.winnerId === currentUserId;
+  const isWinner = result.winnerId === user?._id;
   const isDraw = result.winnerId === null;
-  const myStats = result.player1.userId === currentUserId ? result.player1 : result.player2;
-  const opponentStats = result.player1.userId === currentUserId ? result.player2 : result.player1;
+
+  // Calculate scores based on PvP formula
+  const maxTime = 150; // seconds
+  const score1 = (result.player1.soldiers * PVP_CONSTANTS.SOLDIER_POINTS) +
+                  ((maxTime * 1000 - result.player1.completionTime) / 1000 * PVP_CONSTANTS.TIME_BONUS_POINTS);
+  const score2 = (result.player2.soldiers * PVP_CONSTANTS.SOLDIER_POINTS) +
+                  ((maxTime * 1000 - result.player2.completionTime) / 1000 * PVP_CONSTANTS.TIME_BONUS_POINTS);
+
+  const myStats = result.player1.userId === user?._id
+    ? { ...result.player1, username: player1Name, score: score1 }
+    : { ...result.player2, username: player2Name, score: score2 };
+
+  const opponentStats = result.player1.userId === user?._id
+    ? { ...result.player2, username: player2Name, score: score2 }
+    : { ...result.player1, username: player1Name, score: score1 };
 
   const winnerCoins = Math.floor(PVP_CONSTANTS.ENTRY_FEE * PVP_CONSTANTS.WINNER_MULTIPLIER);
 

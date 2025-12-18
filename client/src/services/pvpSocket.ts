@@ -15,11 +15,19 @@ export function getPvPSocket(): Socket {
   if (!pvpSocket) {
     const token = localStorage.getItem('token');
 
-    console.log('[PvP Socket] Initializing with token:', token ? 'Present' : 'Missing');
+    console.log('═══════════════════════════════════════════');
+    console.log('[PvP Socket] 🔍 DIAGNOSTIC INFO:');
+    console.log('[PvP Socket] Token exists:', !!token);
+    console.log('[PvP Socket] Token length:', token?.length || 0);
+    console.log('[PvP Socket] Token preview:', token ? token.substring(0, 20) + '...' : 'null');
     console.log('[PvP Socket] Socket URL:', CLIENT_CONSTANTS.SOCKET_URL);
+    console.log('[PvP Socket] Full URL:', `${CLIENT_CONSTANTS.SOCKET_URL}/pvp`);
+    console.log('═══════════════════════════════════════════');
 
     pvpSocket = io(`${CLIENT_CONSTANTS.SOCKET_URL}/pvp`, {
-      auth: { token },
+      auth: {
+        token: token
+      },
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 10,
@@ -29,19 +37,19 @@ export function getPvPSocket(): Socket {
 
     // Connection events
     pvpSocket.on('connect', () => {
-      console.log('[PvP] Connected:', pvpSocket?.id);
+      console.log('[PvP] ✅ Connected:', pvpSocket?.id);
     });
 
     pvpSocket.on('disconnect', (reason) => {
-      console.log('[PvP] Disconnected:', reason);
+      console.log('[PvP] ❌ Disconnected:', reason);
     });
 
     pvpSocket.on('connect_error', (error) => {
-      console.error('[PvP] Connection error:', error);
+      console.error('[PvP] ⚠️ Connection error:', error);
     });
 
     pvpSocket.on('error', (error) => {
-      console.error('[PvP] Error:', error);
+      console.error('[PvP] ❌ Error:', error);
     });
   }
 

@@ -2,7 +2,7 @@
  * PvP Socket Manager - Main socket.io handler for 1v1 PvP
  */
 import { Server } from 'socket.io';
-import { AuthenticatedSocket } from '../../middleware/socketAuthMiddleware.js';
+import { AuthenticatedSocket, setupNamespaceAuth } from '../../middleware/socketAuthMiddleware.js';
 import { LOGGER } from '../../log/logger.js';
 import { matchmakingService } from './matchmakingService.js';
 import { roomManager } from './RoomManager.js';
@@ -11,6 +11,9 @@ import { InputPacket } from '../../../../shared/types/pvp.types.js';
 
 export function setupPvPSocket(io: Server) {
   const pvpNamespace = io.of('/pvp');
+
+  // Apply authentication middleware to PvP namespace
+  setupNamespaceAuth(pvpNamespace);
 
   pvpNamespace.on('connection', (socket: AuthenticatedSocket) => {
     const userId = socket.userId;

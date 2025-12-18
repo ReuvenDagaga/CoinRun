@@ -8,6 +8,7 @@ import http from 'http';
 import { Server as SocketServer } from 'socket.io';
 import mainRoutes from './routers/mainRoutes.js';
 import { setupRunnerSocket } from './socket/Runner/socket.js';
+import { setupPvPSocket } from './socket/PvP/socketManager.js';
 import { setupSocketAuth } from './middleware/socketAuthMiddleware.js';
 import { connectToMongo, disconnectFromMongo } from './db/db.js';
 import { CONFIG } from './config/enviroments.js';
@@ -30,6 +31,7 @@ app.use('/api', mainRoutes);
 
 setupSocketAuth(io);
 setupRunnerSocket(io);
+setupPvPSocket(io);
 
 
 const startServer = async () => {

@@ -41,12 +41,10 @@ import { generateTrackLayout } from './TrackLayoutManager';
 import { BulletSystem, DamagePopups, DamagePopup } from './weapons/BulletSystem';
 import { BulletData, BULLET_LIFETIME, getWeaponTier, WeaponTier, WEAPON_CONFIGS } from './weapons/types';
 import { getPlayerSpeed, GAME_CONSTANTS } from '@shared/types/game.types';
+import { TRACK_LENGTH } from './Track/config';
 
 // End game components
 import { FinishGate, Stairs, StairClimbController, EndGameCamera, Confetti } from './EndGame';
-
-// Track length increased to 2000 meters
-const TRACK_LENGTH = 2000;
 
 // Performance: limit max bullets to prevent lag with large armies
 const MAX_ACTIVE_BULLETS = 150;

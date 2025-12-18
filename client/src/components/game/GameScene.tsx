@@ -90,6 +90,22 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
   // Loading phase state
   const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('loading');
 
+  // Restart overlay - shown for 3 seconds when restarting to hide ugly transition
+  const [showRestartOverlay, setShowRestartOverlay] = useState(() => {
+    return sessionStorage.getItem('game_restarting') === 'true';
+  });
+
+  // Hide restart overlay after 3 seconds
+  useEffect(() => {
+    if (showRestartOverlay) {
+      const timer = setTimeout(() => {
+        setShowRestartOverlay(false);
+        sessionStorage.removeItem('game_restarting');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showRestartOverlay]);
+
   // Soldier pickups state
   const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);
 
@@ -205,165 +221,176 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
     }
   }, [loadingPhase, startCountdown]);
 
-  // Update bullets and check collisions - MUST be defined before game loop useEffect
+  // Update bullets and check collisions - COMPLETELY REWRITTEN FROM SCRATCH
+  // Key fix: Use refs to always access latest state, not closures
+  const gatesRef = useRef(gates);
+  const enemiesRef = useRef(enemies);
+
+  // Keep refs up to date
+  useEffect(() => {
+    gatesRef.current = gates;
+    console.log(`[Gates Update] Gates ref updated: ${gates.length} gates`);
+  }, [gates]);
+
+  useEffect(() => {
+    enemiesRef.current = enemies;
+  }, [enemies]);
+
   const updateBullets = useCallback((delta: number) => {
     const now = Date.now();
+    const playerZ = player.position.z;
 
-    // Collect hits for damage popups (can't create inside setState)
-    const hitEvents: { position: { x: number; y: number; z: number }; damage: number }[] = [];
-    const gateHits: { gateId: string }[] = [];
+    // Use refs to get CURRENT values, not stale closures
+    const currentGates = gatesRef.current;
+    const currentEnemies = enemiesRef.current;
+
+    // Collect hits for processing after state update
+    const gateHitsToProcess: { gateId: string; position: { x: number; y: number; z: number }; damage: number }[] = [];
+    const boulderHitsToProcess: { enemyId: string; position: { x: number; y: number; z: number }; damage: number; destroy: boolean }[] = [];
 
     setBullets(prev => {
-      // Debug log once per second
-      if (prev.length > 0 && Math.random() < 0.02) {
-        console.log(`[updateBullets] Processing ${prev.length} bullets, ${gates.length} total gates, player at z=${player.position.z.toFixed(0)}`);
-        // Find nearby gates
-        const nearbyGates = gates.filter(g => Math.abs(g.position.z - player.position.z) < 50);
-        console.log(`[updateBullets] Nearby gates (within 50): ${nearbyGates.length}`, nearbyGates.map(g => ({ id: g.id, z: g.position.z.toFixed(0), x: g.position.x.toFixed(1) })));
+      if (prev.length === 0) return prev;
+
+      // Debug logging - every ~2 seconds
+      if (Math.random() < 0.03) {
+        console.log(`=== BULLET UPDATE DEBUG ===`);
+        console.log(`Bullets: ${prev.length}, Gates: ${currentGates.length}, Player Z: ${playerZ.toFixed(0)}`);
+
+        // Show gates ahead of player
+        const gatesAhead = currentGates.filter(g => g.position.z > playerZ && g.position.z < playerZ + 100);
+        console.log(`Gates ahead (next 100 units): ${gatesAhead.length}`);
+        gatesAhead.slice(0, 3).forEach(g => {
+          const triggered = triggeredGateIds.current.has(g.id);
+          console.log(`  Gate ${g.id}: z=${g.position.z.toFixed(0)}, x=${g.position.x.toFixed(1)}, triggered=${triggered}`);
+        });
+
+        // Show first few bullets
+        prev.slice(0, 3).forEach((b, i) => {
+          console.log(`  Bullet ${i}: z=${b.position.z.toFixed(0)}, x=${b.position.x.toFixed(1)}`);
+        });
       }
 
       const updatedBullets: BulletData[] = [];
 
       for (const bullet of prev) {
         // Update position
-        const newBullet = {
-          ...bullet,
-          position: {
-            x: bullet.position.x + bullet.velocity.x * delta,
-            y: bullet.position.y + bullet.velocity.y * delta,
-            z: bullet.position.z + bullet.velocity.z * delta,
-          },
+        const newPos = {
+          x: bullet.position.x + bullet.velocity.x * delta,
+          y: bullet.position.y + bullet.velocity.y * delta,
+          z: bullet.position.z + bullet.velocity.z * delta,
         };
 
-        // Check lifetime
-        if (now - bullet.createdAt > BULLET_LIFETIME) {
-          continue;
-        }
+        // Skip if expired
+        if (now - bullet.createdAt > BULLET_LIFETIME) continue;
 
-        // Check if bullet is behind player
-        if (newBullet.position.z < player.position.z - 20) {
-          continue;
-        }
+        // Skip if too far behind player
+        if (newPos.z < playerZ - 20) continue;
 
-        // Check if bullet is way too far ahead
-        if (newBullet.position.z > player.position.z + 200) {
-          continue;
-        }
+        // Skip if way too far ahead
+        if (newPos.z > playerZ + 200) continue;
 
-        // Check collision with gates (improve them)
-        // Gates span half the track (GATE_WIDTH=5), positioned at x=±2.5
-        // A bullet hits if it's within the gate's horizontal span AND at the gate's z
-        let hitGate = false;
+        let bulletConsumed = false;
 
-        // Debug: check first bullet occasionally
-        const shouldLog = bullet.id.endsWith('0') && Math.random() < 0.05;
-        if (shouldLog) {
-          console.log(`[Collision Check] Bullet at x=${newBullet.position.x.toFixed(1)}, z=${newBullet.position.z.toFixed(1)}, gates to check: ${gates.length}`);
-        }
+        // === GATE COLLISION - SIMPLIFIED AND CLEAR ===
+        for (const gate of currentGates) {
+          // IMPORTANT: Do NOT skip triggered gates!
+          // Bullets should still hit and enhance gates even after player triggers them
+          // This way the enhancement happens and we can see the system working
 
-        for (const gate of gates) {
-          if (triggeredGateIds.current.has(gate.id)) continue; // Skip triggered gates
+          // Check Z distance (is bullet at same depth as gate?)
+          const zDist = Math.abs(newPos.z - gate.position.z);
+          if (zDist > 3.0) continue; // Not at gate yet (increased from 2.0 for more forgiving collision)
 
-          const distZ = Math.abs(newBullet.position.z - gate.position.z);
+          // Check X bounds (is bullet within gate width?)
+          // Gate is centered at gate.position.x with width GATE_WIDTH
+          const gateMinX = gate.position.x - GATE_WIDTH / 2 - 0.5; // Small margin
+          const gateMaxX = gate.position.x + GATE_WIDTH / 2 + 0.5;
 
-          // Check if bullet passed through gate's z plane
-          if (distZ < 2.0) {
-            // Gate spans from center ± GATE_WIDTH/2
-            const gateLeft = gate.position.x - GATE_WIDTH / 2;
-            const gateRight = gate.position.x + GATE_WIDTH / 2;
+          if (newPos.x >= gateMinX && newPos.x <= gateMaxX) {
+            // HIT! Bullet collided with gate
+            console.log(`🎯 BULLET HIT GATE! Gate: ${gate.id}, Bullet Z: ${newPos.z.toFixed(1)}, Gate Z: ${gate.position.z.toFixed(0)}`);
 
-            if (shouldLog) {
-              console.log(`[Collision Check] Gate at z=${gate.position.z.toFixed(1)}, x=${gate.position.x.toFixed(1)}, distZ=${distZ.toFixed(1)}, gateLeft=${gateLeft.toFixed(1)}, gateRight=${gateRight.toFixed(1)}`);
-            }
-
-            // Bullet hits if within gate's horizontal span (with small margin)
-            if (newBullet.position.x >= gateLeft - 0.5 && newBullet.position.x <= gateRight + 0.5) {
-              // Hit gate - enhance it
-              console.log(`[HIT] Bullet hit gate ${gate.id} at x=${newBullet.position.x.toFixed(1)}`);
-              hitGate = true;
-              gateHits.push({ gateId: gate.id });
-              // Create damage popup at gate position for visibility
-              hitEvents.push({
-                position: {
-                  x: gate.position.x,
-                  y: 2, // Show at gate height
-                  z: gate.position.z
-                },
-                damage: bullet.sourceIndex, // Soldier value = bullet damage
-              });
-              break;
-            }
-          }
-        }
-
-        if (hitGate) {
-          continue;
-        }
-
-        // Check collision with boulders (damage them)
-        let hitBoulder = false;
-        for (const enemy of enemies) {
-          if (enemy.type !== 'boulder') continue;
-
-          const dx = newBullet.position.x - enemy.position.x;
-          const dz = newBullet.position.z - enemy.position.z;
-          const dist = Math.sqrt(dx * dx + dz * dz);
-
-          if (dist < (enemy as BoulderData).radius + 0.3) {
-            // Hit boulder
-            const currentHealth = boulderHealthRef.current.get(enemy.id);
-            if (currentHealth === undefined) {
-              boulderHealthRef.current.set(enemy.id, 10 - 1); // 10 hits to destroy, minus this hit
-            } else if (currentHealth > 1) {
-              boulderHealthRef.current.set(enemy.id, currentHealth - 1);
-            } else {
-              // Boulder destroyed - remove it
-              setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== enemy.id));
-              boulderHealthRef.current.delete(enemy.id);
-            }
-            // Create damage popup for boulder hit
-            hitEvents.push({
-              position: { ...newBullet.position },
-              damage: bullet.sourceIndex, // Soldier value = bullet damage
+            gateHitsToProcess.push({
+              gateId: gate.id,
+              position: { x: gate.position.x, y: 2, z: gate.position.z },
+              damage: bullet.sourceIndex,
             });
-            hitBoulder = true;
+
+            bulletConsumed = true;
             break;
           }
         }
 
-        if (hitBoulder) {
-          continue;
+        if (bulletConsumed) continue;
+
+        // === BOULDER COLLISION ===
+        for (const enemy of currentEnemies) {
+          if (enemy.type !== 'boulder') continue;
+
+          const dx = newPos.x - enemy.position.x;
+          const dz = newPos.z - enemy.position.z;
+          const dist = Math.sqrt(dx * dx + dz * dz);
+
+          if (dist < (enemy as BoulderData).radius + 0.3) {
+            // Hit boulder - track damage
+            const currentHealth = boulderHealthRef.current.get(enemy.id) ?? 10;
+            const newHealth = currentHealth - 1;
+
+            boulderHitsToProcess.push({
+              enemyId: enemy.id,
+              position: { ...newPos },
+              damage: bullet.sourceIndex,
+              destroy: newHealth <= 0,
+            });
+
+            boulderHealthRef.current.set(enemy.id, newHealth);
+            bulletConsumed = true;
+            break;
+          }
         }
 
-        // Bullet didn't hit anything, keep it
-        updatedBullets.push(newBullet);
+        if (bulletConsumed) continue;
+
+        // Bullet survived - update position and keep it
+        updatedBullets.push({
+          ...bullet,
+          position: newPos,
+        });
       }
 
       return updatedBullets;
     });
 
-    // Process gate enhancements after state update
-    if (gateHits.length > 0) {
-      console.log('[updateBullets] Gate hits:', gateHits.length);
-    }
-    gateHits.forEach(hit => {
-      setGateEnhancements(prev => {
-        const newMap = new Map(prev);
-        const currentEnhancement = newMap.get(hit.gateId) || 0;
-        console.log(`[updateBullets] Gate ${hit.gateId} enhanced: ${currentEnhancement} -> ${currentEnhancement + 1}`);
-        newMap.set(hit.gateId, currentEnhancement + 1);
-        return newMap;
-      });
-    });
+    // Process gate hits AFTER state update
+    if (gateHitsToProcess.length > 0) {
+      console.log(`✨ Processing ${gateHitsToProcess.length} gate hits`);
 
-    // Create damage popups for all hits
-    if (hitEvents.length > 0) {
-      console.log('[updateBullets] Hit events:', hitEvents.length, hitEvents);
+      gateHitsToProcess.forEach(hit => {
+        // Update gate enhancement count
+        setGateEnhancements(prev => {
+          const newMap = new Map(prev);
+          const currentValue = newMap.get(hit.gateId) || 0;
+          const newValue = currentValue + 1;
+          console.log(`  Gate ${hit.gateId}: enhancement ${currentValue} -> ${newValue}`);
+          newMap.set(hit.gateId, newValue);
+          return newMap;
+        });
+
+        // Create floating damage number
+        createDamagePopup(hit.position, hit.damage);
+      });
     }
-    hitEvents.forEach(hit => {
+
+    // Process boulder hits
+    boulderHitsToProcess.forEach(hit => {
+      if (hit.destroy) {
+        setEnemies(prevEnemies => prevEnemies.filter(e => e.id !== hit.enemyId));
+        boulderHealthRef.current.delete(hit.enemyId);
+        console.log(`💥 Boulder ${hit.enemyId} destroyed!`);
+      }
       createDamagePopup(hit.position, hit.damage);
     });
-  }, [player.position.z, gates, enemies, createDamagePopup]);
+  }, [player.position.z, createDamagePopup]);
 
   // Game loop - update time only (finish is handled in Player component)
   useEffect(() => {
@@ -729,6 +756,17 @@ export default function GameScene({ mode, trackSeed }: GameSceneProps) {
 
   return (
     <div className="w-full h-full touch-none relative">
+      {/* Restart overlay - covers everything for 3 seconds during restart */}
+      {showRestartOverlay && (
+        <div className="fixed inset-0 bg-black z-[9999] flex flex-col items-center justify-center">
+          <div className="text-6xl mb-4 animate-bounce">🎮</div>
+          <div className="text-white text-2xl font-bold mb-4">Loading Game...</div>
+          <div className="w-48 h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-full bg-yellow-400 animate-pulse" style={{ width: '100%' }} />
+          </div>
+        </div>
+      )}
+
       {/* FPS Counter */}
       {showFPS && <FPSDisplay show={true} />}
 

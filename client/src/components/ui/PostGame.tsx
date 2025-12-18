@@ -63,11 +63,19 @@ export default function PostGame() {
 
   if (!result) return null;
 
+  const [isRestarting, setIsRestarting] = useState(false);
+
   const handlePlayAgain = async () => {
     hasUpdatedStats.current = false;
     reset();
-    // Simple reload - the game has its own loading screen
-    window.location.reload();
+    // Show loading overlay before reload
+    setIsRestarting(true);
+    // Mark that we're restarting so the new page shows loading immediately
+    sessionStorage.setItem('game_restarting', 'true');
+    // Small delay to ensure overlay is visible, then reload
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   const handleQuit = () => {
@@ -83,6 +91,16 @@ export default function PostGame() {
     const ms = Math.floor((seconds % 1) * 100);
     return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
+
+  // Show restart loading overlay
+  if (isRestarting) {
+    return (
+      <div className="fixed inset-0 bg-black z-[9999] flex flex-col items-center justify-center">
+        <div className="text-6xl mb-4 animate-spin">🔄</div>
+        <div className="text-white text-2xl font-bold">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div

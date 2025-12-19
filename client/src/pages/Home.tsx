@@ -6,6 +6,8 @@ import TextWithShadow from '@/components/TextWithShadow';
 import CharacterSelector from '@/components/3d/CharacterSelector';
 import { useGameTransition } from '@/components/ui/GameTransitionGuard';
 import ButtonSpinner from '@/components/ui/ButtonSpinner';
+import FloatingNavManager from '@/components/ui/FloatingNavManager';
+import { BagIcon } from '@/shared/icons';
 
 // Background image path - can be customized
 const HOME_BACKGROUND_IMAGE = '/ui/home-bg.png';
@@ -237,6 +239,22 @@ export default function Home() {
           </div>
         </button>
       </div>
+
+      {/* Floating Navigation Buttons */}
+      <FloatingNavManager
+        rightButtons={[
+          {
+            id: 'inventory',
+            icon: <BagIcon size={28} />,
+            label: 'Asset Inventory',
+            href: '/inventory',
+            variant: 'info',
+            size: 'lg',
+            enabled: true
+          }
+        ]}
+        baseTopOffset={120}
+      />
     </div>
   );
 }

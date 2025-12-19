@@ -1,4 +1,4 @@
-import { CLIENT_CONSTANTS } from '@/utils/constants';
+import { CLIENT_CONSTANTS } from '@/lib/constants';
 
 const API_BASE = CLIENT_CONSTANTS.API_BASE_URL;
 

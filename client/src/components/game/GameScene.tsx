@@ -34,7 +34,7 @@ import { DeadSoldiersRenderer, DeadSoldierData } from './DeadSoldier';
 import { CoinsRenderer, CoinData } from './coin';
 import { useGame, useUI } from '@/context';
 import { useSwipeDetector, vibrate } from '@/utils/swipeDetector';
-import { CLIENT_CONSTANTS } from '@/utils/constants';
+import { CLIENT_CONSTANTS } from '@/lib/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';
 import { generateTrackLayout } from './TrackLayoutManager';
@@ -92,21 +92,8 @@ export default function GameScene({ mode, trackSeed, opponentState, opponentSkin
   // Loading phase state
   const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('loading');
 
-  // Restart overlay - shown for 3 seconds when restarting to hide ugly transition
-  const [showRestartOverlay, setShowRestartOverlay] = useState(() => {
-    return sessionStorage.getItem('game_restarting') === 'true';
-  });
-
-  // Hide restart overlay after 3 seconds
-  useEffect(() => {
-    if (showRestartOverlay) {
-      const timer = setTimeout(() => {
-        setShowRestartOverlay(false);
-        sessionStorage.removeItem('game_restarting');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showRestartOverlay]);
+  // Check if we're restarting (set by PostGame component)
+  const isRestarting = sessionStorage.getItem('game_restarting') === 'true';
 
   // Soldier pickups state
   const [soldiers, setSoldiers] = useState<SoldierPickupData[]>([]);
@@ -208,6 +195,11 @@ export default function GameScene({ mode, trackSeed, opponentState, opponentSkin
     gateEnhancementsRef.current.clear();
     setGateEnhancements(new Map());
     setTemporaryWeaponBoost(0);
+
+    // Clear restart flag if set
+    if (sessionStorage.getItem('game_restarting') === 'true') {
+      sessionStorage.removeItem('game_restarting');
+    }
 
     // Transition to ready phase
     setLoadingPhase('ready');
@@ -756,8 +748,8 @@ export default function GameScene({ mode, trackSeed, opponentState, opponentSkin
       }));
   }, [enemies]);
 
-  // Show loading screen during loading phase
-  if (loadingPhase === 'loading') {
+  // Show loading screen during loading phase OR when restarting
+  if (loadingPhase === 'loading' || isRestarting) {
     return (
       <div className="w-full h-full touch-none relative">
         <GameLoader
@@ -770,17 +762,6 @@ export default function GameScene({ mode, trackSeed, opponentState, opponentSkin
 
   return (
     <div className="w-full h-full touch-none relative">
-      {/* Restart overlay - covers everything for 3 seconds during restart */}
-      {showRestartOverlay && (
-        <div className="fixed inset-0 bg-black z-[9999] flex flex-col items-center justify-center">
-          <div className="text-6xl mb-4 animate-bounce">🎮</div>
-          <div className="text-white text-2xl font-bold mb-4">Loading Game...</div>
-          <div className="w-48 h-2 bg-gray-700 rounded-full overflow-hidden">
-            <div className="h-full bg-yellow-400 animate-pulse" style={{ width: '100%' }} />
-          </div>
-        </div>
-      )}
-
       {/* FPS Counter */}
       {showFPS && <FPSDisplay show={true} />}
 

@@ -4,7 +4,7 @@
  */
 import { io, Socket } from 'socket.io-client';
 import { MatchFoundPayload, InputPacket, GameStatePacket } from '../../../shared/types/pvp.types';
-import { CLIENT_CONSTANTS } from '@/utils/constants';
+import { CLIENT_CONSTANTS } from '@/lib/constants';
 
 let pvpSocket: Socket | null = null;
 

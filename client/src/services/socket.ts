@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { CLIENT_CONSTANTS } from '@/utils/constants';
+import { CLIENT_CONSTANTS } from '@/lib/constants';
 
 let socket: Socket | null = null;
 

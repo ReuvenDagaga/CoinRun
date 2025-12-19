@@ -1,5 +1,5 @@
 import { isTokenExpired } from '@/utils/checkIfIsTokenExpired';
-import { CLIENT_CONSTANTS } from '@/utils/constants';
+import { CLIENT_CONSTANTS } from '@/lib/constants';
 import { IUser } from '@shared/interface/IUser';
 import { IUpgrades } from '@shared/interface/IUpgrades';
 import { calculatePowerLevel, calculateUpgradeCost, GAME_CONSTANTS } from '@shared/types/game.types';

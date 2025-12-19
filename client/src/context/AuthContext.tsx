@@ -1,4 +1,4 @@
-import { isTokenExpired } from '@/utils/checkIfIsTokenExpired';
+import { isTokenExpired } from '@/lib/utils/validation';
 import { CLIENT_CONSTANTS } from '@/lib/constants';
 import { IUser } from '@shared/interface/IUser';
 import { IUpgrades } from '@shared/interface/IUpgrades';

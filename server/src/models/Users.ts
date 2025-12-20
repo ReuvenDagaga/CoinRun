@@ -85,6 +85,19 @@ const userSchema = new Schema<IUser>({
   ownedSkins: { type: [String], default: ['default'] },
   activeBoosts: { type: [activeBoostSchema], default: [] },
 
+  // Asset System (NEW)
+  currentCharacterType: { type: String, enum: ['preset', 'custom'], default: 'preset' },
+  currentCustomCharacterId: { type: String },
+  creatorStats: {
+    totalAssetsSold: { type: Number, default: 0, min: 0 },
+    totalEarnings: {
+      coins: { type: Number, default: 0, min: 0 },
+      gems: { type: Number, default: 0, min: 0 }
+    },
+    creatorRating: { type: Number, default: 0, min: 0, max: 5 },
+    ratingCount: { type: Number, default: 0, min: 0 }
+  },
+
   // Settings
   settings: { type: settingsSchema, default: () => ({}) },
 

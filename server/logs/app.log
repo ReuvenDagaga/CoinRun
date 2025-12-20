@@ -380,3 +380,80 @@
 {"level":30,"time":1766086509063,"pid":44167,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: 3tLm-YYyjl4WbE_5AAAf"}
 {"level":40,"time":1766086509215,"pid":44167,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 693e6e41cb74199f17bcb29e has 0, releasing 1000"}
 {"level":30,"time":1766086509362,"pid":44167,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 693e6e41cb74199f17bcb29e: 1000 coins"}
+{"level":30,"time":1766087432226,"pid":44167,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766087439521,"pid":46329,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766087439523,"pid":46329,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766087440196,"pid":46329,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: Z8jFvS3oo5JM2PAlAAAB, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766087798715,"pid":46329,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766092835955,"pid":47364,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766092835955,"pid":47364,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766092841676,"pid":47364,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766092841692,"pid":47364,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766093309378,"pid":47499,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766093309380,"pid":47499,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766093314859,"pid":47499,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766093314876,"pid":47499,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766093524698,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766093524700,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766093537265,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
+{"level":30,"time":1766093580566,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766093622321,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766093622655,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766093735857,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: LkpzdvUPK-cRpXLIAAAB, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766094024730,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766094025071,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766094063670,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766094064011,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766094107733,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766094142062,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766094360764,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: LkpzdvUPK-cRpXLIAAAB"}
+{"level":40,"time":1766094360920,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766094361080,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: UO1HIDvrtZbSyth0AAAD, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766094361084,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766102195314,"pid":49223,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766102195316,"pid":49223,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766102475496,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766102510823,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766102547816,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766102548159,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766102574645,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766102588397,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766108148470,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: UO1HIDvrtZbSyth0AAAD"}
+{"level":40,"time":1766108148635,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766108148796,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766108149276,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: 8v2cht8b8BI3PHjnAAAF, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766135390826,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: 8v2cht8b8BI3PHjnAAAF"}
+{"level":40,"time":1766135392093,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766135392214,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: H7Uw4MAkepl6r4L2AAAH, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766135392246,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766135403780,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: H7Uw4MAkepl6r4L2AAAH"}
+{"level":40,"time":1766135403946,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766135404106,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766135404153,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: Pae42lNMsFY8b1BfAAAJ, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766136448855,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: Pae42lNMsFY8b1BfAAAJ"}
+{"level":40,"time":1766136449018,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766136449183,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766136449203,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: GF7rW1upsNZRCw5aAAAL, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766136520286,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: GF7rW1upsNZRCw5aAAAL"}
+{"level":40,"time":1766136520476,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766136520656,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: fEOeWslJC7IFrp84AAAN, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766136520696,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766143623617,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: fEOeWslJC7IFrp84AAAN"}
+{"level":40,"time":1766143625341,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766143625510,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766143625517,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: _v6_xXRqnnLUthegAAAP, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766150833805,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: _v6_xXRqnnLUthegAAAP"}
+{"level":40,"time":1766150835087,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766150835235,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766150835448,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: Os80M8Z9595-67IIAAAR, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766153044185,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: Os80M8Z9595-67IIAAAR"}
+{"level":40,"time":1766153045443,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766153045585,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766153046075,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: GpbwXKJrAnr2tm4SAAAT, User: 6944245ba2a627085bc7f8e5"}
+{"level":30,"time":1766200312982,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: GpbwXKJrAnr2tm4SAAAT"}
+{"level":30,"time":1766200315865,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket connected: 8-DHyL00jPlrl92PAAAV, User: 6944245ba2a627085bc7f8e5"}
+{"level":40,"time":1766200315983,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766200316170,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}
+{"level":30,"time":1766246123365,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"PvP socket disconnected: 8-DHyL00jPlrl92PAAAV"}
+{"level":40,"time":1766246124702,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Cannot release hold: user 6944245ba2a627085bc7f8e5 has 0, releasing 1000"}
+{"level":30,"time":1766246124847,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Released hold for user 6944245ba2a627085bc7f8e5: 1000 coins"}

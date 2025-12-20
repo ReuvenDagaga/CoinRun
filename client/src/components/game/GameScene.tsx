@@ -33,7 +33,7 @@ import type { DeathInfo } from './Track/Environment/Enemies';
 import { DeadSoldiersRenderer, DeadSoldierData } from './DeadSoldier';
 import { CoinsRenderer, CoinData } from './coin';
 import { useGame, useUI } from '@/context';
-import { useSwipeDetector, vibrate } from '@/lib/hooks/game'; import { vibrate } from '@/lib/utils/input;
+import { useSwipeDetector, vibrate } from '@/lib/hooks/game';
 import { CLIENT_CONSTANTS } from '@/lib/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { GameLoader, PreloadedData, DeadSoldierPool } from './GameLoader';

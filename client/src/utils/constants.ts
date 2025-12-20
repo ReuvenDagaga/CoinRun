@@ -6,6 +6,7 @@ export const CLIENT_CONSTANTS = {
   // API
   API_BASE_URL: import.meta.env.VITE_API_URL || '/api',
   SOCKET_URL: import.meta.env.VITE_SOCKET_URL || '',
+  GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
 
   // Graphics
   CAMERA_FOV: 75,
@@ -39,7 +40,11 @@ export const CLIENT_CONSTANTS = {
     JUMP: 'jump.mp3',
     GAME_OVER: 'gameover.mp3',
     VICTORY: 'victory.mp3'
-  }
+  },
+
+
+  TEXT_SHADOW_STYLE: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+
 } as const;
 
 // Color palette for game objects - BRIGHT CASUAL STYLE (Brawl Stars/Subway Surfers)

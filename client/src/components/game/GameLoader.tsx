@@ -2,44 +2,7 @@ import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import { generateTrackLayout } from './TrackLayoutManager';
-
-// Loading screen component
-interface LoadingScreenProps {
-  progress: number;
-  message: string;
-}
-
-export const LoadingScreen = memo(function LoadingScreen({ progress, message }: LoadingScreenProps) {
-  return (
-    <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-gray-800 flex flex-col items-center justify-center z-50">
-      {/* Title */}
-      <h1 className="text-4xl font-bold text-white mb-8">CoinRun</h1>
-
-      {/* Loading spinner */}
-      <div className="relative w-24 h-24 mb-6">
-        <div className="absolute inset-0 border-4 border-gray-600 rounded-full" />
-        <div
-          className="absolute inset-0 border-4 border-t-cyan-400 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"
-          style={{ animationDuration: '0.8s' }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-white font-bold text-lg">{Math.round(progress)}%</span>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mb-4">
-        <div
-          className="h-full bg-gradient-to-r from-cyan-400 to-cyan-600 transition-all duration-200"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      {/* Loading message */}
-      <p className="text-gray-400 text-sm">{message}</p>
-    </div>
-  );
-});
+import BaseLoading from '../ui/BaseLoading';
 
 // Warm-up scene to pre-compile shaders
 const WarmupScene = memo(function WarmupScene({ onComplete }: { onComplete: () => void }) {
@@ -103,26 +66,25 @@ export function GameLoader({
   trackLength,
 }: GameLoaderProps) {
   const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState('Initializing...');
+  const [phase, setPhase] = useState<'initializing' | 'generating' | 'warming-up' | 'ready' | 'starting'>('initializing');
   const [shaderWarmedUp, setShaderWarmedUp] = useState(false);
   const [preloadedData, setPreloadedData] = useState<PreloadedData | null>(null);
 
   // Pre-generate all game data using smart placement system
   useEffect(() => {
     const loadData = async () => {
-      setMessage('Generating track layout...');
+      setPhase('initializing');
       setProgress(10);
       await new Promise(resolve => setTimeout(resolve, 50));
 
       // Use the smart placement system to generate everything together
-      setMessage('Placing gates and obstacles...');
+      setPhase('generating');
       setProgress(30);
       await new Promise(resolve => setTimeout(resolve, 50));
 
       const layout = generateTrackLayout(trackLength);
       setProgress(70);
 
-      setMessage('Finalizing placement...');
       await new Promise(resolve => setTimeout(resolve, 50));
 
       setPreloadedData({
@@ -133,7 +95,7 @@ export function GameLoader({
       });
 
       setProgress(80);
-      setMessage('Warming up shaders...');
+      setPhase('warming-up');
     };
 
     loadData();
@@ -143,7 +105,7 @@ export function GameLoader({
   const handleShaderWarmup = useCallback(() => {
     setShaderWarmedUp(true);
     setProgress(100);
-    setMessage('Ready!');
+    setPhase('ready');
   }, []);
 
   // Complete loading when everything is ready
@@ -151,15 +113,34 @@ export function GameLoader({
     if (shaderWarmedUp && preloadedData) {
       // Small delay to show 100%
       const timer = setTimeout(() => {
+        setPhase('starting');
         onLoadComplete(preloadedData);
       }, 300);
       return () => clearTimeout(timer);
     }
   }, [shaderWarmedUp, preloadedData, onLoadComplete]);
 
+  // Map phase to user-friendly message
+  const getLoadingMessage = () => {
+    switch (phase) {
+      case 'initializing':
+        return 'Initializing game...';
+      case 'generating':
+        return 'Generating track...';
+      case 'warming-up':
+        return 'Warming up...';
+      case 'ready':
+        return 'Ready!';
+      case 'starting':
+        return 'Starting game...';
+      default:
+        return 'Loading...';
+    }
+  };
+
   return (
     <>
-      <LoadingScreen progress={progress} message={message} />
+      <BaseLoading message={getLoadingMessage()} progress={progress} />
 
       {/* Hidden canvas for shader warmup */}
       {preloadedData && !shaderWarmedUp && (

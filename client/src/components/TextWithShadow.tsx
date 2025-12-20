@@ -1,4 +1,4 @@
-import { TEXT_SHADOW } from "@/utils/textShadowStyle";
+import { CLIENT_CONSTANTS } from "@/utils/constants";
 import { ReactNode } from "react";
 
 interface TextWithShadowProps {
@@ -10,7 +10,7 @@ interface TextWithShadowProps {
 const TextWithShadow = ({ children, className = '', as = 'p' }: TextWithShadowProps) => {
   const Component = as;
   return (
-    <Component className={className} style={{ textShadow: TEXT_SHADOW }}>
+    <Component className={className} style={{ textShadow: CLIENT_CONSTANTS.TEXT_SHADOW_STYLE }}>
       {children}
     </Component>
   );

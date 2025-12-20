@@ -45,6 +45,16 @@ export interface IUser extends Document {
   ownedSkins: string[];
   activeBoosts: IActiveBoost[];
 
+  // Asset System (NEW)
+  currentCharacterType: 'preset' | 'custom';
+  currentCustomCharacterId?: string;
+  creatorStats?: {
+    totalAssetsSold: number;
+    totalEarnings: { coins: number; gems: number };
+    creatorRating: number;
+    ratingCount: number;
+  };
+
   // Settings
   settings: ISettings;
 
@@ -96,6 +106,16 @@ export interface IUserData {
   currentSkin: string;
   ownedSkins: string[];
   activeBoosts: IActiveBoost[];
+
+  // Asset System (NEW)
+  currentCharacterType: 'preset' | 'custom';
+  currentCustomCharacterId?: string;
+  creatorStats?: {
+    totalAssetsSold: number;
+    totalEarnings: { coins: number; gems: number };
+    creatorRating: number;
+    ratingCount: number;
+  };
 
   // Settings
   settings: ISettings;

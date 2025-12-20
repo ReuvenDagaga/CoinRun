@@ -7,6 +7,7 @@ import missionRouter from './missionRoutes.js';
 import achievementRouter from './achievementRoutes.js';
 import settingsRouter from './settingsRoutes.js';
 import userRouter from './userRoutes.js';
+import assetRouter from './assetRoutes.js';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/missions', missionRouter);
 router.use('/achievements', achievementRouter);
 router.use('/settings', settingsRouter);
 router.use('/user', userRouter);
+router.use('/assets', assetRouter);
 
 export default router;

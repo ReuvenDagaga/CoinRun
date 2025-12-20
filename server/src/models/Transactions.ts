@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITransaction extends Document {
   userId: mongoose.Types.ObjectId;
-  type: 'game_reward' | 'mission_reward' | 'achievement_reward' | 'upgrade_purchase' | 'shop_purchase' | 'referral';
+  type: 'game_reward' | 'mission_reward' | 'achievement_reward' | 'upgrade_purchase' | 'shop_purchase' | 'referral' | 'marketplace_purchase' | 'marketplace_sale';
   currency: 'coins' | 'gems'; // VIRTUAL ONLY - NO USDT
   amount: number;
   balanceBefore: number;
@@ -21,7 +21,7 @@ const transactionSchema = new Schema<ITransaction>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   type: {
     type: String,
-    enum: ['game_reward', 'mission_reward', 'achievement_reward', 'upgrade_purchase', 'shop_purchase', 'referral'],
+    enum: ['game_reward', 'mission_reward', 'achievement_reward', 'upgrade_purchase', 'shop_purchase', 'referral', 'marketplace_purchase', 'marketplace_sale'],
     required: true
   },
   currency: { type: String, enum: ['coins', 'gems'], required: true },

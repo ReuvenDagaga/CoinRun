@@ -7,10 +7,9 @@ import { AppRoutes } from './Routes/AppRoutes';
 import { AuthProvider, GameProvider, UIProvider } from './context';
 import { ToastProvider } from './context/ToastContext';
 import { GameTransitionGuard } from './components/ui/GameTransitionGuard';
+import { CLIENT_CONSTANTS } from './utils/constants';
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
-// Main app content - only renders when user is logged in
 function MainApp() {
   return (
     <ToastProvider>
@@ -27,28 +26,23 @@ function MainApp() {
   );
 }
 
-// Auth wrapper - handles login state
 function AppContent() {
   const { user, isLoading } = useAuth();
 
-  // Loading state
   if (isLoading) {
     return <Loading />;
   }
 
-  // Not logged in - show login page
   if (!user) {
     return <Login />;
   }
-
-  // Logged in - show main app
   return <MainApp />;
 }
 
 // Root app component
 const App = () => {
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={CLIENT_CONSTANTS.GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <AppContent />
       </AuthProvider>

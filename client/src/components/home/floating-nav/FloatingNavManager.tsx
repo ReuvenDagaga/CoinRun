@@ -23,6 +23,7 @@ export default function FloatingNavManager({
   const enabledLeftButtons = leftButtons.filter(btn => btn.enabled !== false);
   const enabledRightButtons = rightButtons.filter(btn => btn.enabled !== false);
 
+          
   return (
     <>
       {/* Left Side Buttons */}

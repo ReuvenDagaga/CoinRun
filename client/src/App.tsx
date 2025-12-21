@@ -6,7 +6,6 @@ import Login from './pages/auth/Login';
 import { AppRoutes } from './Routes/AppRoutes';
 import { AuthProvider, GameProvider, UIProvider } from './context';
 import { ToastProvider } from './context/ToastContext';
-import { GameTransitionGuard } from './components/ui/GameTransitionGuard';
 import { CLIENT_CONSTANTS } from './utils/constants';
 
 
@@ -15,11 +14,9 @@ function MainApp() {
     <ToastProvider>
       <GameProvider>
         <UIProvider>
-          <GameTransitionGuard>
-            <Layout>
-              <AppRoutes />
-            </Layout>
-          </GameTransitionGuard>
+          <Layout>
+            <AppRoutes />
+          </Layout>
         </UIProvider>
       </GameProvider>
     </ToastProvider>

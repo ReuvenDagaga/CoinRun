@@ -7,6 +7,7 @@ import { CharacterModel } from '@/components/game/characters';
 import { SKIN_CONFIGS } from '@/components/game/characters/types';
 import { useAuth } from '@/hooks/useAuth';
 import TextWithShadow from '@/components/TextWithShadow';
+import useUpdates from '@/hooks/useUpdates';
 
 const ALL_SKINS = Object.keys(SKIN_CONFIGS);
 
@@ -35,7 +36,8 @@ interface CharacterSelectorProps {
 }
 
 export default function CharacterSelector({ className = '', onTap, tapText, showSearchIcon }: CharacterSelectorProps) {
-  const { user, equipSkin } = useAuth();
+  const { user } = useAuth();
+  const { equipSkin } = useUpdates();
   const ownedSkins = user?.ownedSkins || ['default'];
   const currentSkin = user?.currentSkin || 'default';
 

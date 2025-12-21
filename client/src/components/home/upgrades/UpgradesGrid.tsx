@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import UpgradeCard from './UpgradeCard';
 import { upgrades } from './upgrades';
+import useUpgrades from '@/hooks/useUpgrades';
 
 export default function UpgradesGrid() {
-  const { user, purchaseUpgrade, getUpgradeCost, canAffordUpgrade } = useAuth();
+  const { user } = useAuth();
+  const { getUpgradeCost, canAffordUpgrade, purchaseUpgrade } = useUpgrades();
   const [loadingUpgrade, setLoadingUpgrade] = useState<string | null>(null);
 
   if (!user) return null;

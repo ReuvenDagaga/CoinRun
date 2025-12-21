@@ -1,31 +1,26 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CharacterSelector from '@/components/3d/CharacterSelector';
-import { useGameTransition } from '@/components/ui/GameTransitionGuard';
-import FloatingNavManager from '@/components/ui/FloatingNavManager';
-import PowerLevelDisplay from '@/components/home/PowerLevelDisplay';
-import UpgradesGrid from '@/components/home/UpgradesGrid';
+import FloatingNavManager from '@/components/home/floating-nav/FloatingNavManager';
+import PowerLevelDisplay from '@/components/home/power-level/PowerLevelDisplay';
 import ModeSelector, { GameMode } from '@/components/home/ModeSelector';
 import PageReveal, { StaggerContainer, StaggerItem } from '@/components/ui/PageReveal';
+import { CLIENT_CONSTANTS } from '@/utils/constants';
+import UpgradesGrid from '@/components/home/upgrades/UpgradesGrid';
+import { CONFIG } from '@/components/home/floating-nav/config';
 
-const HOME_BACKGROUND_IMAGE = '/ui/home-bg.png';
 
 export default function Home() {
   const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<GameMode>('solo');
-  const { startGameTransition, completeTransition } = useGameTransition();
 
 
   const handleStart = async () => {
-    await startGameTransition();
-
     if (selectedMode === '1v1') {
       navigate('/pvp/lobby');
     } else {
       navigate(`/game/${selectedMode}`);
     }
-
-    setTimeout(completeTransition, 500);
   };
 
   return (
@@ -33,7 +28,7 @@ export default function Home() {
       <div
         className="absolute inset-0 flex flex-col"
         style={{
-          backgroundImage: `url(${HOME_BACKGROUND_IMAGE})`,
+          backgroundImage: `url(${CLIENT_CONSTANTS.HOME_BACKGROUND_IMAGE})`,
           backgroundSize: 'cover',
         }}
       >
@@ -60,13 +55,7 @@ export default function Home() {
         </StaggerContainer>
 
         <FloatingNavManager
-          rightButtons={[
-            {
-              id: 'inventory',
-              icon: <img src="/ui/bag.png"/>,
-              href: '/inventory',
-            }
-          ]}
+          rightButtons={CONFIG.RIGHT_BUTTONS}
         />
       </div>
     </PageReveal>

@@ -43,7 +43,9 @@ export const CLIENT_CONSTANTS = {
   },
 
 
-  TEXT_SHADOW_STYLE: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+  TEXT_SHADOW_STYLE: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
+  HOME_BACKGROUND_IMAGE: '/ui/home-bg.png',
+
 
 } as const;
 

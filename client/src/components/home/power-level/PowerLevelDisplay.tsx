@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useUpgrades } from '@/hooks/useUpgrades';
 import { getCurrentPowerLevel, getNextPowerLevel, getProgressToNextLevel } from './powerLevels';
 import PowerLevelBadge from './PowerLevelBadge';
 import PowerLevelProgress from './PowerLevelProgress';
 import PowerLevelInfoPopup from './PowerLevelInfoPopup';
 
 export default function PowerLevelDisplay() {
-  const { powerLevel } = useAuth();
+  const { powerLevel } = useUpgrades();
   const [showInfo, setShowInfo] = useState(false);
 
   const currentLevel = getCurrentPowerLevel(powerLevel);

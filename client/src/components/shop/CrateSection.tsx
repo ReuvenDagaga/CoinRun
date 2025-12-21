@@ -1,4 +1,6 @@
+import { useState } from "react";
 import TextWithShadow from "../TextWithShadow";
+import ButtonSpinner from "../ui/ButtonSpinner";
 import { ShopItem } from "./config";
 
 function CrateSection({
@@ -8,8 +10,14 @@ function CrateSection({
   items: ShopItem[];
   backgroundImage: string;
 }) {
-  const handlePurchase = (id: string) => {
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
+
+  const handlePurchase = async (id: string) => {
+    setPurchasingId(id);
+    // TODO: Implement actual purchase logic
     console.log(`Purchase: ${id}`);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setPurchasingId(null);
   };
 
   const premiumCrate = items[2];
@@ -30,8 +38,10 @@ function CrateSection({
         <div className="flex flex-col gap-3">
           <div
             className="relative w-full rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform shadow-xl bg-gradient-to-b from-red-700 via-red-800 to-red-950 p-4"
-            onClick={() => handlePurchase(premiumCrate.id)}
+            onClick={purchasingId ? undefined : () => handlePurchase(premiumCrate.id)}
           >
+            {purchasingId === premiumCrate.id && <ButtonSpinner size="large" overlay />}
+
             {premiumCrate.tag && (
               <div className={`absolute top-1 right-3 ${premiumCrate.tagColor} text-white text-sm font-bold py-1 rounded-full shadow-lg z-10`}>
                 {premiumCrate.tag}
@@ -57,12 +67,14 @@ function CrateSection({
               <div
                 key={item.id}
                 className={`relative rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform shadow-xl p-3 ${
-                  index === 0 
-                    ? 'bg-gradient-to-b from-amber-600 via-amber-700 to-amber-900' 
+                  index === 0
+                    ? 'bg-gradient-to-b from-amber-600 via-amber-700 to-amber-900'
                     : 'bg-gradient-to-b from-blue-500 via-blue-600 to-blue-800'
                 }`}
-                onClick={() => handlePurchase(item.id)}
+                onClick={purchasingId ? undefined : () => handlePurchase(item.id)}
               >
+                {purchasingId === item.id && <ButtonSpinner size="medium" overlay />}
+
                 {item.tag && (
                   <div className={`absolute top-2 right-2 ${item.tagColor} text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10`}>
                     {item.tag}

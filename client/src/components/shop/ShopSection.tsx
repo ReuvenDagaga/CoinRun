@@ -31,11 +31,9 @@ function ShopSection ({
       style={{
         backgroundImage: `url('${backgroundImage}')`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
       }}
     >
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/50" />
       <div className="relative z-10">
         {isGift ? (
           <div className="flex flex-col gap-3">

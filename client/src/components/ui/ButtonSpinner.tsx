@@ -2,12 +2,14 @@ interface ButtonSpinnerProps {
   size?: 'small' | 'medium' | 'large';
   color?: string;
   className?: string;
+  overlay?: boolean;
 }
 
 export default function ButtonSpinner({
   size = 'medium',
   color = 'white',
-  className = ''
+  className = '',
+  overlay = false,
 }: ButtonSpinnerProps) {
   const sizeMap = {
     small: 16,
@@ -17,7 +19,7 @@ export default function ButtonSpinner({
 
   const spinnerSize = sizeMap[size];
 
-  return (
+  const spinner = (
     <svg
       className={`animate-spin ${className}`}
       width={spinnerSize}
@@ -41,4 +43,14 @@ export default function ButtonSpinner({
       />
     </svg>
   );
+
+  if (overlay) {
+    return (
+      <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+        {spinner}
+      </div>
+    );
+  }
+
+  return spinner;
 }

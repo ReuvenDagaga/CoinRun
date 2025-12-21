@@ -1,5 +1,5 @@
 import { LeaderboardEntry } from '@/services/api';
-import UserAvatar from './UserAvatar';
+import UserAvatar from '../UserAvatar';
 import TextWithShadow from '@/components/TextWithShadow';
 import { formatNumber } from './utils';
 

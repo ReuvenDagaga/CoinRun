@@ -30,7 +30,7 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className="screen-fixed flex flex-col bg-gradient-to-b from-sky-400 via-sky-500 to-cyan-600">
+    <div className="screen-fixed flex flex-col">
       <Header />
       <main className={`flex-1 ${isScrollable ? 'overflow-y-auto' : 'overflow-hidden'}`}>
         {children}

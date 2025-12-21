@@ -9,18 +9,14 @@ export interface FloatingNavConfig extends Omit<FloatingNavButtonProps, 'positio
 export interface FloatingNavManagerProps {
   leftButtons?: FloatingNavConfig[];
   rightButtons?: FloatingNavConfig[];
-  baseTopOffset?: number;  // Starting position from top
-  spacing?: number;        // Spacing between buttons
+  baseTopOffset?: number;  
+  spacing?: number; 
 }
 
-/**
- * FloatingNavManager - Manages multiple floating navigation buttons
- * Automatically stacks buttons vertically with proper spacing
- */
 export default function FloatingNavManager({
   leftButtons = [],
   rightButtons = [],
-  baseTopOffset = 120,
+  baseTopOffset = 140,
   spacing = 70
 }: FloatingNavManagerProps) {
   // Filter enabled buttons

@@ -1,24 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import CharacterSelector from '@/components/3d/CharacterSelector';
 import { useGameTransition } from '@/components/ui/GameTransitionGuard';
 import FloatingNavManager from '@/components/ui/FloatingNavManager';
-import { BagIcon } from '@/icons';
 import PowerLevelDisplay from '@/components/home/PowerLevelDisplay';
 import UpgradesGrid from '@/components/home/UpgradesGrid';
 import ModeSelector, { GameMode } from '@/components/home/ModeSelector';
-import PlayButton from '@/components/home/PlayButton';
+import PageReveal, { StaggerContainer, StaggerItem } from '@/components/ui/PageReveal';
 
 const HOME_BACKGROUND_IMAGE = '/ui/home-bg.png';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [selectedMode, setSelectedMode] = useState<GameMode>('solo');
   const { startGameTransition, completeTransition } = useGameTransition();
 
-  if (!user) return null;
 
   const handleStart = async () => {
     await startGameTransition();
@@ -33,45 +29,46 @@ export default function Home() {
   };
 
   return (
-    <div
-      className="absolute inset-0 flex flex-col mt-20"
-      style={{
-        backgroundImage: `url(${HOME_BACKGROUND_IMAGE})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none" />
+    <PageReveal className="absolute inset-0">
+      <div
+        className="absolute inset-0 flex flex-col"
+        style={{
+          backgroundImage: `url(${HOME_BACKGROUND_IMAGE})`,
+          backgroundSize: 'cover',
+        }}
+      >
+        <div className="fixed top-14 left-0 right-0 z-50">
+          <PowerLevelDisplay />
+        </div>
 
-      <div className="relative z-10 flex-shrink-0">
-        <PowerLevelDisplay />
+        <StaggerContainer className="relative z-10 flex flex-col flex-1">
+          <StaggerItem className="flex-1 min-h-[30vh] max-h-[55vh] mt-8">
+            <CharacterSelector
+              onTap={handleStart}
+              tapText={selectedMode === 'solo' ? 'Tap to Start' : 'Find Opponent'}
+            />
+          </StaggerItem>
+
+          <div className="fixed bottom-4 left-0 right-0 px-2 sm:px-4 pb-28 sm:pb-32 space-y-2">
+            <StaggerItem>
+              <UpgradesGrid />
+            </StaggerItem>
+            <StaggerItem>
+              <ModeSelector selectedMode={selectedMode} onModeChange={setSelectedMode} />
+            </StaggerItem>
+          </div>
+        </StaggerContainer>
+
+        <FloatingNavManager
+          rightButtons={[
+            {
+              id: 'inventory',
+              icon: <img src="/ui/bag.png"/>,
+              href: '/inventory',
+            }
+          ]}
+        />
       </div>
-
-      <div className="relative z-10 flex-1 min-h-[150px]">
-        <CharacterSelector />
-      </div>
-
-      <div className="relative z-10 flex-shrink-0 px-2 sm:px-4 pb-28 sm:pb-32 space-y-2">
-        <UpgradesGrid />
-        <ModeSelector selectedMode={selectedMode} onModeChange={setSelectedMode} />
-        <PlayButton selectedMode={selectedMode} onPlay={handleStart} />
-      </div>
-
-      <FloatingNavManager
-        rightButtons={[
-          {
-            id: 'inventory',
-            icon: <BagIcon size={28} />,
-            label: 'Asset Inventory',
-            href: '/inventory',
-            variant: 'info',
-            size: 'lg',
-            enabled: true
-          }
-        ]}
-        baseTopOffset={120}
-      />
-    </div>
+    </PageReveal>
   );
 }

@@ -6,8 +6,8 @@ import * as THREE from 'three';
 import { CharacterModel } from '@/components/game/characters';
 import { SKIN_CONFIGS } from '@/components/game/characters/types';
 import { useAuth } from '@/hooks/useAuth';
+import TextWithShadow from '@/components/TextWithShadow';
 
-// Get all available skin IDs
 const ALL_SKINS = Object.keys(SKIN_CONFIGS);
 
 // Rotating character wrapper
@@ -29,9 +29,12 @@ function RotatingCharacter({ skinId }: { skinId: string }) {
 
 interface CharacterSelectorProps {
   className?: string;
+  onTap?: () => void;
+  tapText?: string;
+  showSearchIcon?: boolean;
 }
 
-export default function CharacterSelector({ className = '' }: CharacterSelectorProps) {
+export default function CharacterSelector({ className = '', onTap, tapText, showSearchIcon }: CharacterSelectorProps) {
   const { user, equipSkin } = useAuth();
   const ownedSkins = user?.ownedSkins || ['default'];
   const currentSkin = user?.currentSkin || 'default';
@@ -68,7 +71,20 @@ export default function CharacterSelector({ className = '' }: CharacterSelectorP
   }, [ownedSkins, equipSkin]);
 
   return (
-    <div className={`relative w-full h-full ${className}`}>
+    <div
+      className={`relative w-full h-full ${className} ${onTap ? 'cursor-pointer' : ''}`}
+      onClick={onTap}
+    >
+      {/* Tap to Start text */}
+      {tapText && (
+        <div className="absolute top-[75%] left-1/2 -translate-x-1/2 z-10 animate-pulse flex items-center gap-2">
+          <TextWithShadow className="text-white text-4xl font-bold">{tapText}</TextWithShadow>
+          {tapText === 'Find Opponent' && (
+            <img src="/ui/Search.Png" alt="" className="w-6 h-6" />
+          )}
+        </div>
+      )}
+
       {/* 3D Canvas */}
       <Canvas camera={{ position: [0, 1, 3.5], fov: 45 }}>
         <ambientLight intensity={0.7} />

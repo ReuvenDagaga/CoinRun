@@ -463,3 +463,63 @@
 {"level":30,"time":1766262898664,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
 {"level":30,"time":1766263553356,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
 {"level":30,"time":1766263554963,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766313237801,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313239295,"pid":47742,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313242074,"pid":68111,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313242075,"pid":68111,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313266910,"pid":68111,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313266920,"pid":68111,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313270645,"pid":68120,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313270647,"pid":68120,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313276997,"pid":68120,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313277011,"pid":68120,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313279465,"pid":68134,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313279466,"pid":68134,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313308499,"pid":68134,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313308513,"pid":68134,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313311085,"pid":68167,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313311087,"pid":68167,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313314003,"pid":68167,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313314013,"pid":68167,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313316477,"pid":68174,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313316479,"pid":68174,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313414951,"pid":68174,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313414960,"pid":68174,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313421277,"pid":68246,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313421278,"pid":68246,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313423793,"pid":68246,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313423828,"pid":68246,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313426392,"pid":68260,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313426393,"pid":68260,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313450255,"pid":68260,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313450274,"pid":68260,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313452593,"pid":68286,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313452594,"pid":68286,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313462687,"pid":68286,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313462697,"pid":68286,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313465230,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313465232,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313465233,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 802 minutes"}
+{"level":30,"time":1766313468471,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to not be milk (Rank #1): 1000000 coins, 1000 gems, legendary chest"}
+{"level":30,"time":1766313469229,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to Reuven DegensGames (Rank #2): 333333 coins, 333 gems, legendary chest"}
+{"level":30,"time":1766313470054,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to reuven dagaga (Rank #3): 166666 coins, 166 gems, legendary chest"}
+{"level":30,"time":1766313470119,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766313470130,"pid":68296,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766313472641,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766313472643,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766313472644,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 802 minutes"}
+{"level":30,"time":1766313474078,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766315996474,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
+{"level":30,"time":1766315997970,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'BV V',\n  email: 'reuvendagaga.dev@gmail.com',\n  googleId: '103542222855278526045',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocKfn3YkrGNioNJUSqy7RPNFEqeEt10TN00daTXDRGy4JZcM8Q=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6947d7dd31c23651e81a9be4'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":30,"time":1766315998144,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"New user registered: reuvendagaga.dev@gmail.com"}
+{"level":30,"time":1766331498927,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
+{"level":30,"time":1766331499068,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'reuven dagaga',\n  email: 'reuvendagaga@gmail.com',\n  googleId: '108963323050853439826',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLacQyS5Us7eczHFR4oH1Fn-DOGCgNW-1BqBOYfLxh_UoWsZA=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6948146b31c23651e81a9c7b'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":50,"time":1766331499210,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth error:"}
+{"level":30,"time":1766331505734,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
+{"level":30,"time":1766331505876,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'reuven dagaga',\n  email: 'reuvendagaga@gmail.com',\n  googleId: '108963323050853439826',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLacQyS5Us7eczHFR4oH1Fn-DOGCgNW-1BqBOYfLxh_UoWsZA=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6948147131c23651e81a9c7e'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":50,"time":1766331506016,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth error:"}
+{"level":30,"time":1766331595289,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
+{"level":30,"time":1766331595433,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'Ugo Baga',\n  email: 'ugobagat@gmail.com',\n  googleId: '117803064092104979807',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLfFfZea-oDOyXbXuNcBcsWFQp4FLr6veWe4SY5syV5W_v6jw=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('694814cb31c23651e81a9c81'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":30,"time":1766331595579,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"New user registered: ugobagat@gmail.com"}
+{"level":30,"time":1766331600028,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 updated profile"}
+{"level":30,"time":1766331601735,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 updated profile"}

@@ -349,7 +349,7 @@ function RewardRow({ label, value, isMultiplier, delay }: RewardRowProps) {
       }`}
     >
       <span className="text-white/70" style={{ fontSize: 'clamp(0.55rem, 1.2vh, 0.7rem)' }}>{label}</span>
-      <span className={`font-semibold ${isMultiplier ? 'text-green-400' : 'text-white'}`} style={{ fontSize: 'clamp(0.6rem, 1.3vh, 0.75rem)' }}>
+      <span className={` ${isMultiplier ? 'text-green-400' : 'text-white'}`} style={{ fontSize: 'clamp(0.6rem, 1.3vh, 0.75rem)' }}>
         {isMultiplier ? '= ' : ''}
         {value.toLocaleString()}
       </span>

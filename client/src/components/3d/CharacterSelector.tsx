@@ -146,7 +146,7 @@ export default function CharacterSelector({ className = '', onTap, tapText, show
 
       {/* Skin name indicator */}
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full">
-        <span className="text-white text-xs font-semibold">{skinConfig.name}</span>
+        <span className="text-white text-xs ">{skinConfig.name}</span>
       </div>
 
       {/* Skin counter */}

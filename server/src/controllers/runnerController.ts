@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/authMiddleware.js';
 import { ApiRes } from '../utils/response.js';
 import { LOGGER } from '../log/logger.js';
 import { createSoloGame, finishSoloGame as finishSoloGameService, getLeaderboard as getLeaderboardService, getPlayerStats as getPlayerStatsService } from '../services/runner.service.js';
+import { getLeaderboardRewardInfo } from '../services/leaderboard.service.js';
 
 export const startSoloGame = async (req: AuthRequest, res: Response) => {
   try {
@@ -37,10 +38,16 @@ export const finishSoloGame = async (req: AuthRequest, res: Response) => {
 
 export const getLeaderboard = async (req: AuthRequest, res: Response) => {
   try {
-    const { type = 'daily', limit = 100 } = req.query;
+    const { limit = 100 } = req.query;
+    const userId = req.user?._id?.toString();
 
-    const data = await getLeaderboardService(type as string, Number(limit));
-    return ApiRes.ok(res, data);
+    const leaderboardData = await getLeaderboardService(userId, Number(limit));
+    const rewardInfo = getLeaderboardRewardInfo();
+
+    return ApiRes.ok(res, {
+      ...leaderboardData,
+      rewardInfo
+    });
   } catch (error: any) {
     LOGGER.error('Get leaderboard error:', error.message);
     return ApiRes.serverError(res, 'Failed to get leaderboard');

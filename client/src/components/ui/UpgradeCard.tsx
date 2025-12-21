@@ -88,7 +88,7 @@ export default function UpgradeCard({ type }: UpgradeCardProps) {
         <img src={info.icon} alt={info.name} className="w-8 h-8 object-contain" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <h3 className="text-white font-semibold text-sm truncate">{info.name}</h3>
+            <h3 className="text-white  text-sm truncate">{info.name}</h3>
             <span className="text-xs text-gray-400">
               Lv{currentLevel}/{maxLevel}
             </span>
@@ -109,13 +109,13 @@ export default function UpgradeCard({ type }: UpgradeCardProps) {
       {/* Cost/Max button */}
       <div className="mt-2">
         {isMaxed ? (
-          <div className="text-center text-xs text-green-400 font-semibold py-1">
+          <div className="text-center text-xs text-green-400  py-1">
             MAXED
           </div>
         ) : (
           <button
             disabled={!canAfford}
-            className={`w-full py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 ${
+            className={`w-full py-1.5 rounded-lg text-xs  transition-all flex items-center justify-center gap-1 ${
               canAfford
                 ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
                 : 'bg-gray-700 text-gray-500'

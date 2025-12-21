@@ -2,6 +2,35 @@ import { CLIENT_CONSTANTS } from '@/lib/constants';
 
 const API_BASE = CLIENT_CONSTANTS.API_BASE_URL;
 
+// Leaderboard types
+export interface LeaderboardEntry {
+  rank: number;
+  oderId: string;
+  username: string;
+  avatar: string | null;
+  powerLevel: number;
+  skin: string;
+}
+
+export interface LeaderboardRewardTier {
+  rank: number | string;
+  coins: number;
+  gems: number;
+  chest: 'legendary' | 'simple';
+}
+
+export interface LeaderboardResponse {
+  data: {
+    leaderboard: LeaderboardEntry[];
+    currentUser: LeaderboardEntry | null;
+    rewardInfo: {
+      rewards: LeaderboardRewardTier[];
+      nextReset: string;
+      timeUntilReset: { hours: number; minutes: number; seconds: number };
+    };
+  };
+}
+
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: Record<string, unknown>;
@@ -86,8 +115,10 @@ export const runnerApi = {
       token: getToken() || undefined
     }),
 
-  getLeaderboard: (type: 'daily' | 'weekly' | 'alltime' = 'daily') =>
-    apiRequest(`/runner/leaderboard?type=${type}`),
+  getLeaderboard: () =>
+    apiRequest<LeaderboardResponse>('/runner/leaderboard', {
+      token: getToken() || undefined
+    }),
 
   getStats: () =>
     apiRequest('/runner/stats', {

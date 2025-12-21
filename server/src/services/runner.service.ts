@@ -1,6 +1,7 @@
 import { IUser } from "@shared/interface/IUser";
 import { RunnerGame } from "../models/RunnerGame.js";
 import { Transaction } from "../models/Transactions.js";
+import { User } from "../models/Users.js";
 import { LOGGER } from "../log/logger.js";
 import { updateMissionProgress } from "./mission.service.js";
 import { updateAchievementProgress } from "./achievement.service.js";
@@ -174,62 +175,108 @@ export const finishSoloGame = async (user: IUser, gameId: string, result: any) =
   };
 };
 
-export const getLeaderboard = async (type: string = 'daily', limit: number = 100) => {
-  let dateFilter = {};
-  const now = new Date();
+// Calculate power level from upgrades (same formula as in Users model)
+const calculatePowerLevel = (upgrades: any): number => {
+  return (
+    (upgrades.capacity || 0) * 10 +
+    (upgrades.addWarrior || 0) * 20 +
+    (upgrades.warriorUpgrade || 0) * 10 +
+    (upgrades.income || 0) * 5 +
+    (upgrades.speed || 0) * 8 +
+    (upgrades.jump || 0) * 6 +
+    (upgrades.bulletPower || 0) * 12 +
+    (upgrades.magnetRadius || 0) * 5
+  );
+};
 
-  switch (type) {
-    case 'daily':
-      dateFilter = {
-        finishedAt: {
-          $gte: new Date(now.getFullYear(), now.getMonth(), now.getDate())
+export const getLeaderboard = async (userId?: string, limit: number = 100) => {
+  // Get top 100 players by power level
+  const topPlayers = await User.aggregate([
+    {
+      $addFields: {
+        powerLevel: {
+          $add: [
+            { $multiply: [{ $ifNull: ['$upgrades.capacity', 0] }, 10] },
+            { $multiply: [{ $ifNull: ['$upgrades.addWarrior', 0] }, 20] },
+            { $multiply: [{ $ifNull: ['$upgrades.warriorUpgrade', 0] }, 10] },
+            { $multiply: [{ $ifNull: ['$upgrades.income', 0] }, 5] },
+            { $multiply: [{ $ifNull: ['$upgrades.speed', 0] }, 8] },
+            { $multiply: [{ $ifNull: ['$upgrades.jump', 0] }, 6] },
+            { $multiply: [{ $ifNull: ['$upgrades.bulletPower', 0] }, 12] },
+            { $multiply: [{ $ifNull: ['$upgrades.magnetRadius', 0] }, 5] }
+          ]
         }
-      };
-      break;
-    case 'weekly':
-      const weekAgo = new Date(now);
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      dateFilter = { finishedAt: { $gte: weekAgo } };
-      break;
-  }
-
-  const leaderboard = await RunnerGame.aggregate([
-    { $match: { status: 'finished', gameType: 'solo', ...dateFilter } },
-    {
-      $group: {
-        _id: '$userId',
-        highScore: { $max: '$finalScore' },
-        totalGames: { $sum: 1 },
-        totalWins: { $sum: { $cond: ['$didFinish', 1, 0] } }
       }
     },
-    { $sort: { highScore: -1 } },
+    { $sort: { powerLevel: -1 } },
     { $limit: Number(limit) },
-    {
-      $lookup: {
-        from: 'users',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'user'
-      }
-    },
-    { $unwind: '$user' },
     {
       $project: {
         _id: 1,
-        username: '$user.username',
-        score: '$highScore',
-        skin: '$user.currentSkin',
-        totalGames: 1,
-        winRate: { $multiply: [{ $divide: ['$totalWins', '$totalGames'] }, 100] }
+        username: 1,
+        avatar: 1,
+        powerLevel: 1,
+        currentSkin: 1
       }
     }
   ]);
 
-  return leaderboard.map((entry, index) => ({
+  const leaderboard = topPlayers.map((entry, index) => ({
     rank: index + 1,
-    ...entry
+    oderId: entry._id.toString(),
+    username: entry.username,
+    avatar: entry.avatar || null,
+    powerLevel: entry.powerLevel,
+    skin: entry.currentSkin
   }));
+
+  // If userId provided, find their rank if not in top 100
+  let currentUserEntry = null;
+  if (userId) {
+    const userInTop = leaderboard.find(e => e.oderId === userId);
+
+    if (!userInTop) {
+      // Get user's power level and count how many are above them
+      const user = await User.findById(userId);
+      if (user) {
+        const userPowerLevel = calculatePowerLevel(user.upgrades);
+
+        const countAbove = await User.countDocuments({
+          $expr: {
+            $gt: [
+              {
+                $add: [
+                  { $multiply: [{ $ifNull: ['$upgrades.capacity', 0] }, 10] },
+                  { $multiply: [{ $ifNull: ['$upgrades.addWarrior', 0] }, 20] },
+                  { $multiply: [{ $ifNull: ['$upgrades.warriorUpgrade', 0] }, 10] },
+                  { $multiply: [{ $ifNull: ['$upgrades.income', 0] }, 5] },
+                  { $multiply: [{ $ifNull: ['$upgrades.speed', 0] }, 8] },
+                  { $multiply: [{ $ifNull: ['$upgrades.jump', 0] }, 6] },
+                  { $multiply: [{ $ifNull: ['$upgrades.bulletPower', 0] }, 12] },
+                  { $multiply: [{ $ifNull: ['$upgrades.magnetRadius', 0] }, 5] }
+                ]
+              },
+              userPowerLevel
+            ]
+          }
+        });
+
+        currentUserEntry = {
+          rank: countAbove + 1,
+          oderId: user._id.toString(),
+          username: user.username,
+          avatar: user.avatar || null,
+          powerLevel: userPowerLevel,
+          skin: user.currentSkin
+        };
+      }
+    }
+  }
+
+  return {
+    leaderboard,
+    currentUser: currentUserEntry
+  };
 };
 
 export const getPlayerStats = async (user: IUser) => {

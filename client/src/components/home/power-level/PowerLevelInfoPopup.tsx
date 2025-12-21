@@ -34,7 +34,7 @@ export default function PowerLevelInfoPopup({ isOpen, onClose, currentLevel }: P
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-white font-semibold text-xs">{level.name}</span>
+                  <span className="text-white  text-xs">{level.name}</span>
                   {isCurrent && (
                     <span className="text-[8px] bg-yellow-500 text-black px-1 py-0.5 rounded-full font-bold">
                       YOU

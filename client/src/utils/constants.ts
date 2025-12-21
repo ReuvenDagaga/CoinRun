@@ -45,6 +45,13 @@ export const CLIENT_CONSTANTS = {
 
   TEXT_SHADOW_STYLE: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
   HOME_BACKGROUND_IMAGE: '/ui/home-bg.png',
+  LEADERBOARD_BACKGROUND_IMAGE: '/ui/leaderboard/leaderboard-bg.png',
+
+
+  CHEST_IMAGES: {
+    legendary: '/ui/IconMisc/Icon_ChestIcon_Gold01_s.png',
+    simple: '/ui/IconMisc/Icon_ChestIcon_Blue02_s.png',
+  },
 
 
 } as const;

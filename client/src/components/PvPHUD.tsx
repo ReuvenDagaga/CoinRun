@@ -55,7 +55,7 @@ export function PvPHUD({
           <div className="flex items-center gap-3">
             <span className="text-3xl">👥</span>
             <div>
-              <div className="text-xs text-blue-200 uppercase font-semibold">Your Army</div>
+              <div className="text-xs text-blue-200 uppercase ">Your Army</div>
               <div className="text-3xl font-bold text-white">{yourSoldiers}</div>
             </div>
           </div>
@@ -64,7 +64,7 @@ export function PvPHUD({
         {/* Timer (Center) */}
         <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl px-6 py-3 shadow-lg">
           <div className="text-center">
-            <div className="text-xs text-gray-400 uppercase font-semibold mb-1">Time</div>
+            <div className="text-xs text-gray-400 uppercase  mb-1">Time</div>
             <div className="text-2xl font-bold text-white font-mono">
               {minutes}:{seconds.toString().padStart(2, '0')}
             </div>
@@ -79,7 +79,7 @@ export function PvPHUD({
         >
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-xs text-red-200 uppercase font-semibold">{opponentName}</div>
+              <div className="text-xs text-red-200 uppercase ">{opponentName}</div>
               <div className="text-2xl font-bold text-white">{opponentSoldiers}</div>
             </div>
             <span className="text-2xl">👥</span>
@@ -140,7 +140,7 @@ export function PvPHUD({
             connectionQuality === 'medium' ? 'bg-yellow-400' :
             'bg-red-400'
           } animate-pulse`} />
-          <span className="text-xs text-white uppercase font-semibold">
+          <span className="text-xs text-white uppercase ">
             {connectionQuality === 'good' ? 'Stable' :
              connectionQuality === 'medium' ? 'Lag' :
              'Poor'}

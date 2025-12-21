@@ -13,7 +13,7 @@ export default function PowerLevelProgress({ current, next, points, progress }: 
   return (
     <div className="flex-1">
       <div className="flex items-center justify-between text-xs mb-1">
-        <span className="text-white font-semibold">{current.name}</span>
+        <span className="text-white ">{current.name}</span>
         {next && (
           <span className="text-white/60">{pointsToNext} to {next.name}</span>
         )}

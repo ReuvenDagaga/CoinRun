@@ -173,7 +173,7 @@ canvas {
 }
 
 .btn-secondary {
-  @apply font-semibold py-3 px-6 rounded-xl transition-all duration-150;
+  @apply  py-3 px-6 rounded-xl transition-all duration-150;
   background: linear-gradient(180deg, var(--color-secondary) 0%, #3355CC 100%);
   border: 3px solid #FFFFFF;
   box-shadow: 0 5px 0 #2244AA, 0 7px 12px rgba(0,0,0,0.3);

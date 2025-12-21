@@ -153,7 +153,7 @@ export default function UnifiedGameLoading({
 
       {/* Phase Message */}
       <p
-        className="text-white/90 text-lg font-semibold mb-4 animate-pulse"
+        className="text-white/90 text-lg  mb-4 animate-pulse"
         style={{
           textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
         }}

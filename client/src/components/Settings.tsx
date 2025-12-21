@@ -58,7 +58,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
         {/* Volume Controls */}
         <div className="space-y-3">
           <label className="block">
-            <TextWithShadow as="span" className="text-sm text-white font-semibold mb-1 block">
+            <TextWithShadow as="span" className="text-sm text-white mb-1 block">
               Master Volume
             </TextWithShadow>
             <input
@@ -74,7 +74,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
           </label>
 
           <label className="block">
-            <TextWithShadow as="span" className="text-sm text-white font-semibold mb-1 block">
+            <TextWithShadow as="span" className="text-sm text-white  mb-1 block">
               Music Volume
             </TextWithShadow>
             <input
@@ -90,7 +90,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
           </label>
 
           <label className="block">
-            <TextWithShadow as="span" className="text-sm text-white font-semibold mb-1 block">
+            <TextWithShadow as="span" className="text-sm text-white  mb-1 block">
               SFX Volume
             </TextWithShadow>
             <input
@@ -106,7 +106,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
           </label>
 
           <label className="block">
-            <TextWithShadow as="span" className="text-sm text-white font-semibold mb-1 block">
+            <TextWithShadow as="span" className="text-sm text-white  mb-1 block">
               Graphics Quality
             </TextWithShadow>
             <select
@@ -121,7 +121,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
           </label>
 
           <label className="flex items-center justify-between py-1">
-            <TextWithShadow as="span" className="text-sm text-white font-semibold">
+            <TextWithShadow as="span" className="text-sm text-white ">
               Show FPS
             </TextWithShadow>
             <button

@@ -134,8 +134,8 @@ export default function GameScene({ mode, trackSeed, opponentState, opponentSkin
   const gateEnhancementsRef = useRef<Map<string, number>>(new Map());
 
   // Weapon system state
-  const bulletPowerLevel = user?.upgrades?.bulletPower || 0;
-  const weaponTier = getWeaponTier(bulletPowerLevel) as WeaponTier;
+  const powerLevel = user?.upgrades?.power || 0;
+  const weaponTier = getWeaponTier(powerLevel) as WeaponTier;
   const [temporaryWeaponBoost, setTemporaryWeaponBoost] = useState(0);
   const effectiveWeaponTier = Math.min(10, weaponTier + Math.floor(temporaryWeaponBoost)) as WeaponTier;
 

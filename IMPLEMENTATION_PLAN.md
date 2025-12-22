@@ -198,7 +198,7 @@ interface IUser {
     armyCapacity: number (default: 0)
     startingArmy: number (default: 0)
     coinValue: number (default: 0)
-    magnetRadius: number (default: 0)
+    magnet: number (default: 0)
     // Add more as needed
   }
 
@@ -556,7 +556,7 @@ function calculateUpgradeCost(upgradeType: string, currentLevel: number): number
     armyCapacity: 200,
     startingArmy: 500,
     coinValue: 150,
-    magnetRadius: 250
+    magnet: 250
   }
 
   const baseCost = baseCosts[upgradeType]
@@ -577,7 +577,7 @@ function calculateUpgradePower(upgradeType: string, level: number): number {
     armyCapacity: 1,    // +1 soldier per level
     startingArmy: 0.5,  // +0.5 starting soldiers per level
     coinValue: 0.01,    // 1% per level
-    magnetRadius: 0.1   // +0.1m per level
+    magnet: 0.1   // +0.1m per level
   }
 
   const baseEffect = baseEffects[upgradeType]

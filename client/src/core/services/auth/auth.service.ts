@@ -25,8 +25,8 @@ export interface AuthUserData {
     income: number;
     speed: number;
     jump: number;
-    bulletPower: number;
-    magnetRadius: number;
+    power: number;
+    magnet: number;
   };
   stats: {
     gamesPlayed: number;

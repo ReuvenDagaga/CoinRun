@@ -59,8 +59,8 @@ export const GAME_CONSTANTS = {
     income: 10,
     speed: 5,
     jump: 50,
-    bulletPower: 200,
-    magnetRadius: 150
+    power: 200,
+    magnet: 150
   },
 
   // Cost growth multipliers
@@ -71,8 +71,8 @@ export const GAME_CONSTANTS = {
     income: 1.7,
     speed: 1.2,
     jump: 1.4,
-    bulletPower: 1.8,
-    magnetRadius: 1.6
+    power: 1.8,
+    magnet: 1.6
   },
 
   MAX_LEVELS: {
@@ -82,8 +82,8 @@ export const GAME_CONSTANTS = {
     income: 999,
     speed: 999,
     jump: 999,
-    bulletPower: 999,
-    magnetRadius: 999
+    power: 999,
+    magnet: 999
   }
 } as const;
 
@@ -206,8 +206,8 @@ export interface UserUpgrades {
   income: number;
   speed: number;
   jump: number;
-  bulletPower: number;
-  magnetRadius: number;
+  power: number;
+  magnet: number;
 }
 
 export interface UserStats {
@@ -340,8 +340,8 @@ export function calculatePowerLevel(upgrades: UserUpgrades): number {
     upgrades.income * 5 +
     upgrades.speed * 8 +
     upgrades.jump * 6 +
-    upgrades.bulletPower * 12 +
-    upgrades.magnetRadius * 5
+    upgrades.power * 12 +
+    upgrades.magnet * 5
   );
 }
 
@@ -394,14 +394,14 @@ export function getIncomeMultiplier(incomeLevel: number): number {
 
 // Get bullet damage multiplier
 // EXPONENTIAL: 8% compound growth per level (1.08^level)
-export function getBulletDamage(bulletPowerLevel: number): number {
-  return 10 * Math.pow(1.08, bulletPowerLevel);
+export function getBulletDamage(powerLevel: number): number {
+  return 10 * Math.pow(1.08, powerLevel);
 }
 
 // Get magnet radius
 // EXPONENTIAL: 4% compound growth per level (1.04^level)
-export function getMagnetRadius(magnetRadiusLevel: number): number {
-  return 2 * Math.pow(1.04, magnetRadiusLevel);
+export function getmagnet(magnetLevel: number): number {
+  return 2 * Math.pow(1.04, magnetLevel);
 }
 
 // ==========================================
@@ -545,4 +545,73 @@ export function calculateMaxStair(totalSoldiers: number): number {
 // Calculate player speed from upgrades
 export function getPlayerSpeedFromUpgrades(speedLevel: number): number {
   return STAIR_CONSTANTS.BASE_SPEED + (speedLevel * STAIR_CONSTANTS.SPEED_PER_LEVEL);
+}
+
+// ==========================================
+// CARD BONUS CALCULATIONS
+// ==========================================
+
+// Card bonuses interface - percentages as decimals (0.15 = 15%)
+export interface CardBonuses {
+  speed: number;
+  jump: number;
+  income: number;
+  power: number;
+  magnet: number;
+}
+
+// Apply card bonus to speed
+// Card bonus is RELATIVE: final = base * upgradeMultiplier * (1 + cardBonus)
+export function getPlayerSpeedWithCards(speedLevel: number, cardBonus: number): number {
+  const upgradeMultiplier = Math.pow(1.03, speedLevel);
+  return GAME_CONSTANTS.BASE_SPEED * upgradeMultiplier * (1 + cardBonus);
+}
+
+// Apply card bonus to jump height
+export function getJumpHeightWithCards(jumpLevel: number, cardBonus: number): number {
+  const upgradeMultiplier = Math.pow(1.05, jumpLevel);
+  return GAME_CONSTANTS.BASE_JUMP_HEIGHT * upgradeMultiplier * (1 + cardBonus);
+}
+
+// Apply card bonus to income multiplier
+export function getIncomeMultiplierWithCards(incomeLevel: number, cardBonus: number): number {
+  const upgradeMultiplier = Math.pow(1.1, incomeLevel);
+  return upgradeMultiplier * (1 + cardBonus);
+}
+
+// Apply card bonus to bullet damage
+export function getBulletDamageWithCards(powerLevel: number, cardBonus: number): number {
+  const upgradeMultiplier = Math.pow(1.08, powerLevel);
+  return GAME_CONSTANTS.BASE_BULLET_DAMAGE * upgradeMultiplier * (1 + cardBonus);
+}
+
+// Apply card bonus to magnet radius
+export function getmagnetWithCards(magnetLevel: number, cardBonus: number): number {
+  const baseRadius = 2; // Base magnet radius in meters
+  const upgradeMultiplier = Math.pow(1.04, magnetLevel);
+  return baseRadius * upgradeMultiplier * (1 + cardBonus);
+}
+
+// Calculate all stats with card bonuses applied
+export function calculateStatsWithCards(
+  upgrades: UserUpgrades,
+  cardBonuses: CardBonuses
+): {
+  speed: number;
+  jumpHeight: number;
+  incomeMultiplier: number;
+  bulletDamage: number;
+  magnet: number;
+  startingArmy: number;
+  maxArmy: number;
+} {
+  return {
+    speed: getPlayerSpeedWithCards(upgrades.speed, cardBonuses.speed),
+    jumpHeight: getJumpHeightWithCards(upgrades.jump, cardBonuses.jump),
+    incomeMultiplier: getIncomeMultiplierWithCards(upgrades.income, cardBonuses.income),
+    bulletDamage: getBulletDamageWithCards(upgrades.power, cardBonuses.power),
+    magnet: getmagnetWithCards(upgrades.magnet, cardBonuses.magnet),
+    startingArmy: getStartingArmy(upgrades.addWarrior),
+    maxArmy: getMaxArmy(upgrades.capacity)
+  };
 }

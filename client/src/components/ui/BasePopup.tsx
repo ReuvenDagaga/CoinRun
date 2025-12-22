@@ -95,7 +95,7 @@ export default function BasePopup({
                 className="absolute top-1/2 right-3 -translate-y-1/2 w-8 h-8 flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
               >
                 <img
-                  src="/ui/Close.Png"
+                  src="/ui/close.png"
                   alt="Close"
                   className="w-7 h-7 drop-shadow-lg"
                   onError={(e) => {

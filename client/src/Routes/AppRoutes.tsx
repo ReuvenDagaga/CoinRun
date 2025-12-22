@@ -9,6 +9,7 @@ const Profile = lazy(() => import('../pages/Profile'));
 const Leaderboard = lazy(() => import('../pages/Leaderboard'));
 const Login = lazy(() => import('../pages/auth/Login'));
 const Inventory = lazy(() => import('../pages/Inventory'));
+const Cards = lazy(() => import('../pages/Cards'));
 
 // PvP Routes
 const PvPLobby = lazy(() => import('../pages/PvPLobbyScreen'));
@@ -32,6 +33,7 @@ export const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/inventory" element={<Inventory />} />
+        <Route path="/cards" element={<Cards />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/game" element={<Game />} />

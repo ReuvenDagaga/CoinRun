@@ -33,8 +33,8 @@ export const GAME_CONSTANTS = {
     income: 5,
     speed: 20,
     jump: 15,
-    bulletPower: 30,
-    magnetRadius: 25
+    power: 30,
+    magnet: 25
   } as const,
 
   MAX_LEVELS: {
@@ -44,8 +44,8 @@ export const GAME_CONSTANTS = {
     income: 999,
     speed: 999,
     jump: 999,
-    bulletPower: 999,
-    magnetRadius: 999
+    power: 999,
+    magnet: 999
   } as const
 };
 
@@ -63,8 +63,8 @@ export function calculatePowerLevel(upgrades: Record<string, number>): number {
     (upgrades.income || 0) * 5 +
     (upgrades.speed || 0) * 8 +
     (upgrades.jump || 0) * 6 +
-    (upgrades.bulletPower || 0) * 12 +
-    (upgrades.magnetRadius || 0) * 5
+    (upgrades.power || 0) * 12 +
+    (upgrades.magnet || 0) * 5
   );
 }
 

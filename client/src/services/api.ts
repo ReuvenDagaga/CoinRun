@@ -202,11 +202,68 @@ export const walletApi = {
     })
 };
 
+// Cards API
+export const cardsApi = {
+  // Get user's card collection
+  getAll: () =>
+    apiRequest('/cards', {
+      token: getToken() || undefined
+    }),
+
+  // Upgrade a card's star level
+  upgrade: (cardId: string) =>
+    apiRequest('/cards/upgrade', {
+      method: 'POST',
+      body: { cardId },
+      token: getToken() || undefined
+    }),
+
+  // Get all available cards info (public)
+  getPool: () =>
+    apiRequest('/cards/pool')
+};
+
+// Chests API
+export const chestsApi = {
+  // Get current timed chest status
+  getStatus: () =>
+    apiRequest('/chests/status', {
+      token: getToken() || undefined
+    }),
+
+  // Claim the ready timed chest
+  claim: () =>
+    apiRequest('/chests/claim', {
+      method: 'POST',
+      token: getToken() || undefined
+    }),
+
+  // Purchase a chest with gems
+  buy: (tier: 'bronze' | 'silver' | 'gold') =>
+    apiRequest('/chests/buy', {
+      method: 'POST',
+      body: { tier },
+      token: getToken() || undefined
+    }),
+
+  // Get chest history
+  getHistory: (limit?: number) =>
+    apiRequest(`/chests/history${limit ? `?limit=${limit}` : ''}`, {
+      token: getToken() || undefined
+    }),
+
+  // Get drop rates info (public)
+  getRates: () =>
+    apiRequest('/chests/rates')
+};
+
 export default {
   auth: authApi,
   runner: runnerApi,
   upgrades: upgradesApi,
   shop: shopApi,
   daily: dailyApi,
-  wallet: walletApi
+  wallet: walletApi,
+  cards: cardsApi,
+  chests: chestsApi
 };

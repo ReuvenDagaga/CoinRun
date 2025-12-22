@@ -5,6 +5,7 @@ import { User } from "../models/Users.js";
 import { LOGGER } from "../log/logger.js";
 import { updateMissionProgress } from "./mission.service.js";
 import { updateAchievementProgress } from "./achievement.service.js";
+import { getAllCardBonuses } from "./card.service.js";
 
 const TRACK_LENGTH = 800;
 const PLAYER_BASE_SPEED = 50;
@@ -23,9 +24,12 @@ export const createSoloGame = async (user: IUser) => {
     income: user.upgrades.income,
     speed: user.upgrades.speed,
     jump: user.upgrades.jump,
-    bulletPower: user.upgrades.bulletPower,
-    magnetRadius: user.upgrades.magnetRadius
+    power: user.upgrades.power,
+    magnet: user.upgrades.magnet
   };
+
+  // Get card bonuses for the user
+  const cardBonuses = getAllCardBonuses(user.cards || []);
 
   const game = new RunnerGame({
     gameType: 'solo',
@@ -44,7 +48,8 @@ export const createSoloGame = async (user: IUser) => {
     gameId: game._id,
     trackSeed,
     difficulty,
-    upgrades: upgradeLevels
+    upgrades: upgradeLevels,
+    cardBonuses  // Send card bonuses to client for gameplay calculations
   };
 };
 
@@ -184,8 +189,8 @@ const calculatePowerLevel = (upgrades: any): number => {
     (upgrades.income || 0) * 5 +
     (upgrades.speed || 0) * 8 +
     (upgrades.jump || 0) * 6 +
-    (upgrades.bulletPower || 0) * 12 +
-    (upgrades.magnetRadius || 0) * 5
+    (upgrades.power || 0) * 12 +
+    (upgrades.magnet || 0) * 5
   );
 };
 
@@ -202,8 +207,8 @@ export const getLeaderboard = async (userId?: string, limit: number = 100) => {
             { $multiply: [{ $ifNull: ['$upgrades.income', 0] }, 5] },
             { $multiply: [{ $ifNull: ['$upgrades.speed', 0] }, 8] },
             { $multiply: [{ $ifNull: ['$upgrades.jump', 0] }, 6] },
-            { $multiply: [{ $ifNull: ['$upgrades.bulletPower', 0] }, 12] },
-            { $multiply: [{ $ifNull: ['$upgrades.magnetRadius', 0] }, 5] }
+            { $multiply: [{ $ifNull: ['$upgrades.power', 0] }, 12] },
+            { $multiply: [{ $ifNull: ['$upgrades.magnet', 0] }, 5] }
           ]
         }
       }
@@ -252,8 +257,8 @@ export const getLeaderboard = async (userId?: string, limit: number = 100) => {
                   { $multiply: [{ $ifNull: ['$upgrades.income', 0] }, 5] },
                   { $multiply: [{ $ifNull: ['$upgrades.speed', 0] }, 8] },
                   { $multiply: [{ $ifNull: ['$upgrades.jump', 0] }, 6] },
-                  { $multiply: [{ $ifNull: ['$upgrades.bulletPower', 0] }, 12] },
-                  { $multiply: [{ $ifNull: ['$upgrades.magnetRadius', 0] }, 5] }
+                  { $multiply: [{ $ifNull: ['$upgrades.power', 0] }, 12] },
+                  { $multiply: [{ $ifNull: ['$upgrades.magnet', 0] }, 5] }
                 ]
               },
               userPowerLevel

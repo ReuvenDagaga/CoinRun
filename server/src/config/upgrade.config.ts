@@ -50,13 +50,13 @@ export const UPGRADE_CONFIG: Record<keyof IUpgrades, UpgradeConfig> = {
   },
 
   // Expensive combat upgrades
-  bulletPower: {
+  power: {
     baseCost: 200,
     costMultiplier: 1.8,   // Fast growth
     powerMultiplier: 1.08  // Exponential: 8% compound growth
   },
 
-  magnetRadius: {
+  magnet: {
     baseCost: 150,
     costMultiplier: 1.6,   // Moderate-fast growth
     powerMultiplier: 1.04  // Exponential: 4% compound growth
@@ -73,6 +73,6 @@ export const UPGRADE_TYPES: (keyof IUpgrades)[] = [
   'income',
   'speed',
   'jump',
-  'bulletPower',
-  'magnetRadius'
+  'power',
+  'magnet'
 ];

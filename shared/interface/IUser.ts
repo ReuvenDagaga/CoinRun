@@ -3,6 +3,8 @@ import { IActiveBoost } from "./IActiveBoost";
 import { IMission } from "./IMission";
 import { ISettings } from "./ISettings";
 import { IUpgrades } from "./IUpgrades";
+import { IUserCard } from "./IUserCard";
+import { ITimedChest, IPityCounter } from "./IChest";
 import mongoose, { Document } from 'mongoose';
 
 
@@ -58,6 +60,13 @@ export interface IUser extends Document {
   // Settings
   settings: ISettings;
 
+  // Card System
+  cards: IUserCard[];
+  timedChest?: ITimedChest;
+  lastChestTime?: Date;
+  pityCounter: IPityCounter;
+  totalChestsOpened: number;
+
   // Social (Future feature)
   friends: mongoose.Types.ObjectId[];
   referralCode: string;
@@ -65,6 +74,9 @@ export interface IUser extends Document {
 
   createdAt: Date;
   updatedAt: Date;
+
+  // Virtual field - computed from upgrades + cards
+  powerLevel: number;
 
   // Methods
   getPowerLevel(): number;
@@ -120,6 +132,13 @@ export interface IUserData {
   // Settings
   settings: ISettings;
 
+  // Card System
+  cards: IUserCard[];
+  timedChest?: ITimedChest;
+  lastChestTime?: Date;
+  pityCounter: IPityCounter;
+  totalChestsOpened: number;
+
   // Social (Future feature)
   friends: mongoose.Types.ObjectId[];
   referralCode: string;
@@ -127,6 +146,9 @@ export interface IUserData {
 
   createdAt: Date;
   updatedAt: Date;
+
+  // Virtual field - computed from upgrades + cards
+  powerLevel: number;
 
   // Methods
   getPowerLevel(): number;

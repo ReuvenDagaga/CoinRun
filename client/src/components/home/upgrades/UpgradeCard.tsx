@@ -67,7 +67,7 @@ export default function UpgradeCard({
             </div>
 
             <div className="flex items-center gap-0.5 mt-1">
-              <img src="/ui/Coin.Png" alt="Coin" className="w-4 h-4" />
+              <img src="/ui/coin.png" alt="Coin" className="w-4 h-4" />
               <TextWithShadow
                 className={`font-bold text-[15px] sm:text-[15px] uppercase leading-tight ${
                   canAfford ? 'text-green-400' : 'text-red-500'

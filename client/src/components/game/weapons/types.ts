@@ -1,5 +1,5 @@
 // Weapon system types and configuration
-// 10 weapon tiers based on bulletPower upgrade level
+// 10 weapon tiers based on power upgrade level
 
 export type WeaponTier = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
@@ -16,9 +16,9 @@ export interface WeaponConfig {
   damage: number;
 }
 
-// Get weapon tier from bulletPower level (1-10 = tier 1, 11-20 = tier 2, etc.)
-export function getWeaponTier(bulletPowerLevel: number): WeaponTier {
-  const tier = Math.min(10, Math.max(1, Math.ceil(bulletPowerLevel / 10))) as WeaponTier;
+// Get weapon tier from power level (1-10 = tier 1, 11-20 = tier 2, etc.)
+export function getWeaponTier(powerLevel: number): WeaponTier {
+  const tier = Math.min(10, Math.max(1, Math.ceil(powerLevel / 10))) as WeaponTier;
   return tier || 1;
 }
 

@@ -8,6 +8,8 @@ import achievementRouter from './achievementRoutes.js';
 import settingsRouter from './settingsRoutes.js';
 import userRouter from './userRoutes.js';
 import assetRouter from './assetRoutes.js';
+import cardRouter from './cardRoutes.js';
+import chestRouter from './chestRoutes.js';
 
 const router = Router();
 
@@ -20,5 +22,7 @@ router.use('/achievements', achievementRouter);
 router.use('/settings', settingsRouter);
 router.use('/user', userRouter);
 router.use('/assets', assetRouter);
+router.use('/cards', cardRouter);
+router.use('/chests', chestRouter);
 
 export default router;

@@ -22,8 +22,8 @@ export interface IRunnerGame extends Document {
     income: number;
     speed: number;
     jump: number;
-    bulletPower: number;
-    magnetRadius: number;
+    power: number;
+    magnet: number;
   };
 
   trackSeed: string;
@@ -61,8 +61,8 @@ const runnerGameSchema = new Schema<IRunnerGame>({
     income: { type: Number, default: 0 },
     speed: { type: Number, default: 0 },
     jump: { type: Number, default: 0 },
-    bulletPower: { type: Number, default: 0 },
-    magnetRadius: { type: Number, default: 0 }
+    power: { type: Number, default: 0 },
+    magnet: { type: Number, default: 0 }
   },
 
   trackSeed: { type: String, required: true },

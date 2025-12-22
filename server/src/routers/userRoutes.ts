@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { updateUser } from "src/controllers/userController";
-import { authMiddleware } from "src/middleware/authMiddleware";
+import { getMe, updateUser } from "../controllers/userController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const userRouter = Router();
 
+userRouter.get('/me', authMiddleware, getMe);
 userRouter.put('/update', authMiddleware, updateUser);
 
 export default userRouter;

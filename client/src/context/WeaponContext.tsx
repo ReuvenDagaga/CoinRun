@@ -31,11 +31,11 @@ const WeaponContext = createContext<WeaponContextValue | undefined>(undefined);
 
 interface WeaponProviderProps {
   children: ReactNode;
-  bulletPowerLevel: number;
+  powerLevel: number;
 }
 
-export function WeaponProvider({ children, bulletPowerLevel }: WeaponProviderProps) {
-  const [weaponTier, setWeaponTierState] = useState<WeaponTier>(() => getWeaponTier(bulletPowerLevel));
+export function WeaponProvider({ children, powerLevel }: WeaponProviderProps) {
+  const [weaponTier, setWeaponTierState] = useState<WeaponTier>(() => getWeaponTier(powerLevel));
   const [temporaryWeaponBoost, setTemporaryWeaponBoost] = useState(0);
   const [bullets, setBullets] = useState<BulletData[]>([]);
 

@@ -274,7 +274,7 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
       style={{ padding: 'clamp(0.5rem, 1.25vh, 0.75rem)' }}
     >
       <h3 className="text-yellow-400 font-bold flex items-center" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)', gap: '0.25rem', marginBottom: 'clamp(0.25rem, 0.75vh, 0.5rem)' }}>
-        <img src="/ui/Coin.png" alt="Coins" style={{ width: 'clamp(0.75rem, 1.5vh, 1rem)', height: 'clamp(0.75rem, 1.5vh, 1rem)' }} /> Rewards
+        <img src="/ui/coin.png" alt="Coins" style={{ width: 'clamp(0.75rem, 1.5vh, 1rem)', height: 'clamp(0.75rem, 1.5vh, 1rem)' }} /> Rewards
       </h3>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(0.125rem, 0.5vh, 0.25rem)' }}>
@@ -311,12 +311,12 @@ function RewardsBreakdown({ breakdown }: RewardsBreakdownProps) {
         {/* Final coins and diamonds in one row */}
         <div className="flex justify-between items-center">
           <span className="text-yellow-300 font-bold flex items-center" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)', gap: '0.125rem' }}>
-            <img src="/ui/Coin.png" alt="Coins" style={{ width: 'clamp(0.875rem, 1.75vh, 1rem)', height: 'clamp(0.875rem, 1.75vh, 1rem)' }} />
+            <img src="/ui/coin.png" alt="Coins" style={{ width: 'clamp(0.875rem, 1.75vh, 1rem)', height: 'clamp(0.875rem, 1.75vh, 1rem)' }} />
             {breakdown.finalCoins.toLocaleString()}
           </span>
           {breakdown.diamondsEarned > 0 && (
             <span className="text-purple-400 font-bold flex items-center" style={{ fontSize: 'clamp(0.7rem, 1.5vh, 0.875rem)', gap: '0.125rem' }}>
-              <img src="/ui/Gem.png" alt="Gems" style={{ width: 'clamp(0.875rem, 1.75vh, 1rem)', height: 'clamp(0.875rem, 1.75vh, 1rem)' }} />
+              <img src="/ui/gem.png" alt="Gems" style={{ width: 'clamp(0.875rem, 1.75vh, 1rem)', height: 'clamp(0.875rem, 1.75vh, 1rem)' }} />
               +{breakdown.diamondsEarned}
             </span>
           )}

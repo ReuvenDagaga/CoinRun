@@ -20,7 +20,7 @@ export default function Header() {
               className="flex items-center bg-gray-900/70 backdrop-blur-sm rounded-full px-2.5 py-1 cursor-pointer hover:bg-gray-800/80 transition-colors"
               onClick={() => navigate('/shop')}
             >
-              <img src="/ui/Coin.Png" alt="Coins" className="w-5 h-5 mr-1.5" />
+              <img src="/ui/coin.png" alt="Coins" className="w-5 h-5 mr-1.5" />
               <TextWithShadow as="span" className="text-sm font-bold text-yellow-400">
                 {user.coins.toLocaleString()}
               </TextWithShadow>
@@ -30,7 +30,7 @@ export default function Header() {
               className="flex items-center bg-gray-900/70 backdrop-blur-sm rounded-full px-2.5 py-1 cursor-pointer hover:bg-gray-800/80 transition-colors"
               onClick={() => navigate('/shop')}
             >
-              <img src="/ui/Gem.Png" alt="Gems" className="w-5 h-5 mr-1.5" />
+              <img src="/ui/gem.png" alt="Gems" className="w-5 h-5 mr-1.5" />
               <TextWithShadow as="span" className="text-sm font-bold text-purple-400">
                 {user.gems.toLocaleString()}
               </TextWithShadow>

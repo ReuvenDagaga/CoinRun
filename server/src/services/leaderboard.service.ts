@@ -59,8 +59,8 @@ export const distributeLeaderboardRewards = async (): Promise<{
             { $multiply: [{ $ifNull: ['$upgrades.income', 0] }, 5] },
             { $multiply: [{ $ifNull: ['$upgrades.speed', 0] }, 8] },
             { $multiply: [{ $ifNull: ['$upgrades.jump', 0] }, 6] },
-            { $multiply: [{ $ifNull: ['$upgrades.bulletPower', 0] }, 12] },
-            { $multiply: [{ $ifNull: ['$upgrades.magnetRadius', 0] }, 5] }
+            { $multiply: [{ $ifNull: ['$upgrades.power', 0] }, 12] },
+            { $multiply: [{ $ifNull: ['$upgrades.magnet', 0] }, 5] }
           ]
         }
       }

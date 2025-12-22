@@ -63,7 +63,7 @@ export default function HUD() {
         {/* Coin counter - below main stats */}
         <div className="mt-2 flex justify-start">
           <div className="bg-yellow-600/70 px-4 py-2 rounded-lg flex items-center gap-2">
-            <img src="/ui/Coin.png" alt="Coins" className="w-6 h-6" />
+            <img src="/ui/coin.png" alt="Coins" className="w-6 h-6" />
             <span className="text-yellow-100 text-xl font-bold">{player.coinsCollected}</span>
           </div>
         </div>
@@ -161,7 +161,7 @@ export function VictoryScreen() {
           <div className="bg-yellow-600/30 rounded-lg p-3">
             <div className="text-yellow-200 text-sm">Coins Collected</div>
             <div className="text-white text-2xl font-bold flex items-center justify-center gap-2">
-              <img src="/ui/Coin.png" alt="Coins" className="w-6 h-6" />
+              <img src="/ui/coin.png" alt="Coins" className="w-6 h-6" />
               <span>{result?.coinsCollected || 0}</span>
             </div>
           </div>

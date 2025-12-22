@@ -116,7 +116,7 @@
 {"level":30,"time":1765697803170,"pid":24067,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
 {"level":30,"time":1765698696339,"pid":24067,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
 {"level":30,"time":1765699136846,"pid":24067,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
-{"level":30,"time":1765699137018,"pid":24067,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'not be milk',\n  email: 'notbemilk@gmail.com',\n  googleId: '117493418683903002133',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocK8jIlmWZG6kPWn_EVosvDOqZdYBIOpf67GNtpODGDSZjBQ8w=s96-c',\n  coins: 1000,\n  gems: 50,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  friends: [],\n  _id: new ObjectId('693e6e41cb74199f17bcb29e'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":30,"time":1765699137018,"pid":24067,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'not be milk',\n  email: 'notbemilk@gmail.com',\n  googleId: '117493418683903002133',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocK8jIlmWZG6kPWn_EVosvDOqZdYBIOpf67GNtpODGDSZjBQ8w=s96-c',\n  coins: 1000,\n  gems: 50,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  friends: [],\n  _id: new ObjectId('693e6e41cb74199f17bcb29e'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    power: 0,\n    magnet: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
 {"level":30,"time":1765699137221,"pid":24067,"hostname":"reuvens-MacBook-Pro.local","msg":"New user registered: notbemilk@gmail.com"}
 {"level":30,"time":1765726005811,"pid":2231,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
 {"level":30,"time":1765726005812,"pid":2231,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
@@ -510,16 +510,471 @@
 {"level":30,"time":1766313472644,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 802 minutes"}
 {"level":30,"time":1766313474078,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
 {"level":30,"time":1766315996474,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
-{"level":30,"time":1766315997970,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'BV V',\n  email: 'reuvendagaga.dev@gmail.com',\n  googleId: '103542222855278526045',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocKfn3YkrGNioNJUSqy7RPNFEqeEt10TN00daTXDRGy4JZcM8Q=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6947d7dd31c23651e81a9be4'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":30,"time":1766315997970,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'BV V',\n  email: 'reuvendagaga.dev@gmail.com',\n  googleId: '103542222855278526045',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocKfn3YkrGNioNJUSqy7RPNFEqeEt10TN00daTXDRGy4JZcM8Q=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6947d7dd31c23651e81a9be4'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    power: 0,\n    magnet: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
 {"level":30,"time":1766315998144,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"New user registered: reuvendagaga.dev@gmail.com"}
 {"level":30,"time":1766331498927,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
-{"level":30,"time":1766331499068,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'reuven dagaga',\n  email: 'reuvendagaga@gmail.com',\n  googleId: '108963323050853439826',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLacQyS5Us7eczHFR4oH1Fn-DOGCgNW-1BqBOYfLxh_UoWsZA=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6948146b31c23651e81a9c7b'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":30,"time":1766331499068,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'reuven dagaga',\n  email: 'reuvendagaga@gmail.com',\n  googleId: '108963323050853439826',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLacQyS5Us7eczHFR4oH1Fn-DOGCgNW-1BqBOYfLxh_UoWsZA=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6948146b31c23651e81a9c7b'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    power: 0,\n    magnet: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
 {"level":50,"time":1766331499210,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth error:"}
 {"level":30,"time":1766331505734,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
-{"level":30,"time":1766331505876,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'reuven dagaga',\n  email: 'reuvendagaga@gmail.com',\n  googleId: '108963323050853439826',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLacQyS5Us7eczHFR4oH1Fn-DOGCgNW-1BqBOYfLxh_UoWsZA=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6948147131c23651e81a9c7e'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":30,"time":1766331505876,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'reuven dagaga',\n  email: 'reuvendagaga@gmail.com',\n  googleId: '108963323050853439826',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLacQyS5Us7eczHFR4oH1Fn-DOGCgNW-1BqBOYfLxh_UoWsZA=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('6948147131c23651e81a9c7e'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    power: 0,\n    magnet: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
 {"level":50,"time":1766331506016,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth error:"}
 {"level":30,"time":1766331595289,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Google auth attempt"}
-{"level":30,"time":1766331595433,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'Ugo Baga',\n  email: 'ugobagat@gmail.com',\n  googleId: '117803064092104979807',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLfFfZea-oDOyXbXuNcBcsWFQp4FLr6veWe4SY5syV5W_v6jw=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('694814cb31c23651e81a9c81'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    bulletPower: 0,\n    magnetRadius: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
+{"level":30,"time":1766331595433,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Creating new user with email: {\n  username: 'Ugo Baga',\n  email: 'ugobagat@gmail.com',\n  googleId: '117803064092104979807',\n  avatar: 'https://lh3.googleusercontent.com/a/ACg8ocLfFfZea-oDOyXbXuNcBcsWFQp4FLr6veWe4SY5syV5W_v6jw=s96-c',\n  coins: 1000,\n  gems: 50,\n  heldCoins: 0,\n  gamesPlayed: 0,\n  gamesWon: 0,\n  totalDistance: 0,\n  totalCoinsCollected: 0,\n  highestArmy: 0,\n  bestScore: 0,\n  currentSkin: 'default',\n  ownedSkins: [ 'default' ],\n  currentCharacterType: 'preset',\n  creatorStats: {\n    totalEarnings: { coins: 0, gems: 0 },\n    totalAssetsSold: 0,\n    creatorRating: 0,\n    ratingCount: 0\n  },\n  friends: [],\n  _id: new ObjectId('694814cb31c23651e81a9c81'),\n  upgrades: {\n    capacity: 0,\n    addWarrior: 0,\n    warriorUpgrade: 0,\n    income: 0,\n    speed: 0,\n    jump: 0,\n    power: 0,\n    magnet: 0\n  },\n  dailyMissions: [],\n  weeklyMissions: [],\n  achievements: [],\n  activeBoosts: [],\n  settings: {\n    masterVolume: 0.7,\n    musicVolume: 0.5,\n    sfxVolume: 0.8,\n    graphicsQuality: 'medium',\n    showFPS: true,\n    controlSensitivity: 0.6\n  }\n}"}
 {"level":30,"time":1766331595579,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"New user registered: ugobagat@gmail.com"}
 {"level":30,"time":1766331600028,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 updated profile"}
 {"level":30,"time":1766331601735,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 updated profile"}
+{"level":30,"time":1766337200038,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337200042,"pid":68308,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337202948,"pid":75957,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337202949,"pid":75957,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337202951,"pid":75957,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 406 minutes"}
+{"level":30,"time":1766337204153,"pid":75957,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337211314,"pid":75957,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337211321,"pid":75957,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337214007,"pid":75970,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337214008,"pid":75970,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337214009,"pid":75970,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 406 minutes"}
+{"level":30,"time":1766337215241,"pid":75970,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337220655,"pid":75970,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337220668,"pid":75970,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337223265,"pid":75984,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337223267,"pid":75984,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337223269,"pid":75984,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 406 minutes"}
+{"level":30,"time":1766337224353,"pid":75984,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337230947,"pid":75984,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337230959,"pid":75984,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337233822,"pid":75997,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337233824,"pid":75997,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337233826,"pid":75997,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 406 minutes"}
+{"level":30,"time":1766337235024,"pid":75997,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337411268,"pid":75997,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337411281,"pid":75997,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337413591,"pid":76060,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337413592,"pid":76060,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337413594,"pid":76060,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 403 minutes"}
+{"level":30,"time":1766337414806,"pid":76060,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337446937,"pid":76060,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337446948,"pid":76060,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337449820,"pid":76088,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337449822,"pid":76088,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337449824,"pid":76088,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 402 minutes"}
+{"level":30,"time":1766337451013,"pid":76088,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337451416,"pid":76088,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337451472,"pid":76088,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337451823,"pid":76092,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766337453280,"pid":76092,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337453282,"pid":76092,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337453283,"pid":76092,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 402 minutes"}
+{"level":30,"time":1766337454473,"pid":76092,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337473633,"pid":76092,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337473646,"pid":76092,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337474386,"pid":76106,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766337475918,"pid":76106,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337475919,"pid":76106,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337475920,"pid":76106,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 402 minutes"}
+{"level":30,"time":1766337477151,"pid":76106,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337482391,"pid":76106,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337482399,"pid":76106,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337482961,"pid":76122,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766337484519,"pid":76122,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337484521,"pid":76122,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337484523,"pid":76122,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 401 minutes"}
+{"level":30,"time":1766337485745,"pid":76122,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337851731,"pid":76122,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337851742,"pid":76122,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337853082,"pid":76334,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766337854727,"pid":76334,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337854728,"pid":76334,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337854729,"pid":76334,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 395 minutes"}
+{"level":30,"time":1766337855931,"pid":76334,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337857065,"pid":76334,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337857096,"pid":76334,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337857600,"pid":76340,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766337859065,"pid":76340,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337859067,"pid":76340,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337859070,"pid":76340,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 395 minutes"}
+{"level":30,"time":1766337860263,"pid":76340,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766337861935,"pid":76340,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766337861951,"pid":76340,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766337863139,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766337864684,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766337864685,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766337864687,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 395 minutes"}
+{"level":30,"time":1766337865902,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":40,"time":1766340872934,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket connection without userId, disconnecting"}
+{"level":40,"time":1766340898157,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket connection without userId, disconnecting"}
+{"level":40,"time":1766340913471,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket connection without userId, disconnecting"}
+{"level":40,"time":1766342256786,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket connection without userId, disconnecting"}
+{"level":40,"time":1766342329163,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket connection without userId, disconnecting"}
+{"level":40,"time":1766342370332,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket connection without userId, disconnecting"}
+{"level":40,"time":1766342797764,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket connection without userId, disconnecting"}
+{"level":30,"time":1766342834565,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766342834575,"pid":76351,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766342835917,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766342837731,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766342837733,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766342837734,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 312 minutes"}
+{"level":30,"time":1766342839000,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766342906817,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766342912188,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766342916717,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766342957642,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766342969473,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766342969653,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766342969985,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766342970319,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766342982473,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766342982631,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766342983477,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766342983819,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766342989473,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766342989630,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766342991058,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766342991394,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766342999331,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened silver chest (timed): 2 cards, 488 coins, 5 gems"}
+{"level":30,"time":1766343010841,"pid":77567,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766343016178,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766343017789,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766343017791,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766343017792,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 309 minutes"}
+{"level":30,"time":1766343019065,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766343020078,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766343020981,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766343026867,"pid":77711,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766343032193,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766343033692,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766343033693,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766343033694,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 309 minutes"}
+{"level":30,"time":1766343034930,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766343035940,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766343036654,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766343235065,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766343235404,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766343238631,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened gold chest (timed): 4 cards, 1414 coins, 14 gems"}
+{"level":30,"time":1766343349976,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened silver chest (timed): 3 cards, 424 coins, 7 gems"}
+{"level":30,"time":1766343359052,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766343359053,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766343359828,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766343363239,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348013328,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348013756,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348098639,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348102136,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348108259,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 upgraded card speed_legendary_01 to Star 1"}
+{"level":30,"time":1766348111291,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 upgraded card speed_legendary_01 to Star 2"}
+{"level":30,"time":1766348112987,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 upgraded card speed_legendary_01 to Star 3"}
+{"level":50,"time":1766348114813,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":30,"time":1766348122708,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348126141,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766348128087,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766348130423,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348234013,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348249142,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348250118,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348251365,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348251905,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348253611,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348254117,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348378190,"pid":77736,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766348383529,"pid":78224,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766348385307,"pid":78224,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766348385308,"pid":78224,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766348385310,"pid":78224,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 220 minutes"}
+{"level":30,"time":1766348386619,"pid":78224,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766348386626,"pid":78224,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766348393094,"pid":78224,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766348398425,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766348399901,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766348399902,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766348399903,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 220 minutes"}
+{"level":30,"time":1766348401114,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766348402568,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766348483697,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348486016,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348489189,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766348491475,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348495859,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 upgraded card income_rare_01 to Star 1"}
+{"level":30,"time":1766348500377,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened silver chest (timed): 2 cards, 554 coins, 13 gems"}
+{"level":30,"time":1766348509257,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 upgraded card speed_uncommon_01 to Star 1"}
+{"level":50,"time":1766348511038,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":50,"time":1766348513795,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":50,"time":1766348514964,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":30,"time":1766348522154,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348525718,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 updated profile"}
+{"level":30,"time":1766348528003,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348651422,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348662764,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348716411,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348716749,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766348738229,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened silver chest (timed): 2 cards, 904 coins, 13 gems"}
+{"level":30,"time":1766348879428,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766348919786,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766349441081,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766349441407,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766349441978,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766349442321,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766349445290,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened silver chest (timed): 2 cards, 509 coins, 8 gems"}
+{"level":30,"time":1766349561933,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766349589876,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766349838895,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766349846578,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766350097555,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766350099330,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766350100665,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766350126794,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766350335437,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766350335601,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766350337453,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766350337979,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766350367449,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766350367763,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766351085924,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766351088553,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766351100078,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766351102615,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766351977306,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766351985051,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352104752,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352105939,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352116988,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352119624,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352354880,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766352355478,"pid":78245,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352360485,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766352362180,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766352362184,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766352362186,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 153 minutes"}
+{"level":30,"time":1766352363471,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766352364001,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766352365154,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352424253,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened silver chest (timed): 3 cards, 467 coins, 11 gems"}
+{"level":30,"time":1766352464873,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352465209,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352466330,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352466668,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352467609,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352467956,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352496882,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352499571,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766352706480,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766352718505,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766352718893,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766352748657,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766353891483,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766353900825,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766353950117,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766353952768,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766354135554,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened bronze chest (timed): 2 cards, 101 coins, 1 gems"}
+{"level":30,"time":1766354146414,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766354586315,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766354691522,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766354999050,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 upgraded card magnet_rare_01 to Star 1"}
+{"level":30,"time":1766355313823,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766355315088,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766358657492,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766358664475,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766360349825,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766360352828,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766360625953,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766360626494,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766360626655,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766360626668,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766360626697,"pid":80907,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766360627387,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766360629047,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766360629047,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766360629048,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 16 minutes"}
+{"level":30,"time":1766360630248,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766360631447,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766360631589,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766360631937,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766360639184,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766360639487,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766360639654,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766360639657,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766360639670,"pid":83510,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Disconnected from MongoDB"}
+{"level":30,"time":1766360640119,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766360641667,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766360641668,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766360641669,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 15 minutes"}
+{"level":30,"time":1766360642966,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766360644494,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766360644557,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766360645512,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766361025826,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 opened gold chest (timed): 4 cards, 1945 coins, 13 gems"}
+{"level":30,"time":1766361036457,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766361039439,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766361239560,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766361242565,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766361400066,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 opened bronze chest (timed): 2 cards, 465 coins, 0 gems"}
+{"level":30,"time":1766361600965,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to not be milk (Rank #1): 1000000 coins, 1000 gems, legendary chest"}
+{"level":30,"time":1766361602587,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to Reuven DegensGames (Rank #2): 333333 coins, 333 gems, legendary chest"}
+{"level":30,"time":1766361603205,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to reuven dagaga (Rank #3): 166666 coins, 166 gems, legendary chest"}
+{"level":30,"time":1766361603670,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to Ugo Baga (Rank #4): 500 coins, 0 gems, simple chest"}
+{"level":30,"time":1766361604149,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Distributed leaderboard reward to BV V (Rank #5): 500 coins, 0 gems, simple chest"}
+{"level":30,"time":1766361604312,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards distributed: 5 players"}
+{"level":30,"time":1766361604312,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards distributed to 5 players"}
+{"level":30,"time":1766361604312,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 1439 minutes"}
+{"level":30,"time":1766361677388,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766361677405,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766361677405,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766361678268,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766361682268,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766361682652,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":50,"time":1766378541806,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-01.trpjx.mongodb.net"}
+{"level":50,"time":1766378573819,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: connection 128 to 89.192.9.59:27017 timed out"}
+{"level":50,"time":1766378639478,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-01.trpjx.mongodb.net"}
+{"level":30,"time":1766385237762,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766385237764,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766385237764,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766385239140,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766385242743,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766385243010,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766389279886,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766389281252,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766390669298,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 upgraded card magnet_uncommon_01 to Star 1"}
+{"level":30,"time":1766390671777,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 upgraded card magnet_uncommon_01 to Star 2"}
+{"level":30,"time":1766390770475,"pid":83566,"hostname":"reuvens-MacBook-Pro.local","msg":"Shutting down..."}
+{"level":30,"time":1766390776042,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766390777690,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766390777691,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766390777693,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 953 minutes"}
+{"level":30,"time":1766390778904,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766390779215,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766390779367,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766390780885,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766392412636,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766392412639,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766392412640,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766392413510,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766392417725,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766392418030,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":50,"time":1766392770893,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766392770893,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766392770893,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766392772053,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766392772053,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766392772053,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393776547,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393776547,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393776547,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393776548,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393776548,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393776548,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393806549,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393806550,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766393806550,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766394115198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":30,"time":1766397262310,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766397262311,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766397262311,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766397263247,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766397267531,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766397267829,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766398296975,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 opened bronze chest (timed): 2 cards, 328 coins, 5 gems"}
+{"level":30,"time":1766398630712,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 opened silver chest (timed): 3 cards, 488 coins, 15 gems"}
+{"level":30,"time":1766398640503,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766398642200,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766398656230,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 upgraded card power_rare_01 to Star 1"}
+{"level":50,"time":1766398658281,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":50,"time":1766398663905,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":50,"time":1766398668454,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":50,"time":1766398670226,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":50,"time":1766398676411,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":30,"time":1766398681732,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766398684912,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766398700947,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 upgraded card magnet_rare_01 to Star 1"}
+{"level":50,"time":1766398708049,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Upgrade card error:"}
+{"level":30,"time":1766398712772,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766398716036,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766398992198,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766398992588,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766398992752,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766398993154,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766399010142,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 opened bronze chest (timed): 1 cards, 278 coins, 5 gems"}
+{"level":30,"time":1766399295546,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 opened bronze chest (timed): 1 cards, 341 coins, 0 gems"}
+{"level":30,"time":1766399389804,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766399389806,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766399390379,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766399390380,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766399529302,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 upgraded card speed_rare_01 to Star 1"}
+{"level":30,"time":1766399530492,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766399530858,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766400410829,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766400411703,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766400463744,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766400463963,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766400467814,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 opened bronze chest (timed): 2 cards, 203 coins, 3 gems"}
+{"level":30,"time":1766400521470,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766400524553,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766400576891,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766400581095,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766402228866,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766402229022,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766402229024,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766402229321,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 connected to chest timer"}
+{"level":30,"time":1766402233864,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766402234190,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766402510064,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened bronze chest (timed): 2 cards, 203 coins, 1 gems"}
+{"level":30,"time":1766402711403,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 opened bronze chest (timed): 1 cards, 343 coins, 0 gems"}
+{"level":50,"time":1766403119618,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403124083,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403124389,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403129613,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403134083,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403134389,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403139615,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403144086,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403144392,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":30,"time":1766403146825,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 6944245ba2a627085bc7f8e5 disconnected from chest timer"}
+{"level":30,"time":1766403146825,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766403146825,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":50,"time":1766403149616,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524674,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524674,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524674,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524675,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524675,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524675,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524675,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766403524675,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766405520509,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766405520509,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766405520509,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766408442350,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766410483956,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":50,"time":1766412798338,"pid":86787,"hostname":"reuvens-MacBook-Pro.local","msg":"Error in chest timer interval: getaddrinfo ENOTFOUND learn-shard-00-00.trpjx.mongodb.net"}
+{"level":30,"time":1766417377592,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"Chest socket namespace initialized"}
+{"level":30,"time":1766417381396,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"[DB] Connected to MongoDB"}
+{"level":30,"time":1766417381397,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"Server running on port 3459 in production mode"}
+{"level":30,"time":1766417381398,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"Next leaderboard reward distribution scheduled in 510 minutes"}
+{"level":30,"time":1766417383139,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"Leaderboard rewards already distributed today"}
+{"level":30,"time":1766417386121,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766417390934,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 opened bronze chest (timed): 1 cards, 218 coins, 1 gems"}
+{"level":30,"time":1766417404653,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766417407873,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766417460074,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766417563766,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766417965301,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766418064607,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766418067814,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766419122449,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766419122449,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766419128542,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766419128650,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766422354202,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766422354203,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766422360330,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766422360656,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}
+{"level":30,"time":1766423448591,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 disconnected from chest timer"}
+{"level":30,"time":1766423448591,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 disconnected from chest timer"}
+{"level":30,"time":1766423454650,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 694814cb31c23651e81a9c81 connected to chest timer"}
+{"level":30,"time":1766423454853,"pid":89785,"hostname":"reuvens-MacBook-Pro.local","msg":"User 693c0eea4b6bdabbf4d60727 connected to chest timer"}

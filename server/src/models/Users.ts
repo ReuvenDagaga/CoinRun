@@ -5,6 +5,9 @@ import { ISettings } from "@shared/interface/ISettings";
 import { IActiveBoost } from "@shared/interface/IActiveBoost";
 import { IAchievement } from "@shared/interface/IAchievement";
 import { IUser } from "@shared/interface/IUser";
+import { IUserCard } from "@shared/interface/IUserCard";
+import { ITimedChest, IPityCounter } from "@shared/interface/IChest";
+import { POWER_PER_STAR } from "../config/card.config.js";
 
 
 
@@ -16,8 +19,8 @@ const upgradesSchema = new Schema<IUpgrades>({
   income: { type: Number, default: 0, min: 0 },
   speed: { type: Number, default: 0, min: 0 },
   jump: { type: Number, default: 0, min: 0 },
-  bulletPower: { type: Number, default: 0, min: 0 },
-  magnetRadius: { type: Number, default: 0, min: 0 }
+  power: { type: Number, default: 0, min: 0 },
+  magnet: { type: Number, default: 0, min: 0 }
 }, { _id: false });
 
 const missionSchema = new Schema<IMission>({
@@ -46,6 +49,26 @@ const achievementSchema = new Schema<IAchievement>({
   progress: { type: Number, default: 0, min: 0 },
   unlocked: { type: Boolean, default: false },
   unlockedAt: { type: Date }
+}, { _id: false });
+
+// Card System Schemas
+const userCardSchema = new Schema<IUserCard>({
+  cardId: { type: String, required: true },
+  starLevel: { type: Number, default: 0, min: 0, max: 3 },
+  acquiredAt: { type: Date, default: Date.now },
+  duplicatesConverted: { type: Number, default: 0, min: 0 }
+}, { _id: false });
+
+const timedChestSchema = new Schema<ITimedChest>({
+  tier: { type: String, enum: ['bronze', 'silver', 'gold'], required: true },
+  availableAt: { type: Date, required: true },
+  claimed: { type: Boolean, default: false }
+}, { _id: false });
+
+const pityCounterSchema = new Schema<IPityCounter>({
+  bronze: { type: Number, default: 0, min: 0 },
+  silver: { type: Number, default: 0, min: 0 },
+  gold: { type: Number, default: 0, min: 0 }
 }, { _id: false });
 
 const userSchema = new Schema<IUser>({
@@ -101,12 +124,21 @@ const userSchema = new Schema<IUser>({
   // Settings
   settings: { type: settingsSchema, default: () => ({}) },
 
+  // Card System
+  cards: { type: [userCardSchema], default: [] },
+  timedChest: { type: timedChestSchema },
+  lastChestTime: { type: Date },
+  pityCounter: { type: pityCounterSchema, default: () => ({ bronze: 0, silver: 0, gold: 0 }) },
+  totalChestsOpened: { type: Number, default: 0, min: 0 },
+
   // Social (Future)
   friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   referralCode: { type: String },
   referredBy: { type: String }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
 // Generate referral code before save
@@ -117,19 +149,31 @@ userSchema.pre('save', function(next) {
   next();
 });
 
-// Calculate power level
-userSchema.methods.getPowerLevel = function(): number {
+// Virtual field for power level - included in JSON responses
+userSchema.virtual('powerLevel').get(function() {
   const u = this.upgrades;
-  return (
+  const baseLevel = (
     u.capacity * 10 +
     u.addWarrior * 20 +
     u.warriorUpgrade * 10 +
     u.income * 5 +
     u.speed * 8 +
     u.jump * 6 +
-    u.bulletPower * 12 +
-    u.magnetRadius * 5
+    u.power * 12 +
+    u.magnet * 5
   );
+
+  // Add card contribution: each star level contributes to power
+  const cardPower = this.cards.reduce((total: number, card: IUserCard) => {
+    return total + (card.starLevel + 1) * POWER_PER_STAR;
+  }, 0);
+
+  return baseLevel + cardPower;
+});
+
+// Method version for backwards compatibility
+userSchema.methods.getPowerLevel = function(): number {
+  return this.powerLevel;
 };
 
 // Indexes - defined ONCE here to avoid duplicate warnings

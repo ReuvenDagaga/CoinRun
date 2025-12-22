@@ -6,19 +6,22 @@ import Login from './pages/auth/Login';
 import { AppRoutes } from './Routes/AppRoutes';
 import { AuthProvider, GameProvider, UIProvider } from './context';
 import { ToastProvider } from './context/ToastContext';
+import { CardProvider } from './context/CardContext';
 import { CLIENT_CONSTANTS } from './utils/constants';
 
 
 function MainApp() {
   return (
     <ToastProvider>
-      <GameProvider>
-        <UIProvider>
-          <Layout>
-            <AppRoutes />
-          </Layout>
-        </UIProvider>
-      </GameProvider>
+      <CardProvider>
+        <GameProvider>
+          <UIProvider>
+            <Layout>
+              <AppRoutes />
+            </Layout>
+          </UIProvider>
+        </GameProvider>
+      </CardProvider>
     </ToastProvider>
   );
 }

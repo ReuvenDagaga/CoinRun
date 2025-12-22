@@ -11,6 +11,7 @@ interface AuthContextValue {
   login: (credential: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<IUser>) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 interface GoogleAuthResponse {
@@ -82,6 +83,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token, user]);
 
+  // Refresh user data from server
+  const refreshUser = useCallback(async (): Promise<void> => {
+    if (!token) return;
+
+    try {
+      const { data } = await axios.get<{ success: boolean; data: IUser }>(
+        `${CLIENT_CONSTANTS.API_BASE_URL}/user/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (data.success) {
+        setUser(data.data);
+        localStorage.setItem("coinrun-auth", JSON.stringify(data.data));
+      }
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  }, [token]);
+
   // Load user from localStorage on mount
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
@@ -103,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     updateUser,
+    refreshUser,
   }), [
     user,
     token,
@@ -110,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     updateUser,
+    refreshUser,
   ]);
 
   return (

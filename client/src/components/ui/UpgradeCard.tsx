@@ -31,7 +31,7 @@ const UPGRADE_INFO: Record<keyof UserUpgrades, {
   },
   income: {
     name: 'Income',
-    icon: '/ui/Coin.png',
+    icon: '/ui/coin.png',
     description: 'Coin multiplier',
     effectText: (level) => `×${Math.pow(1.1, level).toFixed(2)}`
   },
@@ -47,13 +47,13 @@ const UPGRADE_INFO: Record<keyof UserUpgrades, {
     description: 'Jump higher',
     effectText: (level) => `×${Math.pow(1.05, level).toFixed(2)}`
   },
-  bulletPower: {
+  power: {
     name: 'Bullet Power',
     icon: '/ui/upgrades/bullet.png',
     description: 'Ranged damage',
     effectText: (level) => `×${Math.pow(1.08, level).toFixed(2)}`
   },
-  magnetRadius: {
+  magnet: {
     name: 'Magnet',
     icon: '/ui/upgrades/magnet.png',
     description: 'Coin attraction',
@@ -121,7 +121,7 @@ export default function UpgradeCard({ type }: UpgradeCardProps) {
                 : 'bg-gray-700 text-gray-500'
             }`}
           >
-            <img src="/ui/Coin.png" alt="Cost" className="w-4 h-4" />
+            <img src="/ui/coin.png" alt="Cost" className="w-4 h-4" />
             {cost.toLocaleString()}
           </button>
         )}
@@ -159,7 +159,7 @@ export function UpgradeCardCompact({ type }: UpgradeCardProps) {
         <div className="text-xs text-yellow-400 flex items-center gap-1">
           {isMaxed ? 'MAX' : (
             <>
-              <img src="/ui/Coin.png" alt="Cost" className="w-3 h-3" />
+              <img src="/ui/coin.png" alt="Cost" className="w-3 h-3" />
               {cost}
             </>
           )}

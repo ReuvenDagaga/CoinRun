@@ -53,13 +53,13 @@ function ProfileHeader({ user, powerLevel }: { user: any; powerLevel: number }) 
             </div>
             <div className="flex gap-3 mt-2">
               <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1">
-                <img src="/ui/Coin.Png" alt="Coins" className="w-4 h-4" />
+                <img src="/ui/coin.png" alt="Coins" className="w-4 h-4" />
                 <TextWithShadow as="span" className="text-yellow-400 text-sm font-bold">
                   {user.coins.toLocaleString()}
                 </TextWithShadow>
               </div>
               <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1">
-                <img src="/ui/Gem.Png" alt="Gems" className="w-4 h-4" />
+                <img src="/ui/gem.png" alt="Gems" className="w-4 h-4" />
                 <TextWithShadow as="span" className="text-purple-400 text-sm font-bold">
                   {user.gems}
                 </TextWithShadow>
@@ -155,7 +155,7 @@ function DailyRewardsSection({ user }: { user: any }) {
                   <TextWithShadow as="span" className="text-white text-[8px] font-bold">
                     Day {reward.day}
                   </TextWithShadow>
-                  <img src="/ui/Coin.Png" alt="Coins" className="w-4 h-4 my-0.5" />
+                  <img src="/ui/coin.png" alt="Coins" className="w-4 h-4 my-0.5" />
                   <TextWithShadow as="span" className="text-yellow-400 text-[8px] font-bold">
                     {reward.coins}
                   </TextWithShadow>
@@ -164,7 +164,7 @@ function DailyRewardsSection({ user }: { user: any }) {
                       <TextWithShadow as="span" className="text-purple-400 text-[8px] font-bold">
                         +{reward.gems}
                       </TextWithShadow>
-                      <img src="/ui/Gem.png" alt="Gems" className="w-3 h-3" />
+                      <img src="/ui/gem.png" alt="Gems" className="w-3 h-3" />
                     </div>
                   )}
                 </div>

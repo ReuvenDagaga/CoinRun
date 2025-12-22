@@ -10,7 +10,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: '/shop', icon: '/ui/Shop.Png', label: 'Shop' },
-  { path: '/cards', icon: '/ui/Cards.Png', label: 'Cards', disabled: true },
+  { path: '/cards', icon: '/ui/Cards.Png', label: 'Cards' },
   { path: '/', icon: '/ui/Home.Png', label: 'Home' },
   { path: '/leaderboard', icon: '/ui/Trophy.Png', label: 'Ranks' },
   { path: '/profile', icon: '/ui/Profile.Png', label: 'Profile' }
